@@ -988,13 +988,13 @@ COMPLETE
 ```
 Time: 20 minutes
 
-□ Go to hubspot.com
-□ Sign up with Gmail
+✅ Go to hubspot.com
+✅ Sign up with Gmail
 
-□ Rename pipeline to:
+✅ Rename pipeline to:
    LAO Acquisition
 
-□ Set 7 stages:
+✅ Set 7 stages:
   1. Lead Found
   2. Outreach Sent
   3. Replied
@@ -1003,9 +1003,9 @@ Time: 20 minutes
   6. Proposal Sent
   7. Client Signed
 
-□ Turn off all notifications
+✅ Turn off all notifications
 
-□ Invite Donald:
+ ✅ Invite Donald:
    donald@clientmachinery.com
 
 ✅ Done when:
@@ -1019,14 +1019,14 @@ Time: 20 minutes
 ```
 Time: 15 minutes
 
-□ Go to apollo.io
-□ Sign up free
-□ Complete profile:
+✅ Go to apollo.io
+✅ Sign up free
+✅ Complete profile:
    Name: Donald L. Louis Jr.
    Company: Client Acquisition System
    Website: clientmachinery.com
 
-□ Test first search:
+✅ Test first search:
    Job title: Agency Owner
    OR Home Services Owner
    OR Local Service Business
@@ -1035,7 +1035,7 @@ Time: 15 minutes
    Revenue: $10k-$50k/month
    Save as: "Local Service ICP"
 
-□ Share login with Donald
+✅ Share login with Donald
 
 ✅ Done when:
    Account created
