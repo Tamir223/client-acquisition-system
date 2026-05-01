@@ -1123,9 +1123,9 @@ Donald ID:   [waiting]
 ```
 Time: 15 minutes
 
-□ Go to console.anthropic.com
-□ Create account
-□ Create API key: CAS Main
+✅ Go to console.anthropic.com
+✅ create account
+✅ Create API key: CAS Main
 □ Add $10 credit
 □ Test API call
 
