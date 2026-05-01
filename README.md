@@ -1,9 +1,60 @@
 # AUTONOMOUS REVENUE ENGINE — CLIENT ACQUISITION SYSTEM
+### With Integrated Content Engine
 ### Partnership: Tamir Robertson + Donald L. Louis Jr.
 ### Tamir Role: Tech Builder
 ### Donald Role: Strategy + Outreach + Sales
 ### Split: 50/50
 ### Start: May 2026
+
+---
+
+## EXECUTIVE SUMMARY
+
+```
+This system is designed to turn attention
+into booked clients through structured
+follow up, controlled messaging, and
+daily optimization.
+
+It operates through three core layers:
+
+Content Engine
+→ Generates targeted attention
+   and inbound interest
+
+Acquisition Engine
+→ Captures, follows up,
+   books, and converts leads
+
+Intelligence Layer
+→ Analyzes performance and
+   provides daily directives
+
+Objective:
+Increase booked calls, reduce missed
+opportunities, and create predictable
+client acquisition.
+```
+
+---
+
+## SYSTEM MAP
+
+```
+Content
+   ↓
+Lead Capture
+   ↓
+Follow Up
+   ↓
+Booking
+   ↓
+Close
+   ↓
+Reporting
+   ↓
+Optimization
+```
 
 ---
 
@@ -102,6 +153,158 @@ Monthly:  1,500 messages sent
 
 Average client: $1,500-$3,000/month
 Monthly potential: $27,000-$54,000
+```
+
+---
+
+## DAILY OPERATOR WORKFLOW
+
+```
+MORNING:
+→ Open Morning Report
+→ Read ONLY PRIORITY TODAY
+→ Review new leads
+→ Ensure all leads contacted
+   within 5 minutes
+→ Check alerts
+
+MIDDAY:
+→ Monitor incoming leads
+→ Respond to high intent leads
+   within 10 minutes
+→ Confirm bookings
+→ Follow up flagged leads
+
+EVENING:
+→ Review Evening Report
+→ Confirm all leads contacted
+→ Review metrics
+
+DAILY MINIMUMS:
+→ 10-20 outbound messages
+→ 5 follow ups
+→ All leads contacted same day
+```
+
+---
+
+## SCRIPT BANK
+
+```
+OUTREACH:
+"Hey, quick question. Are you currently
+handling inbound leads manually or do
+you have a system in place?"
+
+FIRST RESPONSE:
+"Most organizations lose opportunities
+after someone reaches out.
+That is what we fix."
+
+FOLLOW UPS:
+Day 1: Are you open to improving
+       how leads are handled?
+Day 2: Small delays cost opportunities
+Day 3: Let me know if this is not
+       a priority right now
+
+BOOKING:
+"Let us set up a quick call.
+Here is my calendar: [link]"
+
+REMINDER:
+"Looking forward to our call today"
+```
+
+---
+
+## LEAD DEFINITIONS
+
+```
+QUALIFIED LEAD:
+→ Has active offer
+→ Acknowledges follow up issue
+→ Wants solution within 30 days
+
+HIGH INTENT:
+Meets 2 or more of:
+→ Asks pricing
+→ Requests call
+→ Fast response
+→ Confirms problem
+
+WARM LEAD:
+→ Interested but no urgency
+
+DORMANT:
+→ No response after 5 follow ups
+```
+
+---
+
+## DECISION RULES
+
+```
+Response < 40%  → Switch script
+Booking < 15%   → Adjust CTA
+Show < 60%      → Add reminders
+Close < 30%     → Escalate
+```
+
+---
+
+## ESCALATION
+
+```
+High intent       → Respond within 10 min
+System failure    → Fix within 15 min
+Booking drop      → Adjust same day
+Close drop        → Escalate to Mr. Louis
+```
+
+---
+
+## PERFORMANCE BASELINES
+
+```
+Response rate:    40-60%
+Booking rate:     15-25%
+Show rate:        60-75%
+Close rate:       30-40%
+Response time:    Under 5 minutes
+```
+
+---
+
+## 14 DAY PLAN
+
+```
+DAY 1-3:
+→ Set up system
+→ Begin outreach
+→ Post content
+
+DAY 4-7:
+→ Track metrics
+→ Adjust what is weak
+
+DAY 7-14:
+→ Book calls
+→ Close clients
+```
+
+---
+
+## RULES
+
+```
+Do not edit scripts
+Do not change automations
+Do not skip outreach
+Do not add tools
+Follow the process
+Track metrics
+Fix the weakest point
 ```
 
 ---
@@ -212,10 +415,10 @@ How it works:
 → Lead replies to email
 → Claude reads the reply
 → Classifies it instantly:
-   INTERESTED — route to booking
-   NOT NOW    — schedule follow up
-   UNSUBSCRIBE — remove immediately
-   QUESTION   — draft response
+   INTERESTED    — route to booking
+   NOT NOW       — schedule follow up
+   UNSUBSCRIBE   — remove immediately
+   QUESTION      — draft response
    MEETING READY — book call now
 → Telegram alert fires to Donald
 → HubSpot stage updates auto
@@ -306,6 +509,23 @@ Day 1-2:  Client onboarding + audit
 Day 3-5:  System installation
 Week 2:   Optimization + tracking
 Ongoing:  Monthly performance reports
+```
+
+---
+
+## TOOL STACK
+
+```
+CRM:                 HubSpot
+Automation:          Make.com
+Lead Sourcing:       Apollo.io
+Email Sending:       Mailmeteor
+Calendar:            Calendly
+Content Scheduler:   Buffer / Native
+AI:                  Claude API
+Alerts:              Telegram
+Reporting:           Google Sheets
+Payments:            Stripe
 ```
 
 ---
@@ -998,120 +1218,28 @@ Trigger: Every Monday 8am
 → Send to Claude:
    Analyze performance
    What is working
-   What to improve
-→ Claude generates report
-→ Send to both via Telegram
+   What needs to change
+   Top recommendation
+→ Send report via Telegram
+   to both partners
 
-Tracks:
-→ Reply rates
-→ Best subject lines
-→ Best sending times
-→ Close rate trends
+Claude prompt:
+"Analyze this weekly data.
+ Return:
+ 1. What is working
+ 2. What needs to change
+ 3. Top recommendation only.
+ Be direct. Under 100 words."
 ```
 
 ---
 
-# DAY 6 — DEPLOYMENT
-## Tamir builds | Time: 2 hours
-
----
-
-### STEP 23 — Deploy to Railway
-```
-□ Go to railway.app
-□ Connect GitHub repo
-□ Add environment variables
-□ Deploy Flask backend
-□ Get live URL
-□ Update landing page
-   with live backend URL
-
-✅ Done when:
-   Backend live on internet
-   Form submissions working
-```
-
----
-
-### STEP 24 — Domain Connection
-```
-□ Point clientmachinery.com
-   to Railway deployment
-□ SSL active
-□ Test all forms
-□ Test all alerts
-
-✅ Done when:
-   clientmachinery.com live
-   All systems connected
-```
-
----
-
-# DAY 7 — TEST + LAUNCH
-## Tamir builds | Time: 2 hours
-
----
-
-### STEP 25 — Full System Test
-```
-□ Add test lead to Sheets
-□ Agent 1 scores it
-□ Agent 2 personalizes it
-□ Email sends via Mailmeteor
-□ Reply test → classified
-□ Telegram alerts fire
-□ HubSpot updates
-□ Weekly report generates
-
-All 5 agents firing? ✅
-```
-
----
-
-### STEP 26 — Donald Launch Prep
-```
-□ Share all logins
-□ Walk through daily process
-□ Show Telegram alerts
-□ Show HubSpot pipeline
-□ Donald ready for Day 8
-
-Donald starts outreach: Day 8
-First client target: Day 21
-```
-
----
-
-## DAY 7 CHECKLIST
-```
-□ All 5 agents live
-□ Full test completed
-□ Website live
-□ All alerts firing
-□ Donald has everything
-□ System ready to scale
-```
-
----
-
-## END STATE
+## PRINCIPLE
 
 ```
-A system that:
-→ Finds leads daily (Agent 1)
-→ Personalizes at scale (Agent 2)
-→ Outreaches automatically (Agent 3)
-→ Classifies + routes replies (Agent 4)
-→ Improves itself weekly (Agent 5)
-
-Result:
-→ Predictable pipeline
-→ Daily opportunities
-→ Scalable to $50k/month
-→ Minimal manual effort
+Follow the process
+Track metrics
+Fix the weakest point
+The system improves itself
+when you feed it data
 ```
-
----
-
-*Client Acquisition System — Tamir Robertson + Donald L. Louis Jr. — May 2026*
