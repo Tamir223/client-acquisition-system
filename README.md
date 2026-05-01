@@ -1050,21 +1050,21 @@ Time: 15 minutes
 Time: 15 minutes
 
 ✅ Go to calendly.com
-□ Sign up free
-□ Connect Gmail calendar
+✅ Sign up free
+✅ Connect Gmail calendar
 
-□ Create event:
+✅ Create event:
    Name: Free Lead Recovery Audit
    Duration: 15 minutes
    Location: Google Meet
    Buffer: 15 min after
 
-□ Set availability:
+✅ Set availability:
    Monday-Thursday only
    10am-4pm Donald timezone
    Max 2 calls per day
 
-□ Add 3 intake questions:
+✅ Add 3 intake questions:
 
    Question 1:
    "What is your current
@@ -1082,10 +1082,10 @@ Time: 15 minutes
     to your first contact?"
    (required)
 
-□ Copy booking link
+✅ Copy booking link
 https://calendly.com/tamir-clientmachinery/free-audit
 
-□ Save it — goes in every email
+✅ Save it — goes in every email
 
 ✅ Done when:
    Link live
