@@ -58,6 +58,59 @@ Optimization
 
 ---
 
+## CONTENT ENGINE
+### Donald posts | Daily
+
+PLATFORMS:
+→ LinkedIn (primary)
+→ Facebook Groups (secondary)
+
+POSTING SCHEDULE:
+→ 1 post per day
+→ Monday to Friday only
+→ Post between 8am-10am
+
+CONTENT PILLARS:
+Pillar 1 — The Problem (2x per week)
+   "Most local service businesses
+    lose leads because of slow
+    follow up — not bad marketing"
+
+Pillar 2 — The Result (2x per week)
+   Client wins, numbers, outcomes
+   Real stories, real data
+
+Pillar 3 — The System (1x per week)
+   How automation works
+   Behind the scenes
+   Process breakdowns
+
+CONTENT GOAL:
+→ Build authority in the niche
+→ Attract inbound interest
+→ Warm up cold outreach targets
+→ Create proof over time
+
+CONTENT RULES:
+→ Never pitch in the post
+→ Always end with a question
+→ Reply to every comment
+→ Comment on 10 posts daily
+   in the target niche
+
+CONTENT TO OUTREACH FLOW:
+Someone engages with post
+         ↓
+Donald checks their profile
+         ↓
+Are they ICP? Yes → DM within 1 hour
+         ↓
+Use warm opener referencing
+their engagement
+         ↓
+Move into standard DM sequence
+
+
 ## CORE PRINCIPLE
 
 ```
@@ -502,16 +555,304 @@ Goal: Audit or paid engagement
 
 ---
 
-## DELIVERY SYSTEM (CLIENT ONBOARDING)
+## OBJECTION HANDLING
+### Donald uses on calls and in DMs
 
-```
-Day 1-2:  Client onboarding + audit
-Day 3-5:  System installation
-Week 2:   Optimization + tracking
-Ongoing:  Monthly performance reports
-```
+OBJECTION 1:
+"We already have a system"
+
+RESPONSE:
+"That is great — most businesses
+ that reach out to us actually do.
+ The question is whether it is
+ working at full capacity.
+ Can I ask — what is your current
+ response time to a new lead?"
+
+WHY IT WORKS:
+→ Does not argue
+→ Turns it into a diagnostic
+→ Gets them talking about gaps
+
+
+OBJECTION 2:
+"Not the right time"
+
+RESPONSE:
+"Totally understand.
+ Quick question before I let
+ you go — how many leads
+ do you think you are
+ losing per month right now?"
+
+WHY IT WORKS:
+→ Plants a seed
+→ Makes them calculate their loss
+→ Often reopens the conversation
+
+
+OBJECTION 3:
+"What does it cost?"
+
+RESPONSE:
+"Depends on what the audit shows.
+ We start with a free 15 minute
+ audit — no cost, no pitch.
+ If there is nothing to fix
+ I will tell you that directly.
+ Worth a look?"
+
+WHY IT WORKS:
+→ Removes price as a barrier
+→ Leads with value not cost
+→ Audit is the next step always
+
+
+OBJECTION 4:
+"Send me more info"
+
+RESPONSE:
+"Happy to — what specifically
+ would be most useful for you?
+ The system overview or the
+ results from other clients?"
+
+WHY IT WORKS:
+→ Avoids sending a dead link
+→ Forces engagement
+→ Qualifies their interest level
+
+
+OBJECTION 5:
+"We tried automation before
+ and it did not work"
+
+RESPONSE:
+"That is actually the most
+ common thing we hear.
+ Most automation fails because
+ it was set up without a
+ follow up sequence behind it.
+ That is exactly what we fix.
+ What did you try before?"
+
+WHY IT WORKS:
+→ Validates their experience
+→ Differentiates our approach
+→ Gets them to reveal the gap
+
+
+OBJECTION 6:
+"I need to think about it"
+
+RESPONSE:
+"Of course — what is the
+ main thing you need to
+ think through?
+ I want to make sure you
+ have the right info
+ before you decide."
+
+WHY IT WORKS:
+→ Uncovers the real objection
+→ Keeps the conversation open
+→ Never pushes — always pulls
+
+
+## CLIENT ONBOARDING CHECKLIST
+### After client signs and pays
+
+DAY 1 — DONALD:
+□ Send welcome message
+□ Confirm payment received
+□ Schedule onboarding call
+   (within 24 hours of signing)
+□ Send intake form:
+   → Current CRM (if any)
+   → Lead sources
+   → Average lead volume/month
+   → Current follow up process
+   → Business hours
+   → Main service offered
+   → Target response time goal
+
+DAY 1 — TAMIR:
+□ Create client folder in Drive
+□ Set up client tab in Sheets
+□ Add client to HubSpot
+□ Prepare GHL sub-account
+
+DAY 2 — ONBOARDING CALL (Donald leads):
+□ Review intake form answers
+□ Map current lead flow
+□ Identify top 3 gaps
+□ Agree on success metrics
+□ Set 14 day goal
+□ Tamir joins last 10 minutes
+   to confirm tech requirements
+
+DAY 3-5 — TAMIR BUILDS:
+□ GHL sub-account configured
+□ Follow up sequence installed
+   (5 touch points minimum)
+□ Lead capture connected
+□ Calendar integration live
+□ Test lead runs through
+   full sequence
+□ Telegram alert set up
+   for client notifications
+
+DAY 5 — HANDOFF CALL (both):
+□ Walk client through system
+□ Show them the dashboard
+□ Show them how leads flow
+□ Answer all questions
+□ Set Week 2 check in date
+
+WEEK 2 — OPTIMIZATION:
+□ Review first 7 days of data
+□ Check response rates
+□ Adjust sequences if needed
+□ Donald calls client
+   for pulse check
+□ Tamir fixes any tech issues
+
+ONGOING MONTHLY:
+□ Performance report sent
+   first Monday of each month
+□ Donald reviews with client
+□ Tamir updates system
+   based on data
+□ Renewal conversation starts
+   Day 25 of each month
 
 ---
+
+## CASE STUDY TEMPLATE
+### Capture after first 14 days
+
+WHEN TO CAPTURE:
+→ Day 14 of every client
+→ Or when first result appears
+→ Ask Donald to run the interview
+
+INTERVIEW QUESTIONS (Donald asks):
+1. What was your lead follow up
+   process before we started?
+
+2. What was your biggest
+   frustration with missed leads?
+
+3. What changed after we
+   installed the system?
+
+4. Can you give me a specific
+   number or result you noticed?
+
+5. Who would you recommend
+   this to and why?
+
+CASE STUDY FORMAT:
+
+HEADLINE:
+"How [Business Type] in [City]
+ Recovered [X]% of Missed Leads
+ in 14 Days"
+
+SECTION 1 — THE PROBLEM:
+[2-3 sentences from their answers]
+What was breaking before we arrived
+
+SECTION 2 — THE SOLUTION:
+What we installed and why
+Keep it simple — no tech jargon
+
+SECTION 3 — THE RESULT:
+Specific numbers only
+→ Leads recovered
+→ Response time improvement
+→ Bookings increase
+→ Revenue impact if known
+
+SECTION 4 — THEIR WORDS:
+Direct quote from client
+1-2 sentences max
+
+WHERE TO USE IT:
+→ LinkedIn post (Donald posts)
+→ Landing page social proof
+→ Cold email — "here is a result"
+→ Sales calls — "let me show you"
+
+STORAGE:
+→ Google Drive: CAS/Case Studies
+→ One doc per client
+→ Tamir formats it
+→ Donald approves it
+
+
+## REFERRAL SYSTEM
+### Activate after first client result
+
+HOW IT WORKS:
+→ Every active client gets
+   one referral conversation
+   at the 30 day mark
+→ Donald runs it on the
+   monthly check in call
+
+THE ASK (Donald says):
+"Hey [Name] — really glad
+ the system is working for you.
+ Quick question — do you know
+ any other [niche] business owners
+ who are dealing with the same
+ lead follow up problem?
+
+ If you send someone our way
+ and they become a client —
+ we will give you one month free."
+
+REFERRAL INCENTIVE:
+→ 1 free month of service
+   ($1,500 value)
+→ Applied after referral
+   signs and pays first invoice
+→ No cash payouts
+→ Service credit only
+
+REFERRAL TRACKING:
+→ Google Sheets: CLIENTS tab
+→ Column K: Notes
+   Add "Referred by [Name]"
+   when new client comes in
+→ Donald tracks manually
+→ Credit applied by Tamir
+   on next invoice
+
+REFERRAL RULES:
+→ Only ask clients who have
+   seen a result already
+→ Never ask before Day 30
+→ One ask per client per quarter
+→ Never pressure — always optional
+
+REFERRAL FLOW:
+Client agrees to refer
+         ↓
+Donald sends them a
+shareable one-liner:
+"My team helped me recover
+ missed leads in 14 days —
+ here is their contact:
+ [Calendly link]"
+         ↓
+Referral books audit
+         ↓
+Standard sales process runs
+         ↓
+If they sign → credit applied
+
 
 ## TOOL STACK
 
