@@ -61,6 +61,7 @@ Optimization
 ## CONTENT ENGINE
 ### Donald posts | Daily
 
+```
 PLATFORMS:
 → LinkedIn (primary)
 → Facebook Groups (secondary)
@@ -109,7 +110,9 @@ Use warm opener referencing
 their engagement
          ↓
 Move into standard DM sequence
+```
 
+---
 
 ## CORE PRINCIPLE
 
