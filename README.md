@@ -1049,7 +1049,7 @@ Time: 15 minutes
 ```
 Time: 15 minutes
 
-□ Go to calendly.com
+✅ Go to calendly.com
 □ Sign up free
 □ Connect Gmail calendar
 
