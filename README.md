@@ -1141,9 +1141,9 @@ Time: 15 minutes
 ```
 Time: 10 minutes
 
-□ Go to make.com
-□ Sign up free
-□ Account only — build Day 5
+✅ Go to make.com
+✅ Sign up free
+✅ Account only — build Day 5
 
 ✅ Done when:
    Account created
