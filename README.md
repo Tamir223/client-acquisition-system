@@ -561,6 +561,7 @@ Goal: Audit or paid engagement
 ## OBJECTION HANDLING
 ### Donald uses on calls and in DMs
 
+```
 OBJECTION 1:
 "We already have a system"
 
@@ -660,11 +661,14 @@ WHY IT WORKS:
 → Uncovers the real objection
 → Keeps the conversation open
 → Never pushes — always pulls
+```
 
+---
 
 ## CLIENT ONBOARDING CHECKLIST
 ### After client signs and pays
 
+```
 DAY 1 — DONALD:
 □ Send welcome message
 □ Confirm payment received
@@ -728,12 +732,14 @@ ONGOING MONTHLY:
    based on data
 □ Renewal conversation starts
    Day 25 of each month
+```
 
 ---
 
 ## CASE STUDY TEMPLATE
 ### Capture after first 14 days
 
+```
 WHEN TO CAPTURE:
 → Day 14 of every client
 → Or when first result appears
@@ -792,11 +798,14 @@ STORAGE:
 → One doc per client
 → Tamir formats it
 → Donald approves it
+```
 
+---
 
 ## REFERRAL SYSTEM
 ### Activate after first client result
 
+```
 HOW IT WORKS:
 → Every active client gets
    one referral conversation
@@ -855,7 +864,8 @@ Referral books audit
 Standard sales process runs
          ↓
 If they sign → credit applied
-
+```
+---
 
 ## TOOL STACK
 
