@@ -1099,16 +1099,17 @@ https://calendly.com/tamir-clientmachinery/free-audit
 ```
 Time: 15 minutes
 
-□ Open Telegram
-□ Search: @BotFather
-□ Send: /newbot
-□ Name: CAS Alerts
-□ Username: CASAlertsBot
+✅ Open Telegram
+✅ Search: @BotFather
+✅ Send: /newbot
+✅ Name: CAS Alerts
+✅ Username: CASAlertsBot
 
-□ Save:
-   Bot API token
-   Your Chat ID
-   Donald Chat ID
+Bot Name:    CAS Alerts
+Bot URL:     t.me/CASAlertsBot
+API Token:   SAVED PRIVATELY ✅
+Tamir ID:    8647323622
+Donald ID:   [waiting]
 
 ✅ Done when:
    Bot created
