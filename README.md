@@ -266,7 +266,7 @@ Day 3: Let me know if this is not
 
 BOOKING:
 "Let us set up a quick call.
-Here is my calendar: [link]"
+Here is my calendar: https://calendly.com/tamir-clientmachinery/free-audit"
 
 REMINDER:
 "Looking forward to our call today"
@@ -1083,6 +1083,8 @@ Time: 15 minutes
    (required)
 
 □ Copy booking link
+https://calendly.com/tamir-clientmachinery/free-audit
+
 □ Save it — goes in every email
 
 ✅ Done when:
