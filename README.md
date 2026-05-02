@@ -179,6 +179,20 @@ in 14 days — guaranteed."
 ```
 ---
 
+## PRICING STRATEGY
+
+```
+PHASE 1 — PROOF BUILDING (First 2 clients) $1,500/month → Full system installed → In exchange for case study → Get the result first
+
+PHASE 2 — GROWTH (Clients 3 and 4) $2,500/month → Show the case study → Easier close → Build credibility
+
+PHASE 3 — FULL PRICE (Client 5+) $3,500 to $8,500/month → Proof is established → Price is justified → No resistance
+
+RULE: Never lead with price, Lead with the problem, Lead with the math, Price becomes obvious
+```
+
+---
+
 ## MONETIZATION STRUCTURE
 
 ```
