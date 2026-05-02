@@ -1522,16 +1522,16 @@ Time: 20 minutes
 ```
 Time: 30 minutes
 
-□ Conditional formatting on
+✅ Conditional formatting on
    Follow Up Date column:
    Red = overdue
    Yellow = today
 
-□ Write Donald daily process doc
+✅ Write Donald daily process doc
 
 ✅ Done when:
-   Formatting live
-   Process doc shared
+✅  Formatting live
+✅ Process doc shared
 ```
 
 ---
