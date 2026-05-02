@@ -1265,10 +1265,10 @@ Time: 30 minutes
 ```
 Time: 45 minutes
 
-□ Open Google Docs
-□ Name: CAS Email Templates
+✅ Open Google Docs
+✅ Name: CAS Email Templates
 
-□ Write 8 emails
+✅ Write 8 emails
    Focus on:
    → Missed lead recovery angle
    → Under 100 words each
@@ -1299,9 +1299,9 @@ Time: 45 minutes
 □ Donald reviews + approves
 
 ✅ Done when:
-   All 8 written
-   Donald approved
-   Saved in Google Docs
+✅ All 8 written
+   Donald approved - ## EMAIL TEMPLATES BELOW
+✅ Saved in Google Docs
 
 ---
 
