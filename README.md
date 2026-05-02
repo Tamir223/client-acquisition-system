@@ -1321,6 +1321,183 @@ We recover that revenue in 14 days.
 Worth a quick look?
 
 {{Your Name}}
+
+---
+
+### EMAIL 2 — DAY 3 — VALUE ADD
+Subject: what we found {{First Name}}
+
+{{Custom Line}}
+
+Quick stat worth knowing:
+
+The average local service business gets 30-50 leads per month.
+
+Most follow up once. Maybe twice.
+
+Then the lead goes cold.
+
+That is not a lead problem. That is a follow up problem.
+
+We install a system that follows up 5 times over 14 days automatically.
+
+Businesses recover 15 to 20 extra bookings per 100 leads from money they already spent.
+
+Want to see how it works?
+
+{{Your Name}}
+
+---
+
+### EMAIL 3 — DAY 7 — DIRECT ASK
+Subject: 15 minutes {{First Name}}
+
+{{Custom Line}}
+
+I will be direct.
+
+We help {{Niche}} businesses recover missed leads in 14 days.
+
+Last client recovered 6 extra booked jobs in the first week.
+
+Same leads they already had. No extra marketing spend.
+
+I want to show you exactly how we would do it for {{Company}}.
+
+Free 15 minute audit. No pitch. No pressure. If there is nothing to fix I will tell you that directly.
+
+Book here: {{Calendly Link}}
+
+{{Your Name}}
+
+---
+
+### EMAIL 4 — DAY 14 — SOFT FOLLOW UP
+Subject: still relevant {{First Name}}?
+
+{{Custom Line}}
+
+Sent you a few notes over the past two weeks.
+
+No worries if the timing was off.
+
+Just want to ask one question:
+
+How many leads do you think {{Company}} lost last month to slow or no follow up?
+
+Most business owners guess 5. The real number is usually closer to 15 to 20.
+
+That is $5,000 to $15,000 sitting on the table untouched.
+
+If that number bothers you even a little — let us talk.
+
+15 minutes. Free audit. No obligation.
+
+{{Calendly Link}}
+
+{{Your Name}}
+
+---
+
+### EMAIL 5 — DAY 30 — REACTIVATION
+Subject: checking back in {{First Name}}
+
+{{Custom Line}}
+
+It has been about a month since I first reached out.
+
+A lot can change in 30 days.
+
+If lead follow up is still something you are thinking about I want to help.
+
+We just finished a system for a {{Niche}} business.
+
+They recovered 8 missed leads in the first 14 days.
+
+Same traffic. Same budget. That is revenue recovery not more marketing spend. Just a better system behind it.
+
+If the timing is better now I would love to show you what that looks like for {{Company}}.
+
+15 minutes. No cost.
+
+{{Calendly Link}}
+
+{{Your Name}}
+
+---
+
+### EMAIL 6 — DAY 45 — CHECK IN
+Subject: one thing {{First Name}}
+
+{{Custom Line}}
+
+Not going to pitch you today.
+
+Just one question:
+
+Is lead follow up something {{Company}} is actively working on right now?
+
+Yes or no is totally fine.
+
+If yes — I have something specific that could help.
+
+If no — I will stop reaching out and wish you the best.
+
+Either way I respect your time.
+
+{{Your Name}}
+
+---
+
+### EMAIL 7 — DAY 60 — CHECK IN
+Subject: still here {{First Name}}
+
+{{Custom Line}}
+
+I know I have reached out a few times now.
+
+I only keep going because the problem we solve is real and the results are consistent.
+
+Here is what I know:
+
+{{Niche}} businesses that install a proper follow up system see 15 to 20 extra bookings per 100 leads within 30 days.
+
+That is not a guess. That is what we deliver.
+
+If there is ever a right time to have a 15 minute conversation about recovering missed revenue at {{Company}} —
+
+I am here.
+
+{{Calendly Link}}
+
+{{Your Name}}
+
+---
+
+### EMAIL 8 — DAY 90 — FINAL ATTEMPT
+Subject: closing your file {{First Name}}
+
+{{Custom Line}}
+
+This is my last reach out to you {{First Name}}.
+
+I do not want to clog your inbox any further.
+
+Before I close your file I want to leave you with this:
+
+The businesses that struggle to grow are not struggling because of bad marketing.
+
+They are struggling because leads are falling through the cracks every single day.
+
+If that ever becomes a priority at {{Company}} —
+
+You know where to find me.
+
+{{Calendly Link}}
+
+Wishing you and {{Company}} nothing but success.
+
+{{Your Name}}
 ```
 
 ---
