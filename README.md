@@ -160,39 +160,43 @@ but not converted due to:
 
 ---
 
-## THE OFFER
+## POSITIONING
 
 ```
-"We help local service businesses
-recover 20 to 40 percent of
-missed leads in 14 days by
-installing automated follow up
-systems that convert existing
-traffic into booked jobs."
-```
+We are not a marketing agency.
+We are not an AI automation service.
 
+We are a:
+Revenue Recovery and Expansion System
+
+Core promise:
+"We help businesses generate more revenue
+from the leads they are already paying for."
+
+Proof point:
+"15 to 20 extra bookings per 100 leads
+in 14 days — guaranteed."
+```
 ---
 
 ## MONETIZATION STRUCTURE
 
 ```
-Step 1 — Free Audit
-→ Identify missed revenue
-→ No cost to client
-→ Opens the door
+Starter Tier
+$3,500 per month
+Missed Lead Recovery System only
 
-Step 2 — Quick Win
-→ Fast system implementation
-→ Prove it works in 14 days
+Growth Tier
+$5,500 per month
+Recovery + Retention + Reviews
 
-Step 3 — Retainer
-→ Full automation
-→ Ongoing optimization
-→ $1,500 to $3,000/month
+Premium Tier
+$8,500+ per month
+Full system + optimization + performance layer
 
 Optional:
-→ Performance based upside
-→ % of recovered revenue
+Performance incentives tied to
+booked calls or revenue increase
 ```
 
 ---
@@ -876,10 +880,11 @@ Lead Sourcing:       Apollo.io
 Email Sending:       Mailmeteor
 Calendar:            Calendly
 Content Scheduler:   Buffer / Native
-AI:                  Claude API
+AI:                  Claude API + OpenAI
 Alerts:              Telegram
 Reporting:           Google Sheets
 Payments:            Stripe
+SMS:                 Twilio
 ```
 
 ---
