@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
             last_name:  form.last_name.value.trim(),
             email:      form.email.value.trim(),
             company:    form.company.value.trim(),
+            phone:      form.phone.value.trim(),
             niche:      form.niche.value.trim(),
         };
 
