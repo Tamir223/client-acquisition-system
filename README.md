@@ -211,8 +211,8 @@ Monthly:  1,500 messages sent
 40% booking rate = 60 calls
 30% close rate  = 18 clients
 
-Average client: $1,500-$3,000/month
-Monthly potential: $27,000-$54,000
+Average client: $3,500-$8,500/month
+Monthly potential: $63,000-$153,000
 ```
 
 ---
