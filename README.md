@@ -1506,14 +1506,14 @@ Wishing you and {{Company}} nothing but success.
 ```
 Time: 20 minutes
 
-□ Add to Google Sheets
-□ Connect to Gmail
-□ Test campaign setup
-□ Send test to yourself
+✅ Add to Google Sheets
+✅ Connect to Gmail
+✅ Test campaign setup
+✅ Send test to yourself
 
 ✅ Done when:
-   Connected
-   Test email clean
+✅ Connected
+✅ Test email clean
 ```
 
 ---
