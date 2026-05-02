@@ -1302,6 +1302,25 @@ Time: 45 minutes
    All 8 written
    Donald approved
    Saved in Google Docs
+
+---
+
+## EMAIL TEMPLATES
+
+### EMAIL 1 — DAY 1 — CURIOSITY HOOK
+Subject: quick question {{First Name}}
+
+{{Custom Line}}
+
+Most {{Niche}} businesses lose 20-40% of their leads to slow follow up.
+
+Not bad marketing. Not bad service. Just no system behind the lead.
+
+We recover that revenue in 14 days.
+
+Worth a quick look?
+
+{{Your Name}}
 ```
 
 ---
