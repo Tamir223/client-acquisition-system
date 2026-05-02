@@ -1155,9 +1155,9 @@ Time: 10 minutes
 ```
 Time: 30 minutes
 
-□ Name: CAS Master Tracker
+✅ Name: CAS Master Tracker
 
-□ TAB 1 — LEADS:
+✅ TAB 1 — LEADS:
    A: First Name
    B: Last Name
    C: Company
@@ -1176,7 +1176,7 @@ Time: 30 minutes
    P: Reply Classification
    Q: Notes
 
-□ TAB 2 — METRICS:
+✅ TAB 2 — METRICS:
    A: Date
    B: Leads Found
    C: Leads Scored 7+
@@ -1191,7 +1191,7 @@ Time: 30 minutes
    L: Revenue
    M: Notes
 
-□ TAB 3 — CLIENTS:
+✅ TAB 3 — CLIENTS:
    A: Client Name
    B: Business Name
    C: Niche
@@ -1204,7 +1204,7 @@ Time: 30 minutes
    J: Case Study Y/N
    K: Notes
 
-□ TAB 4 — REVENUE:
+ ✅ 4 — REVENUE:
    A: Month
    B: Gross Revenue
    C: Tool Costs
@@ -1213,7 +1213,7 @@ Time: 30 minutes
    F: Donald 50%
    G: Notes
 
-□ Share with Donald
+✅ Share with Donald
 
 ✅ Done when:
    All 4 tabs built
@@ -1225,14 +1225,14 @@ Time: 30 minutes
 ## DAY 1 CHECKLIST
 ```
 ✅ Gmail created + warmed
-□ HubSpot pipeline built
-□ Apollo set up
-□ Calendly link live
-□ Telegram bot created
-□ Claude API loaded + tested
-□ Make.com account ready
-□ Google Sheets tracker built
-□ Donald has access to all tools
+✅ HubSpot pipeline built
+✅ Apollo set up
+✅ Calendly link live
+✅ Telegram bot created
+✅ Claude API loaded + tested
+✅ Make.com account ready
+✅ Google Sheets tracker built
+✅ Donald has access to all tools
 ```
 
 ---
