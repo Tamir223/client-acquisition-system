@@ -1,13 +1,15 @@
 import os
 import requests
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
 import anthropic
 
-load_dotenv()
+load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 
-app = Flask(__name__)
+ROOT_DIR = os.path.join(os.path.dirname(__file__), "..")
+
+app = Flask(__name__, static_folder=ROOT_DIR, static_url_path="")
 CORS(app)
 
 MAILERLITE_API_KEY  = os.getenv("MAILERLITE_API_KEY")
@@ -28,6 +30,15 @@ def send_telegram(chat_id, text):
     requests.post(url, json={"chat_id": chat_id, "text": text, "parse_mode": "Markdown"}, timeout=5)
 
 
+def notify_both(text):
+    send_telegram(TELEGRAM_CHAT_ID, text)
+    if PARTNER_CHAT_ID and PARTNER_CHAT_ID != TELEGRAM_CHAT_ID:
+        send_telegram(PARTNER_CHAT_ID, text)
+
+
+MAILERLITE_GROUP_ID = "186460124187985711"  # "CAS Leads" group
+
+
 def add_to_mailerlite(data):
     if not MAILERLITE_API_KEY:
         return
@@ -41,9 +52,12 @@ def add_to_mailerlite(data):
             "name":      data.get("first_name", ""),
             "last_name": data.get("last_name", ""),
             "company":   data.get("company", ""),
+            "phone":     data.get("phone", ""),
         },
+        "groups": [MAILERLITE_GROUP_ID],
     }
-    requests.post("https://connect.mailerlite.com/api/subscribers", json=payload, headers=headers, timeout=10)
+    resp = requests.post("https://connect.mailerlite.com/api/subscribers", json=payload, headers=headers, timeout=10)
+    resp.raise_for_status()
 
 
 def score_lead(data):
@@ -59,11 +73,14 @@ def score_lead(data):
         f"Return format exactly: SCORE: X | REASON: one sentence"
     )
 
-    message = claude.messages.create(
-        model="claude-haiku-4-5-20251001",
-        max_tokens=100,
-        messages=[{"role": "user", "content": prompt}],
-    )
+    try:
+        message = claude.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=100,
+            messages=[{"role": "user", "content": prompt}],
+        )
+    except Exception as e:
+        return None, f"Claude error: {e}"
 
     text  = message.content[0].text.strip()
     score = None
@@ -77,6 +94,11 @@ def score_lead(data):
 
 
 # ─── Routes ────────────────────────────────────────────────────────────────────
+
+@app.route("/")
+def index():
+    return send_from_directory(ROOT_DIR, "index.html")
+
 
 @app.route("/api/health", methods=["GET"])
 def health():
@@ -108,9 +130,7 @@ def capture_lead():
         f"Detail: {score_detail}"
     )
 
-    send_telegram(TELEGRAM_CHAT_ID, alert)
-    if PARTNER_CHAT_ID and PARTNER_CHAT_ID != TELEGRAM_CHAT_ID:
-        send_telegram(PARTNER_CHAT_ID, alert)
+    notify_both(alert)
 
     return jsonify({"success": True, "score": score}), 200
 
@@ -152,6 +172,57 @@ def api_score_lead():
 
     score, detail = score_lead(data)
     return jsonify({"score": score, "detail": detail}), 200
+
+
+@app.route("/api/reply", methods=["POST"])
+def reply_received():
+    data = request.get_json()
+    for field in ["email", "reply_text"]:
+        if not (data or {}).get(field):
+            return jsonify({"error": f"{field} is required"}), 400
+
+    preview = data["reply_text"][:200] + ("…" if len(data["reply_text"]) > 200 else "")
+    alert = (
+        f"*Reply Received — CAS*\n"
+        f"From: {data['email']}\n"
+        f"Preview: {preview}"
+    )
+    notify_both(alert)
+    return jsonify({"success": True}), 200
+
+
+@app.route("/api/booking", methods=["POST"])
+def call_booked():
+    data = request.get_json()
+    for field in ["name", "email", "time"]:
+        if not (data or {}).get(field):
+            return jsonify({"error": f"{field} is required"}), 400
+
+    alert = (
+        f"*Call Booked — CAS*\n"
+        f"Name: {data['name']}\n"
+        f"Email: {data['email']}\n"
+        f"Time: {data['time']}"
+    )
+    notify_both(alert)
+    return jsonify({"success": True}), 200
+
+
+@app.route("/api/payment", methods=["POST"])
+def payment_received():
+    data = request.get_json()
+    for field in ["name", "email", "amount"]:
+        if not (data or {}).get(field):
+            return jsonify({"error": f"{field} is required"}), 400
+
+    alert = (
+        f"*Payment Received — CAS*\n"
+        f"Name: {data['name']}\n"
+        f"Email: {data['email']}\n"
+        f"Amount: ${data['amount']}"
+    )
+    notify_both(alert)
+    return jsonify({"success": True}), 200
 
 
 if __name__ == "__main__":
