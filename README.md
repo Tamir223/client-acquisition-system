@@ -1543,10 +1543,10 @@ Time: 30 minutes
 
 ### STEP 12 — Project Setup
 ```
-□ VS Code folder:
+✅ VS Code folder:
    client-acquisition-system
 
-□ File structure:
+✅ File structure:
    ├── index.html
    ├── css/style.css
    ├── js/main.js
@@ -1556,7 +1556,7 @@ Time: 30 minutes
    │   └── .env
    └── README.md
 
-□ Git init + GitHub push
+✅ Git init + GitHub push
 
 ✅ Done when:
    Structure created
@@ -1597,9 +1597,9 @@ CTA:
 → Links to Calendly
 
 ✅ Done when:
-   Page live
-   CTA working
-   Mobile responsive
+✅ Page live
+✅ CTA working
+✅ Mobile responsive
 ```
 
 ---
@@ -1614,14 +1614,14 @@ Handles:
 → Telegram alerts
 → Claude API calls
 
-□ Install:
+✅ Install:
    flask
    requests
    python-dotenv
    flask-cors
    anthropic
 
-□ .env file:
+✅ .env file:
    MAILERLITE_API_KEY=
    CLAUDE_API_KEY=
    TELEGRAM_BOT_TOKEN=
@@ -1629,8 +1629,8 @@ Handles:
    PARTNER_CHAT_ID=
 
 ✅ Done when:
-   Flask runs locally
-   Health endpoint works
+✅ Flask runs locally
+✅ Health endpoint works
 ```
 
 ---
