@@ -127,6 +127,24 @@ h1 {
     transform: none;
 }
 
+.btn-secondary {
+    display: inline-block;
+    background: transparent;
+    color: var(--accent);
+    padding: 16px 32px;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: var(--font);
+    text-decoration: none;
+    border: 2px solid var(--accent);
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-secondary:hover  { background: var(--accent); color: var(--white); transform: translateY(-1px); }
+.btn-secondary:active { transform: translateY(0); }
+
 /* ─── Problem ─── */
 .problem {
     padding: 100px 0;
@@ -300,6 +318,14 @@ h1 {
     content: '→';
     color: var(--accent);
     font-weight: 700;
+}
+
+.offer-cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: center;
+    align-items: center;
 }
 
 .offer-note {
