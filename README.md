@@ -1692,7 +1692,7 @@ Handles:
 
 ### STEP 18 — Agent 1: Lead Intelligence
 ```
-Make.com scenario:
+✅ Make.com scenario:
 
 Trigger: Google Sheets new row
 → Pull lead data
