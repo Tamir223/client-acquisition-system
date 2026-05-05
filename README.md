@@ -1715,7 +1715,7 @@ Claude prompt:
 
 ### STEP 19 — Agent 2: Personalization
 ```
-Make.com scenario:
+✅ Make.com scenario:
 
 Trigger: Lead score 7+ added
 → Send to Claude:
@@ -1746,6 +1746,7 @@ From Sheets columns
 Daily limit: 50 emails max
 Schedule: 9am-11am only
 Domain warmed: required first
+✅ note: Domain still warming 
 ```
 
 ---
