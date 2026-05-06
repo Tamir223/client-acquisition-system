@@ -1642,11 +1642,11 @@ Handles:
 
 ### STEP 15 — MailerLite
 ```
-□ Create account
-□ Create group: CAS Leads
-□ Get API key
-□ Connect to Flask backend
-□ Test form submission
+✅ Create account
+✅ Create group: CAS Leads
+✅ Get API key
+✅ Connect to Flask backend
+✅ Test form submission
 
 ✅ Done when:
    Form → MailerLite works
@@ -1656,13 +1656,13 @@ Handles:
 
 ### STEP 16 — Telegram Alerts
 ```
-□ Alert fires on:
+✅ Alert fires on:
    → New lead added
    → Reply received
    → Call booked
    → Payment received
 
-□ Both Tamir + Donald get alerts
+✅ Both Tamir + Donald get alerts
 
 ✅ Done when:
    Both get alerts
@@ -1672,15 +1672,15 @@ Handles:
 
 ### STEP 17 — Stripe
 ```
-□ Create account
-□ Product: CAS Pilot Client
-□ Price: $1,500/month recurring
-□ Payment link on landing page
-□ Webhook → Telegram alert
+✅ Create account
+✅ Product: CAS Pilot Client
+✅ Price: $1,500/month recurring
+✅ Payment link on landing page
+✅ Webhook → Telegram alert
 
 ✅ Done when:
-   Payment link live
-   Webhook firing
+✅  Payment link live
+✅ Webhook firing
 ```
 
 ---
@@ -1692,7 +1692,7 @@ Handles:
 
 ### STEP 18 — Agent 1: Lead Intelligence
 ```
-Make.com scenario:
+✅ Make.com scenario:
 
 Trigger: Google Sheets new row
 → Pull lead data
@@ -1715,7 +1715,7 @@ Claude prompt:
 
 ### STEP 19 — Agent 2: Personalization
 ```
-Make.com scenario:
+✅ Make.com scenario:
 
 Trigger: Lead score 7+ added
 → Send to Claude:
@@ -1746,6 +1746,7 @@ From Sheets columns
 Daily limit: 50 emails max
 Schedule: 9am-11am only
 Domain warmed: required first
+✅ note: Domain still warming 
 ```
 
 ---
