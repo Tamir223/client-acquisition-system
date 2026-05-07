@@ -110,6 +110,16 @@ def robots():
     return send_from_directory(ROOT_DIR, "robots.txt", mimetype="text/plain")
 
 
+@app.route("/privacy")
+def privacy():
+    return send_from_directory(ROOT_DIR, "privacy-policy.html")
+
+
+@app.route("/terms")
+def terms():
+    return send_from_directory(ROOT_DIR, "terms.html")
+
+
 @app.route("/api/health", methods=["GET"])
 def health():
     return jsonify({"status": "ok", "service": "Client Acquisition System"})
