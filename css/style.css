@@ -245,6 +245,25 @@ h1 {
 .btn-secondary:hover  { background: var(--accent); color: var(--white); transform: translateY(-1px); }
 .btn-secondary:active { transform: translateY(0); }
 
+.btn-ghost-nav {
+    display: inline-block;
+    background: transparent;
+    color: var(--white);
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    font-family: var(--font);
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+.btn-ghost-nav:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.75);
+}
+
 /* ─── Section Glow Dividers ─── */
 .problem,
 .how-it-works,

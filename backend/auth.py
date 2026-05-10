@@ -101,7 +101,7 @@ def me():
 @auth_bp.route("/api/portal/setup", methods=["POST"])
 def setup():
     db = get_db()
-    if db.execute("SELECT COUNT(*) FROM clients").fetchone()[0] > 0:
+    if db.execute("SELECT COUNT(*) AS count FROM clients").fetchone()["count"] > 0:
         return jsonify({"error": "Forbidden"}), 403
 
     data = request.get_json()

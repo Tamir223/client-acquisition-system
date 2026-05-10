@@ -39,23 +39,23 @@ def dashboard():
     db = get_db()
 
     total = db.execute(
-        "SELECT COUNT(*) FROM lead_uploads WHERE client_id = ?", (client_id,)
-    ).fetchone()[0]
+        "SELECT COUNT(*) AS count FROM lead_uploads WHERE client_id = ?", (client_id,)
+    ).fetchone()["count"]
 
     contacted = db.execute(
-        "SELECT COUNT(*) FROM activity_log WHERE client_id = ? AND event_type = 'contacted'",
+        "SELECT COUNT(*) AS count FROM activity_log WHERE client_id = ? AND event_type = 'contacted'",
         (client_id,)
-    ).fetchone()[0]
+    ).fetchone()["count"]
 
     replied = db.execute(
-        "SELECT COUNT(*) FROM activity_log WHERE client_id = ? AND event_type = 'replied'",
+        "SELECT COUNT(*) AS count FROM activity_log WHERE client_id = ? AND event_type = 'replied'",
         (client_id,)
-    ).fetchone()[0]
+    ).fetchone()["count"]
 
     booked = db.execute(
-        "SELECT COUNT(*) FROM activity_log WHERE client_id = ? AND event_type = 'booked'",
+        "SELECT COUNT(*) AS count FROM activity_log WHERE client_id = ? AND event_type = 'booked'",
         (client_id,)
-    ).fetchone()[0]
+    ).fetchone()["count"]
 
     activity_rows = db.execute(
         """SELECT event_type, description, created_at
