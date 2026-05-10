@@ -3,6 +3,7 @@ import os
 import secrets
 import smtplib
 import string
+import threading
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -82,11 +83,12 @@ support@clientmachinery.com
     msg.attach(MIMEText(body, "plain"))
 
     try:
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+        with smtplib.SMTP("smtp.gmail.com", 587, timeout=10) as server:
             server.ehlo()
             server.starttls()
             server.login(GMAIL_USER, GMAIL_APP_PASSWORD)
             server.sendmail(GMAIL_USER, to_email, msg.as_string())
+        print(f"[stripe_webhook] Welcome email sent to {to_email}")
     except Exception as e:
         print(f"[stripe_webhook] Welcome email failed: {e}")
 
@@ -167,8 +169,6 @@ def stripe_webhook():
     seed_sequences(db, client_id)
     db.commit()
 
-    _send_welcome_email(customer_email, customer_name, temp_password)
-
     _notify_both(
         f"*New Client — Stripe Payment*\n"
         f"Name: {customer_name}\n"
@@ -176,5 +176,11 @@ def stripe_webhook():
         f"Amount: ${amount_dollars:,.0f}\n"
         f"Portal account + sequences created ✓"
     )
+
+    threading.Thread(
+        target=_send_welcome_email,
+        args=(customer_email, customer_name, temp_password),
+        daemon=True,
+    ).start()
 
     return jsonify({"received": True}), 200
