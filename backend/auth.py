@@ -1,9 +1,10 @@
 import os
+import re
 import jwt
 from datetime import datetime, timezone, timedelta
 from functools import wraps
 from flask import Blueprint, request, jsonify, g
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 from database import get_db
 
 auth_bp = Blueprint("auth", __name__)
@@ -94,3 +95,48 @@ def me():
         "email": c["email"],
         "niche": c["niche"],
     }), 200
+
+
+# SETUP_ROUTE_START
+@auth_bp.route("/api/portal/setup", methods=["POST"])
+def setup():
+    db = get_db()
+    if db.execute("SELECT COUNT(*) FROM clients").fetchone()[0] > 0:
+        return jsonify({"error": "Forbidden"}), 403
+
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Request body required"}), 400
+
+    required = ["name", "business_name", "email", "password", "niche", "google_sheet_id"]
+    missing = [f for f in required if not (data.get(f) or "").strip()]
+    if missing:
+        return jsonify({"error": f"Missing fields: {', '.join(missing)}"}), 400
+
+    db.execute(
+        "INSERT INTO clients (name, business_name, email, password_hash, google_sheet_id, niche) VALUES (?, ?, ?, ?, ?, ?)",
+        (
+            data["name"].strip(),
+            data["business_name"].strip(),
+            data["email"].strip().lower(),
+            generate_password_hash(data["password"]),
+            data["google_sheet_id"].strip(),
+            data["niche"].strip(),
+        ),
+    )
+    db.commit()
+
+    path = os.path.abspath(__file__)
+    with open(path, "r") as fh:
+        source = fh.read()
+    source = re.sub(
+        r"\n\n# SETUP_ROUTE_START\n.*?# SETUP_ROUTE_END\n",
+        "",
+        source,
+        flags=re.DOTALL,
+    )
+    with open(path, "w") as fh:
+        fh.write(source)
+
+    return jsonify({"success": True, "message": "Client created. Setup route removed."}), 201
+# SETUP_ROUTE_END
