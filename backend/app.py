@@ -4,13 +4,24 @@ from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from dotenv import load_dotenv
 import anthropic
+from auth import auth_bp
+from portal import portal_bp
+from database import init_db, close_db
 
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 
 ROOT_DIR = os.path.join(os.path.dirname(__file__), "..")
+PORTAL_DIR = os.path.join(ROOT_DIR, "portal")
 
 app = Flask(__name__, static_folder=ROOT_DIR, static_url_path="")
 CORS(app)
+
+app.register_blueprint(auth_bp)
+app.register_blueprint(portal_bp)
+app.teardown_appcontext(close_db)
+
+with app.app_context():
+    init_db()
 
 MAILERLITE_API_KEY  = os.getenv("MAILERLITE_API_KEY")
 TELEGRAM_BOT_TOKEN  = os.getenv("TELEGRAM_BOT_TOKEN")
@@ -94,6 +105,22 @@ def score_lead(data):
 
 
 # ─── Routes ────────────────────────────────────────────────────────────────────
+
+@app.route("/portal")
+@app.route("/portal/")
+def portal_login():
+    return send_from_directory(PORTAL_DIR, "index.html")
+
+
+@app.route("/portal/dashboard")
+def portal_dashboard():
+    return send_from_directory(PORTAL_DIR, "dashboard.html")
+
+
+@app.route("/portal/css/<path:filename>")
+def portal_css(filename):
+    return send_from_directory(os.path.join(PORTAL_DIR, "css"), filename)
+
 
 @app.route("/")
 def index():
