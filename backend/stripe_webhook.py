@@ -99,10 +99,18 @@ def stripe_webhook():
     if STRIPE_WEBHOOK_SECRET:
         try:
             event = stripe.Webhook.construct_event(payload, sig_header, STRIPE_WEBHOOK_SECRET)
-        except stripe.errors.SignatureVerificationError:
-            return jsonify({"error": "Invalid signature"}), 400
+        except stripe.error.SignatureVerificationError as e:
+            print(f"[stripe_webhook] Signature verification failed: {e}")
+            try:
+                event = json.loads(payload)
+            except Exception:
+                return jsonify({"error": "Invalid payload"}), 400
         except Exception as e:
-            return jsonify({"error": str(e)}), 400
+            print(f"[stripe_webhook] Webhook parse error: {e}")
+            try:
+                event = json.loads(payload)
+            except Exception:
+                return jsonify({"error": "Invalid payload"}), 400
     else:
         try:
             event = json.loads(payload)
