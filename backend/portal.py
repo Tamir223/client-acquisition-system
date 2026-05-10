@@ -1,6 +1,7 @@
 import csv
 import io
 from flask import Blueprint, request, jsonify, g
+from werkzeug.security import check_password_hash, generate_password_hash
 from database import get_db
 from auth import require_auth
 from sheets import append_lead_to_sheet
@@ -178,3 +179,33 @@ def get_sequences():
     ).fetchall()
 
     return jsonify({"sequences": [dict(r) for r in rows]}), 200
+
+
+@portal_bp.route("/api/portal/change-password", methods=["POST"])
+@require_auth
+def change_password():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Request body required"}), 400
+
+    current_password = data.get("current_password") or ""
+    new_password = data.get("new_password") or ""
+
+    if not current_password or not new_password:
+        return jsonify({"error": "Current password and new password are required"}), 400
+
+    if len(new_password) < 8:
+        return jsonify({"error": "New password must be at least 8 characters"}), 400
+
+    client = g.client
+    if not check_password_hash(client["password_hash"], current_password):
+        return jsonify({"error": "Current password is incorrect"}), 401
+
+    db = get_db()
+    db.execute(
+        "UPDATE clients SET password_hash = ? WHERE id = ?",
+        (generate_password_hash(new_password), client["id"]),
+    )
+    db.commit()
+
+    return jsonify({"success": True}), 200

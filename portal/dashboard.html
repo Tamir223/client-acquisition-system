@@ -159,6 +159,23 @@
                     </table>
                 </div>
             </div>
+            <!-- Change Password -->
+            <div class="upload-section" style="max-width:480px;">
+                <div class="section-title">Change Password</div>
+                <form class="lead-form" id="password-form" novalidate>
+                    <div class="form-group">
+                        <label>Current Password</label>
+                        <input type="password" id="current-password" placeholder="Enter current password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>New Password</label>
+                        <input type="password" id="new-password" placeholder="8+ characters" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Password</button>
+                </form>
+                <div class="success-msg" id="password-success" style="margin-top:16px;"></div>
+                <div class="error-msg" id="password-error" style="margin-top:16px;"></div>
+            </div>
         </main>
     </div>
 
@@ -493,6 +510,45 @@
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;');
         }
+
+        // ─── Change Password ───────────────────────────────────────────
+        document.getElementById('password-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            hideMsg('password-error');
+            hideMsg('password-success');
+
+            const currentPassword = document.getElementById('current-password').value;
+            const newPassword = document.getElementById('new-password').value;
+
+            if (!currentPassword || !newPassword) {
+                showMsg('password-error', 'Both fields are required.');
+                return;
+            }
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.textContent = 'Updating…';
+
+            try {
+                const res = await fetch('/api/portal/change-password', {
+                    method: 'POST',
+                    headers: authHeaders(),
+                    body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+                });
+                const d = await res.json();
+                if (!res.ok) {
+                    showMsg('password-error', d.error || 'Failed to update password.');
+                } else {
+                    showMsg('password-success', 'Password updated successfully.');
+                    e.target.reset();
+                }
+            } catch (err) {
+                showMsg('password-error', 'Network error. Please try again.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Update Password';
+            }
+        });
 
         // ─── Init ──────────────────────────────────────────────────────
         loadDashboard();
