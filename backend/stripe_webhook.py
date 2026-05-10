@@ -1,13 +1,11 @@
 import json
 import os
 import secrets
-import smtplib
 import string
 import threading
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 
 import requests as http_requests
+import resend
 import stripe
 from flask import Blueprint, jsonify, request
 from werkzeug.security import generate_password_hash
@@ -17,11 +15,12 @@ from database import get_db, seed_sequences
 stripe_bp = Blueprint("stripe_webhook", __name__)
 
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
-GMAIL_USER = os.getenv("GMAIL_USER")
-GMAIL_APP_PASSWORD = os.getenv("GMAIL_APP_PASSWORD")
+RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 PARTNER_CHAT_ID = os.getenv("PARTNER_CHAT_ID")
+
+resend.api_key = RESEND_API_KEY
 
 
 def _gen_password(length=12):
@@ -49,13 +48,13 @@ def _notify_both(text):
 
 
 def _send_welcome_email(to_email, client_name, temp_password):
-    if not GMAIL_USER or not GMAIL_APP_PASSWORD:
-        print("[stripe_webhook] Gmail credentials not configured — skipping welcome email")
+    if not RESEND_API_KEY:
+        print("[stripe_webhook] RESEND_API_KEY not configured — skipping welcome email")
         return
 
     first_name = client_name.split()[0] if client_name else "there"
 
-    body = f"""Hi {first_name},
+    plain_text = f"""Hi {first_name},
 
 Your Client Machinery portal is ready. Here's everything you need to log in:
 
@@ -63,31 +62,146 @@ Your Client Machinery portal is ready. Here's everything you need to log in:
   Email:       {to_email}
   Password:    {temp_password}
 
-Once you're inside:
-  1. Click "Upload CSV" to drop in your existing lead list
-  2. Or use "Add Manually" to add leads one at a time
-  3. Your 5-touch automated follow-up sequence is already active and ready to go
+Getting started:
+  1. Log in at https://clientmachinery.com/portal
+  2. Upload your existing leads via CSV or add them manually
+  3. The 5-touch follow-up sequence runs automatically from there
 
-Each lead you upload flows directly into the sequence — no extra setup needed.
-
-Reply to this email if you have any questions and we'll get you sorted.
+Reply to this email if you have any questions.
 
 — The Client Machinery Team
 support@clientmachinery.com
 """
 
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = "Welcome to Client Machinery — Your Portal is Ready"
-    msg["From"] = GMAIL_USER
-    msg["To"] = to_email
-    msg.attach(MIMEText(body, "plain"))
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#f4f6f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f9;padding:40px 16px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:580px;">
+
+        <!-- Header -->
+        <tr>
+          <td style="background:#1E3A5F;border-radius:10px 10px 0 0;padding:32px 40px;text-align:center;">
+            <p style="margin:0;font-size:13px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#7aafd4;">Client Machinery</p>
+            <h1 style="margin:12px 0 0;font-size:22px;font-weight:700;color:#ffffff;line-height:1.3;">Your Portal is Ready</h1>
+          </td>
+        </tr>
+
+        <!-- Body -->
+        <tr>
+          <td style="background:#ffffff;padding:40px 40px 32px;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;">
+            <p style="margin:0 0 24px;font-size:16px;color:#334155;">Hi {first_name},</p>
+            <p style="margin:0 0 28px;font-size:15px;color:#475569;line-height:1.7;">
+              Your Client Machinery client portal is live. Use the credentials below to log in and upload your first leads.
+            </p>
+
+            <!-- Credentials box -->
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:32px;">
+              <tr>
+                <td style="padding:24px 28px;">
+                  <p style="margin:0 0 6px;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;">Portal URL</p>
+                  <p style="margin:0 0 20px;font-size:15px;"><a href="https://clientmachinery.com/portal" style="color:#2E75B6;text-decoration:none;font-weight:600;">clientmachinery.com/portal</a></p>
+
+                  <p style="margin:0 0 6px;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;">Email</p>
+                  <p style="margin:0 0 20px;font-size:15px;color:#1e293b;font-weight:500;">{to_email}</p>
+
+                  <p style="margin:0 0 6px;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#94a3b8;">Temporary Password</p>
+                  <p style="margin:0;font-size:18px;font-weight:700;color:#1E3A5F;letter-spacing:2px;font-family:'Courier New',Courier,monospace;">{temp_password}</p>
+                </td>
+              </tr>
+            </table>
+
+            <!-- Steps -->
+            <p style="margin:0 0 16px;font-size:14px;font-weight:600;color:#1e293b;text-transform:uppercase;letter-spacing:1px;">Getting Started</p>
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="padding:0 0 16px;">
+                  <table cellpadding="0" cellspacing="0">
+                    <tr>
+                      <td style="width:28px;height:28px;background:#1E3A5F;border-radius:50%;text-align:center;vertical-align:middle;">
+                        <span style="font-size:13px;font-weight:700;color:#ffffff;">1</span>
+                      </td>
+                      <td style="padding-left:14px;font-size:15px;color:#475569;line-height:1.5;">
+                        <strong style="color:#1e293b;">Log in</strong> at clientmachinery.com/portal using the credentials above.
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:0 0 16px;">
+                  <table cellpadding="0" cellspacing="0">
+                    <tr>
+                      <td style="width:28px;height:28px;background:#1E3A5F;border-radius:50%;text-align:center;vertical-align:middle;">
+                        <span style="font-size:13px;font-weight:700;color:#ffffff;">2</span>
+                      </td>
+                      <td style="padding-left:14px;font-size:15px;color:#475569;line-height:1.5;">
+                        <strong style="color:#1e293b;">Upload your leads</strong> via CSV or add them one at a time manually.
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:0 0 8px;">
+                  <table cellpadding="0" cellspacing="0">
+                    <tr>
+                      <td style="width:28px;height:28px;background:#1E3A5F;border-radius:50%;text-align:center;vertical-align:middle;">
+                        <span style="font-size:13px;font-weight:700;color:#ffffff;">3</span>
+                      </td>
+                      <td style="padding-left:14px;font-size:15px;color:#475569;line-height:1.5;">
+                        <strong style="color:#1e293b;">The system takes over.</strong> Your 5-touch follow-up sequence activates automatically for every lead you upload.
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+
+            <!-- CTA -->
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:32px;">
+              <tr>
+                <td align="center">
+                  <a href="https://clientmachinery.com/portal"
+                     style="display:inline-block;background:#2E75B6;color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;padding:14px 36px;border-radius:7px;letter-spacing:0.3px;">
+                    Log In to Your Portal
+                  </a>
+                </td>
+              </tr>
+            </table>
+
+            <p style="margin:32px 0 0;font-size:14px;color:#64748b;line-height:1.6;">
+              Reply to this email if you have any questions and we'll get you sorted.
+            </p>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="background:#f8fafc;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px;padding:24px 40px;text-align:center;">
+            <p style="margin:0;font-size:13px;color:#94a3b8;">
+              Client Machinery &mdash; <a href="mailto:support@clientmachinery.com" style="color:#64748b;text-decoration:none;">support@clientmachinery.com</a>
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>"""
 
     try:
-        with smtplib.SMTP("smtp.gmail.com", 587, timeout=10) as server:
-            server.ehlo()
-            server.starttls()
-            server.login(GMAIL_USER, GMAIL_APP_PASSWORD)
-            server.sendmail(GMAIL_USER, to_email, msg.as_string())
+        resend.Emails.send({
+            "from": "Client Machinery <support@clientmachinery.com>",
+            "to": to_email,
+            "reply_to": "support@clientmachinery.com",
+            "subject": "Welcome to Client Machinery — Your Portal is Ready",
+            "html": html,
+            "text": plain_text,
+        })
         print(f"[stripe_webhook] Welcome email sent to {to_email}")
     except Exception as e:
         print(f"[stripe_webhook] Welcome email failed: {e}")
