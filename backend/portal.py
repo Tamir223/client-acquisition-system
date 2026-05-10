@@ -162,3 +162,19 @@ def get_leads():
 
     leads = [dict(r) for r in rows]
     return jsonify({"leads": leads}), 200
+
+
+@portal_bp.route("/api/portal/sequences", methods=["GET"])
+@require_auth
+def get_sequences():
+    client_id = g.client["id"]
+    db = get_db()
+
+    rows = db.execute(
+        """SELECT touch_number, send_day, subject, status
+           FROM sequences WHERE client_id = ?
+           ORDER BY touch_number ASC""",
+        (client_id,)
+    ).fetchall()
+
+    return jsonify({"sequences": [dict(r) for r in rows]}), 200

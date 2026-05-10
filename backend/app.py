@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 import anthropic
 from auth import auth_bp
 from portal import portal_bp
+from stripe_webhook import stripe_bp
 from database import init_db, close_db
 
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
@@ -18,6 +19,7 @@ CORS(app)
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(portal_bp)
+app.register_blueprint(stripe_bp)
 app.teardown_appcontext(close_db)
 
 with app.app_context():

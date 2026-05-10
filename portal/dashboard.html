@@ -41,6 +41,26 @@
                 </div>
             </div>
 
+            <!-- Sequence Section -->
+            <div class="leads-section">
+                <div class="section-title">Your Follow Up Sequence &mdash; <span style="color:var(--success);font-weight:600;">Active</span></div>
+                <div class="table-wrapper">
+                    <table class="leads-table">
+                        <thead>
+                            <tr>
+                                <th>Touch #</th>
+                                <th>Send Day</th>
+                                <th>Subject</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sequences-tbody">
+                            <tr class="empty-row"><td colspan="4">Loading sequence&hellip;</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <!-- Upload Section -->
             <div class="upload-section">
                 <div class="section-title">Add Leads</div>
@@ -240,6 +260,34 @@
                         <div style="background:${r.color};width:${pct}%;height:100%;border-radius:99px;transition:width 0.4s;"></div>
                     </div>
                 </div>`;
+            }).join('');
+        }
+
+        // ─── Load sequences ────────────────────────────────────────────
+        async function loadSequences() {
+            try {
+                const res = await fetch('/api/portal/sequences', { headers: authHeaders() });
+                if (!res.ok) return;
+                const d = await res.json();
+                renderSequences(d.sequences || []);
+            } catch (e) {
+                console.error('Sequences load error', e);
+            }
+        }
+
+        function renderSequences(sequences) {
+            const tbody = document.getElementById('sequences-tbody');
+            if (!sequences.length) {
+                tbody.innerHTML = '<tr class="empty-row"><td colspan="4">Sequence will be configured during onboarding.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = sequences.map(function (s) {
+                return `<tr>
+                    <td>Touch ${escHtml(String(s.touch_number))}</td>
+                    <td class="muted">Day ${escHtml(String(s.send_day))}</td>
+                    <td>${escHtml(s.subject || '—')}</td>
+                    <td><span class="badge badge-portal" style="background:rgba(34,197,94,0.12);color:#22c55e;border-color:rgba(34,197,94,0.25);">${escHtml(s.status || 'active')}</span></td>
+                </tr>`;
             }).join('');
         }
 
@@ -449,6 +497,7 @@
         // ─── Init ──────────────────────────────────────────────────────
         loadDashboard();
         loadLeads();
+        loadSequences();
     }());
     </script>
 </body>
