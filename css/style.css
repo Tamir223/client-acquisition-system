@@ -269,6 +269,7 @@ h1 {
 /* ─── Section Glow Dividers ─── */
 .problem,
 .how-it-works,
+.portal-features,
 .timeline,
 .offer,
 .testimonials,
@@ -280,6 +281,7 @@ h1 {
 
 .problem::after,
 .how-it-works::after,
+.portal-features::after,
 .timeline::after,
 .offer::after,
 .testimonials::after,
@@ -305,6 +307,7 @@ h1 {
 
 .problem h2,
 .how-it-works h2,
+.portal-features h2,
 .timeline h2,
 .offer h2,
 .testimonials h2,
@@ -363,6 +366,16 @@ h1 {
 }
 
 .how-it-works h2 { margin-bottom: 64px; }
+
+/* ─── Portal Features ─── */
+.portal-features {
+    padding: 100px 0;
+    background: var(--dark);
+    text-align: center;
+}
+
+.portal-features h2 { margin-bottom: 16px; }
+.portal-features .section-sub { margin-bottom: 64px; }
 
 .steps {
     display: grid;
