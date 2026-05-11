@@ -188,8 +188,10 @@ def admin_update_sheet():
     if not admin_key or request.headers.get("X-Admin-Key") != admin_key:
         return jsonify({"error": "Unauthorized"}), 401
 
-    data = request.get_json()
-    if not data or not data.get("email") or not data.get("google_sheet_id"):
+    data = request.get_json(force=True, silent=True)
+    if data is None:
+        return jsonify({"error": "Invalid JSON body"}), 400
+    if not data.get("email") or not data.get("google_sheet_id"):
         return jsonify({"error": "email and google_sheet_id are required"}), 400
 
     db = get_db()
