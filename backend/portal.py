@@ -214,6 +214,28 @@ def admin_update_sheet():
     return jsonify({"success": True}), 200
 
 
+@portal_bp.route("/api/portal/admin/check-client", methods=["GET"])
+def admin_check_client():
+    admin_key = os.environ.get("ADMIN_KEY")
+    if not admin_key or request.headers.get("X-Admin-Key") != admin_key:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json(force=True, silent=True)
+    if not data or not data.get("email"):
+        return jsonify({"error": "email is required"}), 400
+
+    db = get_db()
+    client = db.execute(
+        "SELECT id, name, email, business_name, google_sheet_id, niche, plan, status FROM clients WHERE email = ?",
+        (data["email"].strip().lower(),)
+    ).fetchone()
+
+    if not client:
+        return jsonify({"error": "No client found with that email"}), 404
+
+    return jsonify(dict(client)), 200
+
+
 @portal_bp.route("/api/portal/change-password", methods=["POST"])
 @require_auth
 def change_password():
