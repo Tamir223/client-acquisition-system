@@ -32,7 +32,7 @@ def append_lead_to_sheet(sheet_id, lead_data):
             lead_data.get("first_name", ""),        # B: First Name
             lead_data.get("last_name", ""),         # C: Last Name
             lead_data.get("service_requested", ""), # D: Business Name / Service
-            lead_data.get("niche", ""),             # E: Industry
+            lead_data.get("target_icp") or lead_data.get("niche", ""),  # E: Industry / ICP
             lead_data.get("email", ""),             # F: Email
             lead_data.get("phone", ""),             # G: Phone
             "Portal",                               # H: Lead Source

@@ -122,7 +122,7 @@ def upload_csv():
     db = get_db()
     for lead in leads:
         insert_lead(db, client_id, lead)
-        lead_with_meta = {**lead, "niche": client["niche"]}
+        lead_with_meta = {**lead, "niche": client["niche"], "target_icp": client["target_icp"]}
         append_lead_to_sheet(client["google_sheet_id"], lead_with_meta)
 
     log_activity(db, client_id, "csv_upload", f"Uploaded {len(leads)} leads via CSV")
@@ -145,12 +145,12 @@ def add_lead():
     logger.info(f"[sheets] Fetching client with SQL: {sql} | client_id={client_id}")
     db = get_db()
     client = db.execute(
-        "SELECT id, name, email, business_name, google_sheet_id, niche, status FROM clients WHERE id = ?",
+        "SELECT id, name, email, business_name, google_sheet_id, niche, target_icp, status FROM clients WHERE id = ?",
         (client_id,)
     ).fetchone()
     logger.info(f"[sheets] Client row: {dict(client) if client else None}")
     insert_lead(db, client_id, data)
-    lead_with_meta = {**data, "niche": client["niche"]}
+    lead_with_meta = {**data, "niche": client["niche"], "target_icp": client["target_icp"]}
     logger.info(f"[sheets] Attempting to append to sheet_id: '{client['google_sheet_id']}'")
     append_lead_to_sheet(client["google_sheet_id"], lead_with_meta)
 
@@ -207,10 +207,17 @@ def admin_update_sheet():
         return jsonify({"error": "email and google_sheet_id are required"}), 400
 
     db = get_db()
-    result = db.execute(
-        "UPDATE clients SET google_sheet_id = ? WHERE email = ?",
-        (data["google_sheet_id"], data["email"]),
-    )
+    target_icp = data.get("target_icp")
+    if target_icp is not None:
+        result = db.execute(
+            "UPDATE clients SET google_sheet_id = ?, target_icp = ? WHERE email = ?",
+            (data["google_sheet_id"], target_icp, data["email"]),
+        )
+    else:
+        result = db.execute(
+            "UPDATE clients SET google_sheet_id = ? WHERE email = ?",
+            (data["google_sheet_id"], data["email"]),
+        )
     db.commit()
 
     if result.rowcount == 0:
@@ -231,7 +238,7 @@ def admin_check_client():
 
     db = get_db()
     client = db.execute(
-        "SELECT id, name, email, business_name, google_sheet_id, niche, status FROM clients WHERE email = ?",
+        "SELECT id, name, email, business_name, google_sheet_id, niche, target_icp, status FROM clients WHERE email = ?",
         (data["email"].strip().lower(),)
     ).fetchone()
 

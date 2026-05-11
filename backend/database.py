@@ -105,10 +105,12 @@ def init_db():
             password_hash TEXT NOT NULL,
             google_sheet_id TEXT,
             niche TEXT,
+            target_icp TEXT DEFAULT '',
             status TEXT DEFAULT 'active',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
+    cur.execute("ALTER TABLE clients ADD COLUMN IF NOT EXISTS target_icp TEXT DEFAULT ''")
     cur.execute("""
         CREATE TABLE IF NOT EXISTS lead_uploads (
             id SERIAL PRIMARY KEY,

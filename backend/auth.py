@@ -94,6 +94,7 @@ def me():
         "business_name": c["business_name"],
         "email": c["email"],
         "niche": c["niche"],
+        "target_icp": c["target_icp"],
     }), 200
 
 
