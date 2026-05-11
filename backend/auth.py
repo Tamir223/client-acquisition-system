@@ -95,6 +95,7 @@ def me():
         "email": c["email"],
         "niche": c["niche"],
         "target_icp": c["target_icp"],
+        "google_sheet_id": c["google_sheet_id"],
     }), 200
 
 

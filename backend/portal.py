@@ -1,17 +1,28 @@
-# Portal routes v2
+# Portal routes
 import csv
 import io
 import logging
 import os
+import secrets
+import string
+import threading
+
+import psycopg2
 from flask import Blueprint, request, jsonify, g
+from werkzeug.security import check_password_hash, generate_password_hash
+
+from database import get_db, seed_sequences
+from auth import require_auth
+from sheets import create_client_sheet, append_lead_to_sheet
 
 logger = logging.getLogger(__name__)
-from werkzeug.security import check_password_hash, generate_password_hash
-from database import get_db
-from auth import require_auth
-from sheets import append_lead_to_sheet
 
 portal_bp = Blueprint("portal", __name__)
+
+SETUP_BLOCKED_MSG = (
+    "Your portal is being set up. You will receive an email within 24 hours when it is ready. "
+    "Contact support@clientmachinery.com with questions."
+)
 
 
 def log_activity(db, client_id, event_type, description):
@@ -36,6 +47,16 @@ def insert_lead(db, client_id, lead):
             lead.get("lead_source", "Portal"),
         )
     )
+
+
+def _require_admin():
+    admin_key = os.environ.get("ADMIN_KEY")
+    return bool(admin_key and request.headers.get("X-Admin-Key") == admin_key)
+
+
+def _gen_password(length=12):
+    alphabet = string.ascii_letters + string.digits
+    return "".join(secrets.choice(alphabet) for _ in range(length))
 
 
 @portal_bp.route("/api/portal/dashboard", methods=["GET"])
@@ -90,6 +111,10 @@ def upload_csv():
     client = g.client
     client_id = client["id"]
 
+    sheet_id = client["google_sheet_id"] or ""
+    if not sheet_id or sheet_id == "placeholder":
+        return jsonify({"error": SETUP_BLOCKED_MSG}), 400
+
     if "file" not in request.files:
         return jsonify({"error": "No file provided"}), 400
 
@@ -123,7 +148,7 @@ def upload_csv():
     for lead in leads:
         insert_lead(db, client_id, lead)
         lead_with_meta = {**lead, "niche": client["niche"], "target_icp": client["target_icp"]}
-        append_lead_to_sheet(client["google_sheet_id"], lead_with_meta)
+        append_lead_to_sheet(sheet_id, lead_with_meta)
 
     log_activity(db, client_id, "csv_upload", f"Uploaded {len(leads)} leads via CSV")
     db.commit()
@@ -136,23 +161,24 @@ def upload_csv():
 def add_lead():
     client = g.client
     client_id = client["id"]
-    data = request.get_json()
 
+    sheet_id = client["google_sheet_id"] or ""
+    if not sheet_id or sheet_id == "placeholder":
+        return jsonify({"error": SETUP_BLOCKED_MSG}), 400
+
+    data = request.get_json()
     if not data:
         return jsonify({"error": "Request body required"}), 400
 
-    sql = "SELECT id, name, email, business_name, google_sheet_id, niche, status FROM clients WHERE id = %s"
-    logger.info(f"[sheets] Fetching client with SQL: {sql} | client_id={client_id}")
     db = get_db()
-    client = db.execute(
+    client_row = db.execute(
         "SELECT id, name, email, business_name, google_sheet_id, niche, target_icp, status FROM clients WHERE id = ?",
         (client_id,)
     ).fetchone()
-    logger.info(f"[sheets] Client row: {dict(client) if client else None}")
+
     insert_lead(db, client_id, data)
-    lead_with_meta = {**data, "niche": client["niche"], "target_icp": client["target_icp"]}
-    logger.info(f"[sheets] Attempting to append to sheet_id: '{client['google_sheet_id']}'")
-    append_lead_to_sheet(client["google_sheet_id"], lead_with_meta)
+    lead_with_meta = {**data, "niche": client_row["niche"], "target_icp": client_row["target_icp"]}
+    append_lead_to_sheet(client_row["google_sheet_id"], lead_with_meta)
 
     name = f"{data.get('first_name', '')} {data.get('last_name', '')}".strip()
     log_activity(db, client_id, "manual_add", f"Manually added lead: {name}")
@@ -194,10 +220,52 @@ def get_sequences():
     return jsonify({"sequences": [dict(r) for r in rows]}), 200
 
 
+@portal_bp.route("/api/portal/intake", methods=["POST"])
+@require_auth
+def intake():
+    client_id = g.client["id"]
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Request body required"}), 400
+
+    ideal_customer = (data.get("ideal_customer") or "").strip()
+    if not ideal_customer:
+        return jsonify({"error": "ideal_customer is required"}), 400
+
+    db = get_db()
+    db.execute(
+        "UPDATE clients SET target_icp = ? WHERE id = ?",
+        (ideal_customer, client_id),
+    )
+    log_activity(db, client_id, "intake", "Completed intake form")
+    db.commit()
+
+    return jsonify({"success": True}), 200
+
+
+@portal_bp.route("/api/portal/settings", methods=["POST"])
+@require_auth
+def settings():
+    client_id = g.client["id"]
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Request body required"}), 400
+
+    target_icp = (data.get("target_icp") or "").strip()
+
+    db = get_db()
+    db.execute(
+        "UPDATE clients SET target_icp = ? WHERE id = ?",
+        (target_icp, client_id),
+    )
+    db.commit()
+
+    return jsonify({"success": True}), 200
+
+
 @portal_bp.route("/api/portal/admin/update-sheet", methods=["GET", "PUT"])
 def admin_update_sheet():
-    admin_key = os.environ.get("ADMIN_KEY")
-    if not admin_key or request.headers.get("X-Admin-Key") != admin_key:
+    if not _require_admin():
         return jsonify({"error": "Unauthorized"}), 401
 
     data = request.get_json(force=True, silent=True)
@@ -228,8 +296,7 @@ def admin_update_sheet():
 
 @portal_bp.route("/api/portal/admin/check-client", methods=["GET"])
 def admin_check_client():
-    admin_key = os.environ.get("ADMIN_KEY")
-    if not admin_key or request.headers.get("X-Admin-Key") != admin_key:
+    if not _require_admin():
         return jsonify({"error": "Unauthorized"}), 401
 
     data = request.get_json(force=True, silent=True)
@@ -246,6 +313,155 @@ def admin_check_client():
         return jsonify({"error": "No client found with that email"}), 404
 
     return jsonify(dict(client)), 200
+
+
+@portal_bp.route("/api/portal/admin/clients", methods=["GET"])
+def admin_list_clients():
+    if not _require_admin():
+        return jsonify({"error": "Unauthorized"}), 401
+
+    db = get_db()
+    rows = db.execute(
+        """SELECT id, name, email, business_name, google_sheet_id, niche, target_icp, status, created_at
+           FROM clients ORDER BY created_at DESC"""
+    ).fetchall()
+
+    return jsonify({"clients": [dict(r) for r in rows]}), 200
+
+
+@portal_bp.route("/api/portal/admin/create-client", methods=["POST"])
+def admin_create_client():
+    if not _require_admin():
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json(force=True, silent=True)
+    if not data:
+        return jsonify({"error": "Request body required"}), 400
+
+    required = ["name", "business_name", "email", "password", "niche"]
+    missing = [f for f in required if not (data.get(f) or "").strip()]
+    if missing:
+        return jsonify({"error": f"Missing fields: {', '.join(missing)}"}), 400
+
+    email = data["email"].strip().lower()
+    db = get_db()
+
+    existing = db.execute("SELECT id FROM clients WHERE email = ?", (email,)).fetchone()
+    if existing:
+        return jsonify({"error": "A client with that email already exists"}), 409
+
+    target_icp = (data.get("target_icp") or "").strip()
+    password = data["password"]
+
+    db.execute(
+        """INSERT INTO clients (name, business_name, email, password_hash, google_sheet_id, niche, target_icp, status)
+           VALUES (?, ?, ?, ?, '', ?, ?, 'active')""",
+        (
+            data["name"].strip(),
+            data["business_name"].strip(),
+            email,
+            generate_password_hash(password),
+            data["niche"].strip(),
+            target_icp,
+        ),
+    )
+    db.commit()
+
+    client_row = db.execute("SELECT id FROM clients WHERE email = ?", (email,)).fetchone()
+    client_id = client_row["id"]
+
+    seed_sequences(db, client_id)
+    db.commit()
+
+    sheet_id = create_client_sheet(data["name"].strip(), email)
+    if sheet_id:
+        db.execute(
+            "UPDATE clients SET google_sheet_id = ? WHERE id = ?",
+            (sheet_id, client_id),
+        )
+        db.commit()
+
+    # Send emails in background so the response returns quickly
+    from stripe_webhook import _send_welcome_email, _send_portal_ready_email
+    threading.Thread(
+        target=_send_welcome_email,
+        args=(email, data["name"].strip(), password),
+        daemon=True,
+    ).start()
+    if sheet_id:
+        threading.Thread(
+            target=_send_portal_ready_email,
+            args=(email, data["name"].strip()),
+            daemon=True,
+        ).start()
+
+    return jsonify({"success": True, "client_id": client_id, "sheet_id": sheet_id}), 201
+
+
+@portal_bp.route("/api/portal/admin/trigger-sheet", methods=["POST"])
+def admin_trigger_sheet():
+    if not _require_admin():
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json(force=True, silent=True)
+    if not data or not data.get("email"):
+        return jsonify({"error": "email is required"}), 400
+
+    email = data["email"].strip().lower()
+    db = get_db()
+
+    client = db.execute(
+        "SELECT id, name, email FROM clients WHERE email = ?", (email,)
+    ).fetchone()
+    if not client:
+        return jsonify({"error": "No client found with that email"}), 404
+
+    sheet_id = create_client_sheet(client["name"], email)
+    if not sheet_id:
+        return jsonify({"error": "Sheet creation failed — check GOOGLE_SERVICE_ACCOUNT_JSON"}), 500
+
+    db.execute(
+        "UPDATE clients SET google_sheet_id = ? WHERE id = ?",
+        (sheet_id, client["id"]),
+    )
+    db.commit()
+
+    from stripe_webhook import _send_portal_ready_email
+    threading.Thread(
+        target=_send_portal_ready_email,
+        args=(email, client["name"]),
+        daemon=True,
+    ).start()
+
+    return jsonify({"success": True, "sheet_id": sheet_id}), 200
+
+
+@portal_bp.route("/api/portal/admin/send-ready-email", methods=["POST"])
+def admin_send_ready_email():
+    if not _require_admin():
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json(force=True, silent=True)
+    if not data or not data.get("email"):
+        return jsonify({"error": "email is required"}), 400
+
+    email = data["email"].strip().lower()
+    db = get_db()
+
+    client = db.execute(
+        "SELECT name FROM clients WHERE email = ?", (email,)
+    ).fetchone()
+    if not client:
+        return jsonify({"error": "No client found with that email"}), 404
+
+    from stripe_webhook import _send_portal_ready_email
+    threading.Thread(
+        target=_send_portal_ready_email,
+        args=(email, client["name"]),
+        daemon=True,
+    ).start()
+
+    return jsonify({"success": True}), 200
 
 
 @portal_bp.route("/api/portal/change-password", methods=["POST"])

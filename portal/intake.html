@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intake Form — Client Machinery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/portal/css/portal.css">
+    <style>
+        .intake-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .intake-body {
+            flex: 1;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 40px 24px 60px;
+        }
+        .intake-card {
+            background: var(--dark);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 48px 40px;
+            width: 100%;
+            max-width: 560px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        .intake-logo {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+        .intake-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        .intake-sub {
+            font-size: 0.9rem;
+            color: var(--muted);
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        .intake-form .form-group { margin-bottom: 20px; }
+        .intake-form textarea { resize: vertical; min-height: 80px; }
+        @media (max-width: 600px) {
+            .intake-card { padding: 32px 20px; }
+        }
+    </style>
+</head>
+<body>
+<div class="intake-page">
+    <header class="topbar">
+        <div class="topbar-logo">Client Machinery</div>
+        <div class="topbar-right">
+            <a href="/portal/dashboard" class="btn btn-danger" style="text-decoration:none;">Back to Dashboard</a>
+        </div>
+    </header>
+
+    <div class="intake-body">
+        <div class="intake-card">
+            <div class="intake-logo">Client Machinery</div>
+            <h1 class="intake-title">Tell us about your business</h1>
+            <p class="intake-sub">This helps us optimize your lead scoring so the right prospects get prioritized automatically.</p>
+
+            <form class="intake-form" id="intake-form" novalidate>
+                <div class="form-group">
+                    <label>Who is your ideal customer? *</label>
+                    <textarea name="ideal_customer" placeholder="e.g. Homeowners in Dallas who need roof repair after storm damage" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>What is your main service? *</label>
+                    <input type="text" name="main_service" placeholder="e.g. Residential roofing, HVAC installation" required>
+                </div>
+                <div class="form-group">
+                    <label>Where do your leads come from?</label>
+                    <input type="text" name="lead_sources" placeholder="e.g. Referrals, Google ads, door knocking">
+                </div>
+                <div class="form-group">
+                    <label>Roughly how many leads per month?</label>
+                    <input type="number" name="monthly_leads" placeholder="e.g. 50" min="0">
+                </div>
+                <div class="form-group">
+                    <label>What are your business hours?</label>
+                    <input type="text" name="business_hours" placeholder="e.g. Mon–Fri 8am–6pm">
+                </div>
+                <div class="form-group">
+                    <label>What is your current follow-up process?</label>
+                    <textarea name="current_followup" placeholder="e.g. We call once then send an email if they don't respond"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Save My Settings</button>
+            </form>
+
+            <div class="success-msg" id="intake-success" style="margin-top:20px;"></div>
+            <div class="error-msg" id="intake-error" style="margin-top:20px;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    const token = sessionStorage.getItem('cm_token');
+    if (!token) {
+        window.location.href = '/portal';
+        return;
+    }
+
+    function authHeaders() {
+        return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+    }
+
+    function showMsg(id, text) {
+        const el = document.getElementById(id);
+        el.textContent = text;
+        el.classList.add('visible');
+    }
+
+    function hideMsg(id) {
+        document.getElementById(id).classList.remove('visible');
+    }
+
+    document.getElementById('intake-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        hideMsg('intake-error');
+        hideMsg('intake-success');
+
+        const form = e.target;
+        const data = {};
+        new FormData(form).forEach(function (v, k) { data[k] = v.trim(); });
+
+        if (!data.ideal_customer) {
+            showMsg('intake-error', 'Please describe your ideal customer — this field is required.');
+            return;
+        }
+
+        const btn = form.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.textContent = 'Saving…';
+
+        try {
+            const res = await fetch('/api/portal/intake', {
+                method: 'POST',
+                headers: authHeaders(),
+                body: JSON.stringify(data),
+            });
+            const d = await res.json();
+
+            if (!res.ok) {
+                showMsg('intake-error', d.error || 'Failed to save settings.');
+            } else {
+                sessionStorage.setItem('cm_intake_success', '1');
+                window.location.href = '/portal/dashboard';
+            }
+        } catch (err) {
+            showMsg('intake-error', 'Network error. Please try again.');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Save My Settings';
+        }
+    });
+}());
+</script>
+</body>
+</html>

@@ -20,6 +20,9 @@
             </div>
         </header>
 
+        <!-- Setup Status Banner -->
+        <div id="setup-banner" class="setup-banner" style="display:none;"></div>
+
         <main class="dashboard-body">
             <!-- Stats Row -->
             <div class="stats-grid">
@@ -159,6 +162,18 @@
                     </table>
                 </div>
             </div>
+            <!-- Lead Scoring Settings -->
+            <div class="upload-section" style="max-width:580px;">
+                <div class="section-title">Lead Scoring Settings</div>
+                <div class="form-group">
+                    <label>Describe your ideal customer</label>
+                    <textarea id="target-icp-input" rows="3" placeholder="e.g. Homeowners in Dallas needing roof repair after storms"></textarea>
+                </div>
+                <button class="btn btn-primary" id="save-icp-btn" style="width:auto;padding:12px 28px;">Save</button>
+                <div class="success-msg" id="icp-success" style="margin-top:16px;"></div>
+                <div class="error-msg" id="icp-error" style="margin-top:16px;"></div>
+            </div>
+
             <!-- Change Password -->
             <div class="upload-section" style="max-width:480px;">
                 <div class="section-title">Change Password</div>
@@ -550,10 +565,75 @@
             }
         });
 
+        // ─── Load /me (banner + ICP pre-fill) ─────────────────────────
+        async function loadMe() {
+            try {
+                const res = await fetch('/api/portal/me', { headers: authHeaders() });
+                if (!res.ok) return;
+                const d = await res.json();
+
+                // Pre-fill ICP field
+                if (d.target_icp) {
+                    document.getElementById('target-icp-input').value = d.target_icp;
+                }
+
+                // Setup banner
+                const sheetId = d.google_sheet_id || '';
+                const banner = document.getElementById('setup-banner');
+                banner.style.display = 'block';
+                if (sheetId && sheetId !== 'placeholder') {
+                    banner.className = 'setup-banner setup-banner-green';
+                    banner.innerHTML = '&#10003; Your portal is fully set up. Upload your leads below.';
+                } else {
+                    banner.className = 'setup-banner setup-banner-yellow';
+                    banner.innerHTML = '&#8987; Your portal is being set up. While you wait, complete your intake form to optimize your lead scoring. &nbsp;<a href="/portal/intake" class="banner-btn">Complete Intake Form &rarr;</a>';
+                }
+            } catch (e) {
+                console.error('loadMe error', e);
+            }
+        }
+
+        // ─── Save ICP ──────────────────────────────────────────────────
+        document.getElementById('save-icp-btn').addEventListener('click', async function () {
+            hideMsg('icp-error');
+            hideMsg('icp-success');
+            const target_icp = document.getElementById('target-icp-input').value.trim();
+            const btn = this;
+            btn.disabled = true;
+            btn.textContent = 'Saving…';
+
+            try {
+                const res = await fetch('/api/portal/settings', {
+                    method: 'POST',
+                    headers: authHeaders(),
+                    body: JSON.stringify({ target_icp }),
+                });
+                const d = await res.json();
+                if (!res.ok) {
+                    showMsg('icp-error', d.error || 'Failed to save settings.');
+                } else {
+                    showMsg('icp-success', 'Lead scoring settings saved.');
+                }
+            } catch (err) {
+                showMsg('icp-error', 'Network error. Please try again.');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Save';
+            }
+        });
+
+        // ─── Show intake success toast if redirected from intake form ──
+        if (sessionStorage.getItem('cm_intake_success')) {
+            sessionStorage.removeItem('cm_intake_success');
+            showMsg('icp-success', 'Settings saved. Your lead scoring is now optimized for your business.');
+            document.getElementById('icp-success').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
         // ─── Init ──────────────────────────────────────────────────────
         loadDashboard();
         loadLeads();
         loadSequences();
+        loadMe();
     }());
     </script>
 </body>

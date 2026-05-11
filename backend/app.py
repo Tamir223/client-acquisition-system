@@ -119,6 +119,16 @@ def portal_dashboard():
     return send_from_directory(PORTAL_DIR, "dashboard.html")
 
 
+@app.route("/portal/admin")
+def portal_admin():
+    return send_from_directory(PORTAL_DIR, "admin.html")
+
+
+@app.route("/portal/intake")
+def portal_intake():
+    return send_from_directory(PORTAL_DIR, "intake.html")
+
+
 @app.route("/portal/css/<path:filename>")
 def portal_css(filename):
     return send_from_directory(os.path.join(PORTAL_DIR, "css"), filename)

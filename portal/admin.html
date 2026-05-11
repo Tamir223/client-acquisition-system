@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — Client Machinery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/portal/css/portal.css">
+    <style>
+        .admin-login { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:24px; }
+        .admin-body { max-width:1100px; margin:0 auto; padding:32px; }
+        .clients-table { width:100%; border-collapse:collapse; font-size:0.875rem; }
+        .clients-table th { color:var(--muted); font-weight:600; text-align:left; padding:10px 14px; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.05em; border-bottom:1px solid var(--border); white-space:nowrap; }
+        .clients-table td { padding:11px 14px; border-bottom:1px solid rgba(37,45,68,0.5); color:var(--off-white); vertical-align:middle; }
+        .clients-table tr:hover td { background:rgba(59,130,246,0.04); }
+        .dot { width:9px; height:9px; border-radius:50%; display:inline-block; margin-right:5px; }
+        .dot-green { background:#10b981; }
+        .dot-red { background:#ef4444; }
+        .btn-sm { font-size:0.75rem; padding:5px 12px; border-radius:6px; cursor:pointer; border:1px solid var(--border); background:var(--mid); color:var(--off-white); font-family:var(--font); font-weight:500; transition:background 0.15s; white-space:nowrap; }
+        .btn-sm:hover { background:var(--border); }
+        .btn-sm-accent { border-color:var(--accent); color:var(--accent); background:rgba(59,130,246,0.08); }
+        .btn-sm-accent:hover { background:rgba(59,130,246,0.18); }
+        .create-form { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+        .create-form .form-group:last-of-type { grid-column:1/-1; }
+        .create-form .btn { grid-column:1/-1; width:auto; justify-self:start; padding:12px 28px; }
+        .topbar-admin { font-size:0.75rem; color:var(--muted); }
+        .msg { border-radius:8px; padding:10px 16px; font-size:0.875rem; margin-top:12px; display:none; }
+        .msg.visible { display:block; }
+        .msg-success { background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); color:#10b981; }
+        .msg-error { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; }
+        @media(max-width:700px) { .create-form { grid-template-columns:1fr; } .create-form .form-group:last-of-type,.create-form .btn { grid-column:1; } }
+    </style>
+</head>
+<body>
+
+<!-- Login screen (shown if no admin key) -->
+<div class="admin-login" id="login-screen">
+    <div class="login-card">
+        <div class="login-logo">Client Machinery</div>
+        <h1 class="login-title">Admin Portal</h1>
+        <p class="login-subtitle">Enter your admin key to continue</p>
+        <form id="admin-login-form" novalidate>
+            <div class="form-group">
+                <label>Admin Key</label>
+                <input type="password" id="admin-key-input" placeholder="Enter admin key" required autocomplete="current-password">
+            </div>
+            <button type="submit" class="btn btn-primary">Continue</button>
+        </form>
+        <div class="error-msg" id="login-error">Invalid admin key.</div>
+    </div>
+</div>
+
+<!-- Dashboard (shown after auth) -->
+<div id="dashboard-screen" style="display:none;">
+    <div class="dashboard">
+        <header class="topbar">
+            <div class="topbar-logo">Client Machinery</div>
+            <div class="topbar-right">
+                <span class="topbar-admin">Admin Portal</span>
+                <button class="btn btn-danger" id="admin-signout">Sign Out</button>
+            </div>
+        </header>
+
+        <div class="admin-body">
+
+            <!-- Clients List -->
+            <div class="leads-section">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+                    <div class="section-title" style="margin-bottom:0;">All Clients</div>
+                    <button class="btn-sm btn-sm-accent" id="refresh-clients-btn">Refresh</button>
+                </div>
+                <div class="table-wrapper">
+                    <table class="clients-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Business</th>
+                                <th>Sheet</th>
+                                <th>ICP</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clients-tbody">
+                            <tr><td colspan="7" style="text-align:center;color:var(--muted);padding:32px;">Loading&hellip;</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="msg" id="action-msg"></div>
+            </div>
+
+            <!-- Create Client -->
+            <div class="upload-section">
+                <div class="section-title">Create New Client</div>
+                <form class="create-form" id="create-form" novalidate>
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" name="name" placeholder="Jane Smith" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Business Name *</label>
+                        <input type="text" name="business_name" placeholder="Smith Plumbing" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email *</label>
+                        <input type="email" name="email" placeholder="jane@smithplumbing.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password *</label>
+                        <input type="text" name="password" placeholder="Temporary password">
+                    </div>
+                    <div class="form-group">
+                        <label>Niche *</label>
+                        <input type="text" name="niche" placeholder="e.g. plumbing, trucking, roofing">
+                    </div>
+                    <div class="form-group">
+                        <label>Target ICP (optional)</label>
+                        <input type="text" name="target_icp" placeholder="e.g. Homeowners needing HVAC repair">
+                    </div>
+                    <div class="form-group" style="grid-column:1/-1;">
+                        <div class="msg msg-success" id="create-success"></div>
+                        <div class="msg msg-error" id="create-error"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Create Client + Sheet + Send Email</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+(function () {
+    const ADMIN_KEY_STORAGE = 'cm_admin_key';
+    let adminKey = sessionStorage.getItem(ADMIN_KEY_STORAGE);
+
+    function escHtml(str) {
+        if (!str) return '—';
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function adminHeaders() {
+        return { 'X-Admin-Key': adminKey, 'Content-Type': 'application/json' };
+    }
+
+    function showActionMsg(text, type) {
+        const el = document.getElementById('action-msg');
+        el.textContent = text;
+        el.className = 'msg visible ' + (type === 'error' ? 'msg-error' : 'msg-success');
+        setTimeout(function () { el.classList.remove('visible'); }, 4000);
+    }
+
+    // ─── Auth ───────────────────────────────────────────────────────────
+    function showDashboard() {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('dashboard-screen').style.display = 'block';
+        loadClients();
+    }
+
+    if (adminKey) {
+        showDashboard();
+    }
+
+    document.getElementById('admin-login-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const key = document.getElementById('admin-key-input').value.trim();
+        if (!key) return;
+
+        // Validate by hitting an admin endpoint
+        const res = await fetch('/api/portal/admin/clients', {
+            headers: { 'X-Admin-Key': key, 'Content-Type': 'application/json' },
+        }).catch(() => null);
+
+        if (!res || !res.ok) {
+            const err = document.getElementById('login-error');
+            err.classList.add('visible');
+            return;
+        }
+
+        adminKey = key;
+        sessionStorage.setItem(ADMIN_KEY_STORAGE, key);
+        showDashboard();
+    });
+
+    document.getElementById('admin-signout').addEventListener('click', function () {
+        sessionStorage.removeItem(ADMIN_KEY_STORAGE);
+        window.location.reload();
+    });
+
+    // ─── Load Clients ────────────────────────────────────────────────
+    async function loadClients() {
+        const res = await fetch('/api/portal/admin/clients', { headers: adminHeaders() }).catch(() => null);
+        if (!res || !res.ok) {
+            document.getElementById('clients-tbody').innerHTML =
+                '<tr><td colspan="7" style="text-align:center;color:var(--error);padding:32px;">Failed to load clients.</td></tr>';
+            return;
+        }
+        const d = await res.json();
+        renderClients(d.clients || []);
+    }
+
+    document.getElementById('refresh-clients-btn').addEventListener('click', loadClients);
+
+    function renderClients(clients) {
+        const tbody = document.getElementById('clients-tbody');
+        if (!clients.length) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:32px;">No clients yet.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = clients.map(function (c) {
+            const hasSheet = c.google_sheet_id && c.google_sheet_id !== '';
+            const hasIcp   = c.target_icp && c.target_icp.trim() !== '';
+            const date     = c.created_at ? c.created_at.split('T')[0].split(' ')[0] : '—';
+
+            return `<tr>
+                <td style="font-weight:500;">${escHtml(c.name)}</td>
+                <td style="color:var(--muted);">${escHtml(c.email)}</td>
+                <td>${escHtml(c.business_name)}</td>
+                <td>
+                    <span class="dot ${hasSheet ? 'dot-green' : 'dot-red'}"></span>
+                    ${hasSheet ? '<span style="color:var(--muted);font-size:0.75rem;">Connected</span>' : '<span style="color:var(--error);font-size:0.75rem;">Missing</span>'}
+                </td>
+                <td>
+                    <span class="dot ${hasIcp ? 'dot-green' : 'dot-red'}"></span>
+                    ${hasIcp ? '<span style="color:var(--muted);font-size:0.75rem;">Set</span>' : '<span style="color:var(--error);font-size:0.75rem;">Not set</span>'}
+                </td>
+                <td style="color:var(--muted);">${escHtml(date)}</td>
+                <td style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button class="btn-sm btn-sm-accent" onclick="triggerSheet('${escHtml(c.email)}')">Create Sheet</button>
+                    <button class="btn-sm" onclick="sendReadyEmail('${escHtml(c.email)}')">Send Ready Email</button>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    window.triggerSheet = async function (email) {
+        const res = await fetch('/api/portal/admin/trigger-sheet', {
+            method: 'POST',
+            headers: adminHeaders(),
+            body: JSON.stringify({ email }),
+        }).catch(() => null);
+
+        if (!res || !res.ok) {
+            const d = res ? await res.json().catch(() => ({})) : {};
+            showActionMsg(d.error || 'Sheet creation failed.', 'error');
+        } else {
+            const d = await res.json();
+            showActionMsg(`Sheet created: ${d.sheet_id}`, 'success');
+            loadClients();
+        }
+    };
+
+    window.sendReadyEmail = async function (email) {
+        const res = await fetch('/api/portal/admin/send-ready-email', {
+            method: 'POST',
+            headers: adminHeaders(),
+            body: JSON.stringify({ email }),
+        }).catch(() => null);
+
+        if (!res || !res.ok) {
+            showActionMsg('Failed to send email.', 'error');
+        } else {
+            showActionMsg(`Portal ready email sent to ${email}`, 'success');
+        }
+    };
+
+    // ─── Create Client ───────────────────────────────────────────────
+    document.getElementById('create-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const successEl = document.getElementById('create-success');
+        const errorEl   = document.getElementById('create-error');
+        successEl.classList.remove('visible');
+        errorEl.classList.remove('visible');
+
+        const form = e.target;
+        const data = {};
+        new FormData(form).forEach(function (v, k) { data[k] = v.trim(); });
+
+        const btn = form.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.textContent = 'Creating…';
+
+        try {
+            const res = await fetch('/api/portal/admin/create-client', {
+                method: 'POST',
+                headers: adminHeaders(),
+                body: JSON.stringify(data),
+            });
+            const d = await res.json();
+
+            if (!res.ok) {
+                errorEl.textContent = d.error || 'Failed to create client.';
+                errorEl.classList.add('visible');
+            } else {
+                successEl.textContent = `Client created. ID: ${d.client_id} | Sheet: ${d.sheet_id || 'pending'}`;
+                successEl.classList.add('visible');
+                form.reset();
+                loadClients();
+            }
+        } catch (err) {
+            errorEl.textContent = 'Network error. Please try again.';
+            errorEl.classList.add('visible');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Create Client + Sheet + Send Email';
+        }
+    });
+}());
+</script>
+</body>
+</html>
