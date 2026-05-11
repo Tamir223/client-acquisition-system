@@ -10,631 +10,853 @@
     <link rel="stylesheet" href="/portal/css/portal.css">
 </head>
 <body>
-    <div class="dashboard">
-        <!-- Top Bar -->
-        <header class="topbar">
+<div class="portal-shell">
+
+    <!-- ── Topbar ─────────────────────────────────────────────────── -->
+    <header class="topbar">
+        <div class="topbar-left">
             <div class="topbar-logo">Client Machinery</div>
-            <div class="topbar-right">
-                <div class="topbar-welcome">Welcome, <span id="business-name">—</span></div>
-                <button class="btn btn-danger" id="signout-btn">Sign Out</button>
-            </div>
-        </header>
+        </div>
+        <div class="topbar-right">
+            <div class="topbar-welcome">Welcome, <span id="business-name">—</span></div>
+            <button class="btn btn-danger" id="signout-btn">Sign Out</button>
+        </div>
+    </header>
 
-        <!-- Setup Status Banner -->
-        <div id="setup-banner" class="setup-banner" style="display:none;"></div>
+    <!-- ── Body ──────────────────────────────────────────────────── -->
+    <div class="portal-body">
 
-        <main class="dashboard-body">
-            <!-- Stats Row -->
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="stat-total">—</div>
-                    <div class="stat-label">Total Leads</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="stat-contacted">—</div>
-                    <div class="stat-label">Contacted</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="stat-replied">—</div>
-                    <div class="stat-label">Replied</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="stat-booked">—</div>
-                    <div class="stat-label">Booked</div>
-                </div>
-            </div>
+        <!-- Sidebar (desktop) -->
+        <nav class="sidebar" id="sidebar">
+            <ul class="sidebar-nav">
+                <li class="sidebar-item active" data-tab="dashboard">
+                    <span class="sidebar-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
+                    <span class="sidebar-label">Dashboard</span>
+                </li>
+                <li class="sidebar-item" data-tab="leads">
+                    <span class="sidebar-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span>
+                    <span class="sidebar-label">My Leads</span>
+                </li>
+                <li class="sidebar-item" data-tab="sequence">
+                    <span class="sidebar-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+                    <span class="sidebar-label">My Sequence</span>
+                </li>
+                <li class="sidebar-item" data-tab="settings">
+                    <span class="sidebar-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+                    <span class="sidebar-label">Settings</span>
+                </li>
+            </ul>
 
-            <!-- Sequence Section -->
-            <div class="leads-section">
-                <div class="section-title">Your Follow Up Sequence &mdash; <span style="color:var(--success);font-weight:600;">Active</span></div>
-                <div class="table-wrapper">
-                    <table class="leads-table">
-                        <thead>
-                            <tr>
-                                <th>Touch #</th>
-                                <th>Send Day</th>
-                                <th>Subject</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="sequences-tbody">
-                            <tr class="empty-row"><td colspan="4">Loading sequence&hellip;</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <div class="sidebar-divider"></div>
 
-            <!-- Upload Section -->
-            <div class="upload-section">
-                <div class="section-title">Add Leads</div>
+            <ul class="sidebar-nav">
+                <li class="sidebar-link-item">
+                    <a href="/portal/intake" class="sidebar-link">
+                        <span class="sidebar-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></span>
+                        <span class="sidebar-label">Intake Form</span>
+                    </a>
+                </li>
+                <li class="sidebar-link-item">
+                    <a href="mailto:support@clientmachinery.com" class="sidebar-link">
+                        <span class="sidebar-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+                        <span class="sidebar-label">Support</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
 
-                <div class="tab-switcher">
-                    <button class="tab-btn active" data-tab="csv">Upload CSV</button>
-                    <button class="tab-btn" data-tab="manual">Add Manually</button>
-                </div>
+        <!-- ── Main Content ─────────────────────────────────────── -->
+        <main class="portal-main" id="portal-main">
 
-                <!-- CSV Tab -->
-                <div class="tab-pane active" id="tab-csv">
-                    <div class="drop-zone" id="drop-zone">
-                        <div class="drop-icon">&#8679;</div>
-                        <div class="drop-text">Drag &amp; drop your CSV file here</div>
-                        <div class="drop-hint">or click to browse &mdash; columns: First Name, Last Name, Email, Phone, Service Requested</div>
-                        <input type="file" id="csv-input" accept=".csv" style="display:none">
-                    </div>
+            <!-- ════ PANEL: DASHBOARD ════ -->
+            <div class="panel active" id="panel-dashboard">
 
-                    <div class="file-preview" id="file-preview">
-                        <p style="font-size:0.75rem;color:var(--muted);margin-bottom:8px;">Preview (first 3 rows)</p>
-                        <table id="preview-table"></table>
-                    </div>
+                <!-- Setup Banner -->
+                <div id="setup-banner" class="setup-banner" style="display:none;"></div>
 
-                    <div style="display:flex;gap:12px;align-items:center;">
-                        <button class="btn btn-primary" id="upload-btn" style="width:auto;" disabled>Upload Leads</button>
-                        <div class="success-msg" id="csv-success" style="margin:0;flex:1;"></div>
-                        <div class="error-msg" id="csv-error" style="margin:0;flex:1;"></div>
+                <!-- Welcome Card (0 leads) -->
+                <div class="welcome-card" id="welcome-card" style="display:none;">
+                    <div class="welcome-title">Welcome to Client Machinery &#128075;</div>
+                    <div class="welcome-sub">Your automated lead follow-up system is ready. Here&rsquo;s how to get started:</div>
+                    <div class="welcome-steps">
+                        <div class="welcome-step">
+                            <div class="welcome-step-num">1</div>
+                            <div><a href="/portal/intake">Complete your intake form</a> so we can optimize your lead scoring</div>
+                        </div>
+                        <div class="welcome-step">
+                            <div class="welcome-step-num">2</div>
+                            <div>Upload your first leads using the <a href="#" class="go-leads-link">Leads tab</a></div>
+                        </div>
+                        <div class="welcome-step">
+                            <div class="welcome-step-num">3</div>
+                            <div>Watch the 5-touch follow-up sequence activate automatically for every lead</div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Manual Tab -->
-                <div class="tab-pane" id="tab-manual">
-                    <form class="lead-form" id="manual-form" novalidate>
+                <!-- Stats -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-total">—</div>
+                        <div class="stat-label">Total Leads</div>
+                        <div class="stat-hint" id="hint-total"></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-contacted">—</div>
+                        <div class="stat-label">Contacted</div>
+                        <div class="stat-hint" id="hint-contacted"></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-replied">—</div>
+                        <div class="stat-label">Replied</div>
+                        <div class="stat-hint" id="hint-replied"></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-booked">—</div>
+                        <div class="stat-label">Booked</div>
+                        <div class="stat-hint" id="hint-booked"></div>
+                    </div>
+                </div>
+
+                <!-- Activity + Pipeline -->
+                <div class="two-col">
+                    <div class="card">
+                        <div class="activity-header">
+                            <div class="section-title" style="margin-bottom:0;">Recent Activity</div>
+                            <a href="#" id="activity-view-all" class="activity-view-all" style="display:none;">View all</a>
+                        </div>
+                        <ul class="activity-list" id="activity-list">
+                            <li class="activity-empty">Loading activity&hellip;</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <div class="section-title">Pipeline Overview</div>
+                        <div id="pipeline-overview" style="padding-top:8px;">
+                            <div class="loading">Loading&hellip;</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /panel-dashboard -->
+
+            <!-- ════ PANEL: MY LEADS ════ -->
+            <div class="panel" id="panel-leads">
+
+                <div class="leads-panel-header">
+                    <h2 class="panel-title">My Leads</h2>
+                    <input type="search" id="leads-search" class="leads-search" placeholder="Search name or email&hellip;">
+                </div>
+                <p class="leads-count" id="leads-count"></p>
+
+                <!-- Upload Section -->
+                <div class="card">
+                    <div class="section-title">Add Leads</div>
+                    <div class="tab-switcher">
+                        <button class="tab-btn active" data-tab="csv">Upload CSV</button>
+                        <button class="tab-btn" data-tab="manual">Add Manually</button>
+                    </div>
+
+                    <!-- CSV Tab -->
+                    <div class="tab-pane active" id="tab-csv">
+                        <div class="drop-zone" id="drop-zone">
+                            <div class="drop-icon">&#8679;</div>
+                            <div class="drop-text">Drag &amp; drop your CSV file here</div>
+                            <div class="drop-hint">or click to browse &mdash; columns: First Name, Last Name, Email, Phone, Service Requested</div>
+                            <input type="file" id="csv-input" accept=".csv" style="display:none">
+                        </div>
+                        <div class="file-preview" id="file-preview">
+                            <p style="font-size:0.75rem;color:var(--muted);margin-bottom:8px;">Preview (first 3 rows)</p>
+                            <table id="preview-table"></table>
+                        </div>
+                        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+                            <button class="btn btn-primary" id="upload-btn" style="width:auto;" disabled>Upload Leads</button>
+                            <div class="success-msg" id="csv-success" style="margin:0;flex:1;"></div>
+                            <div class="error-msg" id="csv-error" style="margin:0;flex:1;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Manual Tab -->
+                    <div class="tab-pane" id="tab-manual">
+                        <form class="lead-form" id="manual-form" novalidate>
+                            <div class="form-group">
+                                <label>First Name</label>
+                                <input type="text" name="first_name" placeholder="Jane" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Last Name</label>
+                                <input type="text" name="last_name" placeholder="Smith">
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" name="email" placeholder="jane@example.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Phone</label>
+                                <input type="tel" name="phone" placeholder="(555) 123-4567">
+                            </div>
+                            <div class="form-group">
+                                <label>Service Requested</label>
+                                <input type="text" name="service_requested" placeholder="e.g. HVAC Repair">
+                            </div>
+                            <button type="submit" class="btn btn-primary">Add Lead</button>
+                        </form>
+                        <div class="success-msg" id="manual-success" style="margin-top:16px;"></div>
+                        <div class="error-msg" id="manual-error" style="margin-top:16px;"></div>
+                    </div>
+                </div>
+
+                <!-- Leads Table -->
+                <div class="card">
+                    <div class="table-wrapper">
+                        <table class="leads-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Service</th>
+                                    <th>Status</th>
+                                    <th>Date Added</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leads-tbody">
+                                <tr class="empty-row"><td colspan="6">Loading leads&hellip;</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div><!-- /panel-leads -->
+
+            <!-- ════ PANEL: MY SEQUENCE ════ -->
+            <div class="panel" id="panel-sequence">
+
+                <h2 class="panel-title" style="margin-bottom:8px;">My Sequence</h2>
+                <p style="font-size:0.875rem;color:var(--muted);margin-bottom:24px;">Your 5-touch automated follow-up sequence &mdash; <span style="color:var(--success);font-weight:600;">Active</span></p>
+
+                <div class="sequence-empty" id="sequence-empty" style="display:none;">
+                    Your 5-touch follow-up sequence is being configured.<br>
+                    <a href="/portal/intake">Complete your intake form</a> to speed up the process.
+                </div>
+
+                <div class="sequence-cards" id="sequence-cards" style="display:none;"></div>
+
+            </div><!-- /panel-sequence -->
+
+            <!-- ════ PANEL: SETTINGS ════ -->
+            <div class="panel" id="panel-settings">
+
+                <h2 class="panel-title" style="margin-bottom:24px;">Settings</h2>
+
+                <!-- Account Info -->
+                <div class="card" style="max-width:560px;">
+                    <div class="section-title">Account</div>
+                    <div class="account-row">
+                        <span class="account-label">Name</span>
+                        <span id="account-name" class="account-value">—</span>
+                    </div>
+                    <div class="account-row">
+                        <span class="account-label">Email</span>
+                        <span id="account-email" class="account-value">—</span>
+                    </div>
+                    <div class="account-row">
+                        <span class="account-label">Business</span>
+                        <span id="account-business" class="account-value">—</span>
+                    </div>
+                    <div class="account-row">
+                        <span class="account-label">Plan</span>
+                        <span class="badge badge-plan">Pro Plan</span>
+                    </div>
+                </div>
+
+                <!-- Lead Scoring -->
+                <div class="card" style="max-width:580px;">
+                    <div class="section-title">Lead Scoring Settings</div>
+                    <div class="form-group">
+                        <label>Describe your ideal customer</label>
+                        <textarea id="target-icp-input" rows="3" placeholder="e.g. Homeowners in Dallas needing roof repair after storms" maxlength="500"></textarea>
+                        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-top:8px;gap:12px;">
+                            <div class="form-hint">Be specific. Example: Homeowners in Atlanta with properties needing roof repair or replacement.</div>
+                            <div class="char-counter" id="icp-char-count">0/500</div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="save-icp-btn" style="width:auto;padding:12px 28px;">Save</button>
+                    <div class="success-msg" id="icp-success" style="margin-top:16px;"></div>
+                    <div class="error-msg" id="icp-error" style="margin-top:16px;"></div>
+                </div>
+
+                <!-- Change Password -->
+                <div class="card" style="max-width:480px;">
+                    <div class="section-title">Change Password</div>
+                    <form class="lead-form" id="password-form" novalidate>
                         <div class="form-group">
-                            <label>First Name</label>
-                            <input type="text" name="first_name" placeholder="Jane" required>
+                            <label>Current Password</label>
+                            <div class="pw-input-wrap">
+                                <input type="password" id="current-password" placeholder="Enter current password" required>
+                                <button type="button" class="pw-toggle" data-target="current-password">Show</button>
+                            </div>
                         </div>
                         <div class="form-group">
-                            <label>Last Name</label>
-                            <input type="text" name="last_name" placeholder="Smith">
+                            <label>New Password</label>
+                            <div class="pw-input-wrap">
+                                <input type="password" id="new-password" placeholder="8+ characters" required>
+                                <button type="button" class="pw-toggle" data-target="new-password">Show</button>
+                            </div>
+                            <div class="pw-strength" id="pw-strength" style="display:none;">
+                                <div class="pw-strength-bar"><div class="pw-strength-fill" id="pw-strength-fill"></div></div>
+                                <div class="pw-strength-label" id="pw-strength-label"></div>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" name="email" placeholder="jane@example.com">
-                        </div>
-                        <div class="form-group">
-                            <label>Phone</label>
-                            <input type="tel" name="phone" placeholder="(555) 123-4567">
-                        </div>
-                        <div class="form-group">
-                            <label>Service Requested</label>
-                            <input type="text" name="service_requested" placeholder="e.g. HVAC Repair">
-                        </div>
-                        <button type="submit" class="btn btn-primary">Add Lead</button>
+                        <button type="submit" class="btn btn-primary">Update Password</button>
                     </form>
-                    <div class="success-msg" id="manual-success" style="margin-top:16px;"></div>
-                    <div class="error-msg" id="manual-error" style="margin-top:16px;"></div>
-                </div>
-            </div>
-
-            <!-- Activity + Quick Stats row -->
-            <div class="two-col">
-                <div class="activity-card">
-                    <div class="section-title">Recent Activity</div>
-                    <ul class="activity-list" id="activity-list">
-                        <li class="activity-empty">Loading activity&hellip;</li>
-                    </ul>
+                    <div class="success-msg" id="password-success" style="margin-top:16px;"></div>
+                    <div class="error-msg" id="password-error" style="margin-top:16px;"></div>
                 </div>
 
-                <div class="activity-card">
-                    <div class="section-title">Pipeline Overview</div>
-                    <div id="pipeline-overview" style="padding-top:8px;">
-                        <div class="loading">Loading&hellip;</div>
-                    </div>
-                </div>
-            </div>
+            </div><!-- /panel-settings -->
 
-            <!-- Leads Table -->
-            <div class="leads-section">
-                <div class="section-title">Your Leads</div>
-                <div class="table-wrapper">
-                    <table class="leads-table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Phone</th>
-                                <th>Service</th>
-                                <th>Source</th>
-                                <th>Date Added</th>
-                            </tr>
-                        </thead>
-                        <tbody id="leads-tbody">
-                            <tr class="empty-row"><td colspan="6">Loading leads&hellip;</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <!-- Lead Scoring Settings -->
-            <div class="upload-section" style="max-width:580px;">
-                <div class="section-title">Lead Scoring Settings</div>
-                <div class="form-group">
-                    <label>Describe your ideal customer</label>
-                    <textarea id="target-icp-input" rows="3" placeholder="e.g. Homeowners in Dallas needing roof repair after storms"></textarea>
-                </div>
-                <button class="btn btn-primary" id="save-icp-btn" style="width:auto;padding:12px 28px;">Save</button>
-                <div class="success-msg" id="icp-success" style="margin-top:16px;"></div>
-                <div class="error-msg" id="icp-error" style="margin-top:16px;"></div>
-            </div>
-
-            <!-- Change Password -->
-            <div class="upload-section" style="max-width:480px;">
-                <div class="section-title">Change Password</div>
-                <form class="lead-form" id="password-form" novalidate>
-                    <div class="form-group">
-                        <label>Current Password</label>
-                        <input type="password" id="current-password" placeholder="Enter current password" required>
-                    </div>
-                    <div class="form-group">
-                        <label>New Password</label>
-                        <input type="password" id="new-password" placeholder="8+ characters" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Update Password</button>
-                </form>
-                <div class="success-msg" id="password-success" style="margin-top:16px;"></div>
-                <div class="error-msg" id="password-error" style="margin-top:16px;"></div>
-            </div>
         </main>
-    </div>
+    </div><!-- /portal-body -->
 
-    <script>
-    (function () {
-        const token = sessionStorage.getItem('cm_token');
-        if (!token) {
-            window.location.href = '/portal';
+    <!-- ── Mobile Bottom Nav ──────────────────────────────────────── -->
+    <nav class="mobile-nav" id="mobile-nav">
+        <button class="mobile-nav-btn active" data-tab="dashboard">
+            <span class="mobile-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
+            <span class="mobile-nav-label">Home</span>
+        </button>
+        <button class="mobile-nav-btn" data-tab="leads">
+            <span class="mobile-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span>
+            <span class="mobile-nav-label">Leads</span>
+        </button>
+        <button class="mobile-nav-btn" data-tab="sequence">
+            <span class="mobile-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+            <span class="mobile-nav-label">Sequence</span>
+        </button>
+        <button class="mobile-nav-btn" data-tab="settings">
+            <span class="mobile-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+            <span class="mobile-nav-label">Settings</span>
+        </button>
+    </nav>
+
+</div><!-- /portal-shell -->
+
+<script>
+(function () {
+    const token = sessionStorage.getItem('cm_token');
+    if (!token) { window.location.href = '/portal'; return; }
+
+    const business = sessionStorage.getItem('cm_business') || sessionStorage.getItem('cm_client') || '';
+    document.getElementById('business-name').textContent = business;
+
+    // ─── State ──────────────────────────────────────────────────────
+    let dashData  = null;
+    let allLeads  = [];
+    let meData    = null;
+    let leadsFilter = '';
+
+    // ─── Helpers ────────────────────────────────────────────────────
+    function authHeaders() {
+        return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+    }
+
+    function escHtml(str) {
+        if (str === null || str === undefined) return '';
+        return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function timeAgo(dateString) {
+        if (!dateString) return '';
+        const date = new Date(String(dateString).replace(' ', 'T'));
+        if (isNaN(date.getTime())) return 'recently';
+        const diff = Math.floor((Date.now() - date.getTime()) / 1000);
+        if (diff < 60)    return 'just now';
+        if (diff < 3600)  return Math.floor(diff / 60) + 'm ago';
+        if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+        return Math.floor(diff / 86400) + 'd ago';
+    }
+
+    function formatDate(ts) {
+        if (!ts) return '—';
+        const d = new Date(String(ts).replace(' ', 'T'));
+        if (isNaN(d.getTime())) return String(ts).split('T')[0].split(' ')[0] || '—';
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function showMsg(id, msg) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = msg;
+        el.classList.add('visible');
+    }
+
+    function hideMsg(id) {
+        const el = document.getElementById(id);
+        if (el) el.classList.remove('visible');
+    }
+
+    // ─── Tab / Panel Navigation ──────────────────────────────────────
+    function switchTab(tabName) {
+        document.querySelectorAll('.sidebar-item[data-tab]').forEach(function (el) {
+            el.classList.toggle('active', el.dataset.tab === tabName);
+        });
+        document.querySelectorAll('.mobile-nav-btn[data-tab]').forEach(function (el) {
+            el.classList.toggle('active', el.dataset.tab === tabName);
+        });
+        document.querySelectorAll('.panel').forEach(function (el) {
+            el.classList.toggle('active', el.id === 'panel-' + tabName);
+        });
+        // Scroll portal-main to top on tab switch
+        const main = document.getElementById('portal-main');
+        if (main) main.scrollTop = 0;
+        sessionStorage.setItem('cm_active_tab', tabName);
+    }
+
+    document.querySelectorAll('.sidebar-item[data-tab]').forEach(function (item) {
+        item.addEventListener('click', function () { switchTab(this.dataset.tab); });
+    });
+
+    document.querySelectorAll('.mobile-nav-btn[data-tab]').forEach(function (btn) {
+        btn.addEventListener('click', function () { switchTab(this.dataset.tab); });
+    });
+
+    // Welcome card "Leads tab" link
+    document.querySelector('.go-leads-link').addEventListener('click', function (e) {
+        e.preventDefault();
+        switchTab('leads');
+    });
+
+    // Restore last active tab
+    const savedTab = sessionStorage.getItem('cm_active_tab') || 'dashboard';
+    switchTab(savedTab);
+
+    // ─── Sign Out ────────────────────────────────────────────────────
+    document.getElementById('signout-btn').addEventListener('click', async function () {
+        await fetch('/api/portal/logout', { method: 'POST', headers: authHeaders() }).catch(() => {});
+        sessionStorage.clear();
+        window.location.href = '/portal';
+    });
+
+    // ─── Load /me ────────────────────────────────────────────────────
+    async function loadMe() {
+        try {
+            const res = await fetch('/api/portal/me', { headers: authHeaders() });
+            if (!res.ok) return;
+            meData = await res.json();
+
+            // ICP textarea
+            const icpInput = document.getElementById('target-icp-input');
+            if (meData.target_icp) {
+                icpInput.value = meData.target_icp;
+                document.getElementById('icp-char-count').textContent = meData.target_icp.length + '/500';
+            }
+
+            // Account info
+            document.getElementById('account-name').textContent     = meData.name          || '—';
+            document.getElementById('account-email').textContent    = meData.email         || '—';
+            document.getElementById('account-business').textContent = meData.business_name || '—';
+
+            // Setup banner
+            const sheetId = meData.google_sheet_id || '';
+            const banner  = document.getElementById('setup-banner');
+            banner.style.display = 'flex';
+            if (sheetId && sheetId !== 'placeholder') {
+                banner.className = 'setup-banner setup-banner-green';
+                banner.innerHTML = '&#10003; Your portal is fully set up. Upload your leads in the <strong style="cursor:pointer;" onclick="switchTabGlobal(\'leads\')">My Leads</strong> tab.';
+            } else {
+                banner.className = 'setup-banner setup-banner-yellow';
+                banner.innerHTML = '&#8987; Your portal is being set up. While you wait, <a href="/portal/intake" class="banner-btn">complete your intake form &rarr;</a>';
+            }
+        } catch (e) {
+            console.error('loadMe error', e);
+        }
+    }
+
+    // Expose for inline onclick in banner HTML
+    window.switchTabGlobal = switchTab;
+
+    // ─── Stats ───────────────────────────────────────────────────────
+    function renderStats() {
+        if (!dashData) return;
+        const total = dashData.total_leads || 0;
+
+        document.getElementById('welcome-card').style.display = total === 0 ? 'block' : 'none';
+
+        document.getElementById('stat-total').textContent     = total;
+        document.getElementById('stat-contacted').textContent = dashData.contacted;
+        document.getElementById('stat-replied').textContent   = dashData.replied;
+        document.getElementById('stat-booked').textContent    = dashData.booked;
+
+        if (total === 0) {
+            document.getElementById('hint-total').textContent     = 'No leads yet';
+            document.getElementById('hint-contacted').textContent = '—';
+            document.getElementById('hint-replied').textContent   = '—';
+            document.getElementById('hint-booked').textContent    = '—';
+        } else {
+            const weekAgo   = Date.now() - 7 * 86400000;
+            const thisWeek  = allLeads.filter(function (l) {
+                const d = new Date(String(l.uploaded_at || '').replace(' ', 'T'));
+                return !isNaN(d.getTime()) && d.getTime() > weekAgo;
+            }).length;
+            const pct = function (n) { return Math.round((n / total) * 100) + '%'; };
+            document.getElementById('hint-total').textContent     = thisWeek + ' uploaded this week';
+            document.getElementById('hint-contacted').textContent = pct(dashData.contacted) + ' contact rate';
+            document.getElementById('hint-replied').textContent   = pct(dashData.replied)   + ' reply rate';
+            document.getElementById('hint-booked').textContent    = pct(dashData.booked)    + ' book rate';
+        }
+    }
+
+    // ─── Load Dashboard ──────────────────────────────────────────────
+    async function loadDashboard() {
+        try {
+            const res = await fetch('/api/portal/dashboard', { headers: authHeaders() });
+            if (res.status === 401) { sessionStorage.clear(); window.location.href = '/portal'; return; }
+            dashData = await res.json();
+            renderStats();
+            renderActivity(dashData.recent_activity || []);
+            renderPipeline(dashData);
+        } catch (e) {
+            console.error('Dashboard load error', e);
+        }
+    }
+
+    // ─── Activity ────────────────────────────────────────────────────
+    const ICONS = {
+        csv_upload: '&#8679;',
+        manual_add: '&#43;',
+        contacted:  '&#9993;',
+        replied:    '&#8617;',
+        booked:     '&#128222;',
+        intake:     '&#9998;',
+    };
+
+    function renderActivity(items) {
+        const list      = document.getElementById('activity-list');
+        const viewAllEl = document.getElementById('activity-view-all');
+        if (!items.length) {
+            list.innerHTML = '<li class="activity-empty"><div style="font-size:1.5rem;margin-bottom:8px;opacity:0.3;">&#9632;</div><div>No activity yet &mdash; upload your first leads to get started.</div></li>';
+            viewAllEl.style.display = 'none';
             return;
         }
+        list.innerHTML = items.slice(0, 5).map(function (item) {
+            return '<li class="activity-item">' +
+                '<div class="activity-icon">' + (ICONS[item.event_type] || '&#8226;') + '</div>' +
+                '<div class="activity-text">' +
+                    '<div class="activity-desc">' + escHtml(item.description || item.event_type) + '</div>' +
+                    '<div class="activity-time">' + timeAgo(item.created_at) + '</div>' +
+                '</div></li>';
+        }).join('');
+        viewAllEl.style.display = items.length > 5 ? 'inline' : 'none';
+    }
 
-        const business = sessionStorage.getItem('cm_business') || sessionStorage.getItem('cm_client') || '';
-        document.getElementById('business-name').textContent = business;
+    // ─── Pipeline ────────────────────────────────────────────────────
+    function renderPipeline(d) {
+        const total = d.total_leads || 0;
+        const rows = [
+            { label: 'Leads Uploaded', value: total,        color: 'var(--accent)' },
+            { label: 'Contacted',       value: d.contacted, color: 'var(--warning)' },
+            { label: 'Replied',         value: d.replied,   color: 'var(--success)' },
+            { label: 'Booked',          value: d.booked,    color: '#a78bfa' },
+        ];
+        document.getElementById('pipeline-overview').innerHTML = rows.map(function (r) {
+            const pct = total > 0 ? Math.round((r.value / total) * 100) : 0;
+            return '<div style="margin-bottom:16px;">' +
+                '<div style="display:flex;justify-content:space-between;font-size:0.8125rem;margin-bottom:6px;">' +
+                    '<span style="color:var(--off-white);">' + escHtml(r.label) + '</span>' +
+                    '<span style="color:var(--muted);">' + r.value + '</span>' +
+                '</div>' +
+                '<div style="background:var(--mid);border-radius:99px;height:6px;overflow:hidden;">' +
+                    '<div style="background:' + r.color + ';width:' + pct + '%;height:100%;border-radius:99px;transition:width 0.4s;"></div>' +
+                '</div></div>';
+        }).join('');
+    }
 
-        // ─── Auth header ───────────────────────────────────────────────
-        function authHeaders() {
-            return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+    // ─── Sequences ───────────────────────────────────────────────────
+    async function loadSequences() {
+        try {
+            const res = await fetch('/api/portal/sequences', { headers: authHeaders() });
+            if (!res.ok) return;
+            renderSequences((await res.json()).sequences || []);
+        } catch (e) {
+            console.error('Sequences load error', e);
+        }
+    }
+
+    function renderSequences(sequences) {
+        const cardsEl = document.getElementById('sequence-cards');
+        const emptyEl = document.getElementById('sequence-empty');
+        if (!sequences.length) {
+            cardsEl.style.display = 'none';
+            emptyEl.style.display = 'block';
+            return;
+        }
+        emptyEl.style.display = 'none';
+        cardsEl.style.display = 'flex';
+        cardsEl.innerHTML = sequences.map(function (s) {
+            const bodyPreview = s.body ? escHtml(s.body.slice(0, 120)) + (s.body.length > 120 ? '…' : '') : '';
+            return '<div class="sequence-card">' +
+                '<div class="sequence-day">Day ' + escHtml(String(s.send_day)) + '</div>' +
+                '<div class="sequence-touch">Touch ' + escHtml(String(s.touch_number)) + '</div>' +
+                '<div class="sequence-subject">' + escHtml(s.subject || '—') + '</div>' +
+                (bodyPreview ? '<div class="sequence-body-preview">' + bodyPreview + '</div>' : '') +
+                '<span class="badge sequence-status-badge">' + escHtml(s.status || 'active') + '</span>' +
+            '</div>';
+        }).join('');
+    }
+
+    // ─── Leads ───────────────────────────────────────────────────────
+    async function loadLeads() {
+        try {
+            const res = await fetch('/api/portal/leads', { headers: authHeaders() });
+            if (!res.ok) return;
+            allLeads = (await res.json()).leads || [];
+            renderLeads();
+            renderStats();
+        } catch (e) {
+            console.error('Leads load error', e);
+        }
+    }
+
+    function statusBadge(status) {
+        const map = { 'New':'badge-status-new','Contacted':'badge-status-contacted','Replied':'badge-status-replied','Booked':'badge-status-booked' };
+        return '<span class="badge ' + (map[status] || 'badge-status-new') + '">' + escHtml(status) + '</span>';
+    }
+
+    function renderLeads() {
+        const tbody = document.getElementById('leads-tbody');
+        const q = leadsFilter.toLowerCase();
+        const filtered = q
+            ? allLeads.filter(function (l) {
+                return (((l.first_name || '') + ' ' + (l.last_name || '')).toLowerCase().includes(q)) ||
+                       ((l.email || '').toLowerCase().includes(q));
+            })
+            : allLeads;
+
+        const countEl = document.getElementById('leads-count');
+        if (countEl) {
+            countEl.textContent = allLeads.length
+                ? (q && filtered.length !== allLeads.length
+                    ? 'Showing ' + filtered.length + ' of ' + allLeads.length + ' leads'
+                    : allLeads.length + ' lead' + (allLeads.length !== 1 ? 's' : '') + ' total')
+                : '';
         }
 
-        // ─── Sign Out ──────────────────────────────────────────────────
-        document.getElementById('signout-btn').addEventListener('click', async function () {
-            await fetch('/api/portal/logout', { method: 'POST', headers: authHeaders() }).catch(() => {});
-            sessionStorage.clear();
-            window.location.href = '/portal';
+        if (!allLeads.length) {
+            tbody.innerHTML = '<tr class="empty-row"><td colspan="6"><div style="padding:8px 0;">No leads uploaded yet.<br><span style="font-size:0.8125rem;color:var(--muted);">Use the upload section above to add your first leads.</span></div></td></tr>';
+            return;
+        }
+        if (!filtered.length) {
+            tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No leads match your search.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = filtered.slice(0, 20).map(function (l) {
+            const name  = [l.first_name, l.last_name].filter(Boolean).join(' ') || '—';
+            const email = l.email || '';
+            const emailCell = email
+                ? '<a href="mailto:' + escHtml(email) + '" class="email-link">' + escHtml(email) + '</a>'
+                : '<span>—</span>';
+            return '<tr>' +
+                '<td style="font-weight:500;">'    + escHtml(name) + '</td>' +
+                '<td class="muted">'               + emailCell + '</td>' +
+                '<td class="muted">'               + escHtml(l.phone || '—') + '</td>' +
+                '<td>'                             + escHtml(l.service_requested || '—') + '</td>' +
+                '<td>'                             + statusBadge(l.status || 'New') + '</td>' +
+                '<td class="muted">'               + escHtml(formatDate(l.uploaded_at)) + '</td>' +
+            '</tr>';
+        }).join('');
+    }
+
+    document.getElementById('leads-search').addEventListener('input', function () {
+        leadsFilter = this.value.trim();
+        renderLeads();
+    });
+
+    // ─── CSV upload tab switcher ──────────────────────────────────────
+    document.querySelectorAll('.tab-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+            document.querySelectorAll('.tab-pane').forEach(function (p) { p.classList.remove('active'); });
+            btn.classList.add('active');
+            document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
         });
+    });
 
-        // ─── Load dashboard data ───────────────────────────────────────
-        async function loadDashboard() {
-            try {
-                const res = await fetch('/api/portal/dashboard', { headers: authHeaders() });
-                if (res.status === 401) { sessionStorage.clear(); window.location.href = '/portal'; return; }
-                const d = await res.json();
+    // ─── CSV Upload ───────────────────────────────────────────────────
+    let selectedFile = null;
+    const dropZone   = document.getElementById('drop-zone');
+    const csvInput   = document.getElementById('csv-input');
+    const uploadBtn  = document.getElementById('upload-btn');
+    const filePreview = document.getElementById('file-preview');
 
-                document.getElementById('stat-total').textContent = d.total_leads;
-                document.getElementById('stat-contacted').textContent = d.contacted;
-                document.getElementById('stat-replied').textContent = d.replied;
-                document.getElementById('stat-booked').textContent = d.booked;
+    dropZone.addEventListener('click', function () { csvInput.click(); });
+    dropZone.addEventListener('dragover', function (e) { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', function () { dropZone.classList.remove('drag-over'); });
+    dropZone.addEventListener('drop', function (e) {
+        e.preventDefault(); dropZone.classList.remove('drag-over');
+        if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+    });
+    csvInput.addEventListener('change', function () {
+        if (csvInput.files[0]) handleFile(csvInput.files[0]);
+    });
 
-                renderActivity(d.recent_activity || []);
-                renderPipeline(d);
-            } catch (e) {
-                console.error('Dashboard load error', e);
-            }
-        }
-
-        // ─── Activity Feed ─────────────────────────────────────────────
-        const ICONS = {
-            csv_upload: '&#8679;',
-            manual_add: '&#43;',
-            contacted:  '&#9993;',
-            replied:    '&#8617;',
-            booked:     '&#128222;',
+    function handleFile(file) {
+        if (!file.name.toLowerCase().endsWith('.csv')) { showMsg('csv-error', 'Please select a .csv file.'); return; }
+        selectedFile = file;
+        uploadBtn.disabled = false;
+        dropZone.querySelector('.drop-text').textContent = file.name;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const lines = e.target.result.split('\n').filter(Boolean);
+            renderPreview(parseCsvRow(lines[0]), lines.slice(1, 4).map(parseCsvRow));
         };
+        reader.readAsText(file);
+    }
 
-        function timeAgo(ts) {
-            if (!ts) return '';
-            const diff = Math.floor((Date.now() - new Date(ts.replace(' ', 'T') + 'Z').getTime()) / 1000);
-            if (diff < 60) return 'just now';
-            if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
-            if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
-            return Math.floor(diff / 86400) + 'd ago';
+    function parseCsvRow(row) {
+        const result = []; let inQuote = false, cur = '';
+        for (let i = 0; i < row.length; i++) {
+            const ch = row[i];
+            if (ch === '"') { inQuote = !inQuote; }
+            else if (ch === ',' && !inQuote) { result.push(cur.trim()); cur = ''; }
+            else { cur += ch; }
         }
+        result.push(cur.trim()); return result;
+    }
 
-        function renderActivity(items) {
-            const list = document.getElementById('activity-list');
-            if (!items.length) {
-                list.innerHTML = '<li class="activity-empty">No activity yet — upload your first leads to get started.</li>';
-                return;
-            }
-            list.innerHTML = items.map(function (item) {
-                const icon = ICONS[item.event_type] || '&#8226;';
-                return `<li class="activity-item">
-                    <div class="activity-icon">${icon}</div>
-                    <div class="activity-text">
-                        <div class="activity-desc">${escHtml(item.description || item.event_type)}</div>
-                        <div class="activity-time">${timeAgo(item.created_at)}</div>
-                    </div>
-                </li>`;
-            }).join('');
-        }
+    function renderPreview(headers, rows) {
+        document.getElementById('preview-table').innerHTML =
+            '<tr>' + headers.map(function (h) { return '<th>' + escHtml(h) + '</th>'; }).join('') + '</tr>' +
+            rows.map(function (r) { return '<tr>' + r.map(function (c) { return '<td>' + escHtml(c) + '</td>'; }).join('') + '</tr>'; }).join('');
+        filePreview.classList.add('visible');
+    }
 
-        function renderPipeline(d) {
-            const total = d.total_leads || 0;
-            const rows = [
-                { label: 'Leads Uploaded', value: total, color: 'var(--accent)' },
-                { label: 'Contacted', value: d.contacted, color: 'var(--warning)' },
-                { label: 'Replied', value: d.replied, color: 'var(--success)' },
-                { label: 'Booked', value: d.booked, color: '#a78bfa' },
-            ];
-            const el = document.getElementById('pipeline-overview');
-            el.innerHTML = rows.map(function (r) {
-                const pct = total > 0 ? Math.round((r.value / total) * 100) : 0;
-                return `<div style="margin-bottom:16px;">
-                    <div style="display:flex;justify-content:space-between;font-size:0.8125rem;margin-bottom:6px;">
-                        <span style="color:var(--off-white);">${escHtml(r.label)}</span>
-                        <span style="color:var(--muted);">${r.value}</span>
-                    </div>
-                    <div style="background:var(--mid);border-radius:99px;height:6px;overflow:hidden;">
-                        <div style="background:${r.color};width:${pct}%;height:100%;border-radius:99px;transition:width 0.4s;"></div>
-                    </div>
-                </div>`;
-            }).join('');
-        }
-
-        // ─── Load sequences ────────────────────────────────────────────
-        async function loadSequences() {
-            try {
-                const res = await fetch('/api/portal/sequences', { headers: authHeaders() });
-                if (!res.ok) return;
-                const d = await res.json();
-                renderSequences(d.sequences || []);
-            } catch (e) {
-                console.error('Sequences load error', e);
-            }
-        }
-
-        function renderSequences(sequences) {
-            const tbody = document.getElementById('sequences-tbody');
-            if (!sequences.length) {
-                tbody.innerHTML = '<tr class="empty-row"><td colspan="4">Sequence will be configured during onboarding.</td></tr>';
-                return;
-            }
-            tbody.innerHTML = sequences.map(function (s) {
-                return `<tr>
-                    <td>Touch ${escHtml(String(s.touch_number))}</td>
-                    <td class="muted">Day ${escHtml(String(s.send_day))}</td>
-                    <td>${escHtml(s.subject || '—')}</td>
-                    <td><span class="badge badge-portal" style="background:rgba(34,197,94,0.12);color:#22c55e;border-color:rgba(34,197,94,0.25);">${escHtml(s.status || 'active')}</span></td>
-                </tr>`;
-            }).join('');
-        }
-
-        // ─── Load leads table ──────────────────────────────────────────
-        async function loadLeads() {
-            try {
-                const res = await fetch('/api/portal/leads', { headers: authHeaders() });
-                if (!res.ok) return;
-                const d = await res.json();
-                renderLeads(d.leads || []);
-            } catch (e) {
-                console.error('Leads load error', e);
-            }
-        }
-
-        function renderLeads(leads) {
-            const tbody = document.getElementById('leads-tbody');
-            if (!leads.length) {
-                tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No leads yet. Upload a CSV or add a lead manually above.</td></tr>';
-                return;
-            }
-            tbody.innerHTML = leads.slice(0, 20).map(function (l) {
-                const name = [l.first_name, l.last_name].filter(Boolean).join(' ') || '—';
-                const date = l.uploaded_at ? l.uploaded_at.split('T')[0].split(' ')[0] : '—';
-                return `<tr>
-                    <td>${escHtml(name)}</td>
-                    <td class="muted">${escHtml(l.email || '—')}</td>
-                    <td class="muted">${escHtml(l.phone || '—')}</td>
-                    <td>${escHtml(l.service_requested || '—')}</td>
-                    <td><span class="badge badge-portal">${escHtml(l.lead_source || 'Portal')}</span></td>
-                    <td class="muted">${escHtml(date)}</td>
-                </tr>`;
-            }).join('');
-        }
-
-        // ─── Tab Switcher ──────────────────────────────────────────────
-        document.querySelectorAll('.tab-btn').forEach(function (btn) {
-            btn.addEventListener('click', function () {
-                document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
-                document.querySelectorAll('.tab-pane').forEach(function (p) { p.classList.remove('active'); });
-                btn.classList.add('active');
-                document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+    uploadBtn.addEventListener('click', async function () {
+        if (!selectedFile) return;
+        hideMsg('csv-error'); hideMsg('csv-success');
+        uploadBtn.disabled = true; uploadBtn.textContent = 'Uploading…';
+        const formData = new FormData();
+        formData.append('file', selectedFile);
+        try {
+            const res = await fetch('/api/portal/upload-csv', {
+                method: 'POST', headers: { 'Authorization': 'Bearer ' + token }, body: formData,
             });
+            const d = await res.json();
+            if (!res.ok) {
+                showMsg('csv-error', d.error || 'Upload failed.');
+            } else {
+                showMsg('csv-success', 'Successfully uploaded ' + d.count + ' lead' + (d.count !== 1 ? 's' : '') + '.');
+                selectedFile = null; csvInput.value = '';
+                filePreview.classList.remove('visible');
+                dropZone.querySelector('.drop-text').textContent = 'Drag & drop your CSV file here';
+                await loadDashboard(); await loadLeads();
+            }
+        } catch (err) { showMsg('csv-error', 'Network error. Please try again.'); }
+        finally { uploadBtn.disabled = true; uploadBtn.textContent = 'Upload Leads'; }
+    });
+
+    // ─── Manual Add ───────────────────────────────────────────────────
+    document.getElementById('manual-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        hideMsg('manual-error'); hideMsg('manual-success');
+        const data = {};
+        new FormData(e.target).forEach(function (v, k) { data[k] = v.trim(); });
+        if (!data.first_name) { showMsg('manual-error', 'First name is required.'); return; }
+        const btn = e.target.querySelector('button[type="submit"]');
+        btn.disabled = true; btn.textContent = 'Adding…';
+        try {
+            const res = await fetch('/api/portal/add-lead', { method: 'POST', headers: authHeaders(), body: JSON.stringify(data) });
+            const d = await res.json();
+            if (!res.ok) { showMsg('manual-error', d.error || 'Failed to add lead.'); }
+            else { showMsg('manual-success', 'Lead added successfully.'); e.target.reset(); await loadDashboard(); await loadLeads(); }
+        } catch (err) { showMsg('manual-error', 'Network error. Please try again.'); }
+        finally { btn.disabled = false; btn.textContent = 'Add Lead'; }
+    });
+
+    // ─── ICP / Lead Scoring ───────────────────────────────────────────
+    const icpInput   = document.getElementById('target-icp-input');
+    const icpCounter = document.getElementById('icp-char-count');
+    const saveIcpBtn = document.getElementById('save-icp-btn');
+
+    icpInput.addEventListener('input', function () {
+        const len = Math.min(this.value.length, 500);
+        icpCounter.textContent   = len + '/500';
+        icpCounter.style.color   = len > 450 ? 'var(--warning)' : 'var(--muted)';
+        if (this.value.length > 500) this.value = this.value.slice(0, 500);
+    });
+
+    saveIcpBtn.addEventListener('click', async function () {
+        hideMsg('icp-error'); hideMsg('icp-success');
+        const target_icp = icpInput.value.trim();
+        saveIcpBtn.disabled = true; saveIcpBtn.textContent = 'Saving…';
+        try {
+            const res = await fetch('/api/portal/settings', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ target_icp }) });
+            const d = await res.json();
+            if (!res.ok) { showMsg('icp-error', d.error || 'Failed to save.'); saveIcpBtn.textContent = 'Save'; }
+            else { saveIcpBtn.textContent = 'Saved ✓'; setTimeout(function () { saveIcpBtn.textContent = 'Save'; }, 2000); }
+        } catch (err) { showMsg('icp-error', 'Network error.'); saveIcpBtn.textContent = 'Save'; }
+        finally { saveIcpBtn.disabled = false; }
+    });
+
+    // ─── Password Strength ────────────────────────────────────────────
+    function passwordStrength(pw) {
+        if (pw.length < 8) return 'weak';
+        const types = [/[a-z]/.test(pw), (/[A-Z]/.test(pw) || /\d/.test(pw)), /[^a-zA-Z0-9]/.test(pw)].filter(Boolean).length;
+        return (types >= 3 && pw.length >= 10) ? 'strong' : types >= 2 ? 'medium' : 'weak';
+    }
+
+    document.getElementById('new-password').addEventListener('input', function () {
+        const wrap = document.getElementById('pw-strength');
+        const fill = document.getElementById('pw-strength-fill');
+        const lbl  = document.getElementById('pw-strength-label');
+        if (!this.value) { wrap.style.display = 'none'; return; }
+        wrap.style.display = 'flex';
+        const m = { weak:{ w:'33%',c:'var(--error)',t:'Weak' }, medium:{ w:'66%',c:'var(--warning)',t:'Medium' }, strong:{ w:'100%',c:'var(--success)',t:'Strong' } };
+        const s = m[passwordStrength(this.value)];
+        fill.style.width = s.w; fill.style.background = s.c;
+        lbl.textContent = s.t; lbl.style.color = s.c;
+    });
+
+    // ─── Show/Hide Password ───────────────────────────────────────────
+    document.querySelectorAll('.pw-toggle').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const input = document.getElementById(this.dataset.target);
+            input.type = input.type === 'password' ? 'text' : 'password';
+            this.textContent = input.type === 'password' ? 'Show' : 'Hide';
         });
+    });
 
-        // ─── CSV Upload ────────────────────────────────────────────────
-        let selectedFile = null;
-        const dropZone = document.getElementById('drop-zone');
-        const csvInput = document.getElementById('csv-input');
-        const uploadBtn = document.getElementById('upload-btn');
-        const filePreview = document.getElementById('file-preview');
+    // ─── Change Password ──────────────────────────────────────────────
+    document.getElementById('password-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        hideMsg('password-error'); hideMsg('password-success');
+        const currentPw = document.getElementById('current-password').value;
+        const newPw     = document.getElementById('new-password').value;
+        if (!currentPw || !newPw) { showMsg('password-error', 'Both fields are required.'); return; }
+        if (newPw.length < 8)     { showMsg('password-error', 'New password must be at least 8 characters.'); return; }
+        const btn = e.target.querySelector('button[type="submit"]');
+        btn.disabled = true; btn.textContent = 'Updating…';
+        try {
+            const res = await fetch('/api/portal/change-password', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ current_password: currentPw, new_password: newPw }) });
+            const d = await res.json();
+            if (!res.ok) { showMsg('password-error', d.error || 'Failed to update password.'); }
+            else { showMsg('password-success', 'Password updated successfully.'); e.target.reset(); document.getElementById('pw-strength').style.display = 'none'; }
+        } catch (err) { showMsg('password-error', 'Network error. Please try again.'); }
+        finally { btn.disabled = false; btn.textContent = 'Update Password'; }
+    });
 
-        dropZone.addEventListener('click', function () { csvInput.click(); });
-        dropZone.addEventListener('dragover', function (e) { e.preventDefault(); dropZone.classList.add('drag-over'); });
-        dropZone.addEventListener('dragleave', function () { dropZone.classList.remove('drag-over'); });
-        dropZone.addEventListener('drop', function (e) {
-            e.preventDefault();
-            dropZone.classList.remove('drag-over');
-            const f = e.dataTransfer.files[0];
-            if (f) handleFile(f);
-        });
-        csvInput.addEventListener('change', function () {
-            if (csvInput.files[0]) handleFile(csvInput.files[0]);
-        });
+    // ─── Intake redirect success ──────────────────────────────────────
+    if (sessionStorage.getItem('cm_intake_success')) {
+        sessionStorage.removeItem('cm_intake_success');
+        switchTab('settings');
+        showMsg('icp-success', 'Settings saved. Your lead scoring is now optimized for your business.');
+    }
 
-        function handleFile(file) {
-            if (!file.name.toLowerCase().endsWith('.csv')) {
-                showMsg('csv-error', 'Please select a .csv file.');
-                return;
-            }
-            selectedFile = file;
-            uploadBtn.disabled = false;
-            dropZone.querySelector('.drop-text').textContent = file.name;
-
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const lines = e.target.result.split('\n').filter(Boolean);
-                const headers = parseCsvRow(lines[0]);
-                const rows = lines.slice(1, 4).map(parseCsvRow);
-                renderPreview(headers, rows);
-            };
-            reader.readAsText(file);
-        }
-
-        function parseCsvRow(row) {
-            const result = [];
-            let inQuote = false, cur = '';
-            for (let i = 0; i < row.length; i++) {
-                const ch = row[i];
-                if (ch === '"') { inQuote = !inQuote; }
-                else if (ch === ',' && !inQuote) { result.push(cur.trim()); cur = ''; }
-                else { cur += ch; }
-            }
-            result.push(cur.trim());
-            return result;
-        }
-
-        function renderPreview(headers, rows) {
-            const table = document.getElementById('preview-table');
-            table.innerHTML =
-                '<tr>' + headers.map(function (h) { return '<th>' + escHtml(h) + '</th>'; }).join('') + '</tr>' +
-                rows.map(function (r) {
-                    return '<tr>' + r.map(function (c) { return '<td>' + escHtml(c) + '</td>'; }).join('') + '</tr>';
-                }).join('');
-            filePreview.classList.add('visible');
-        }
-
-        uploadBtn.addEventListener('click', async function () {
-            if (!selectedFile) return;
-            hideMsg('csv-error');
-            hideMsg('csv-success');
-            uploadBtn.disabled = true;
-            uploadBtn.textContent = 'Uploading…';
-
-            const formData = new FormData();
-            formData.append('file', selectedFile);
-
-            try {
-                const res = await fetch('/api/portal/upload-csv', {
-                    method: 'POST',
-                    headers: { 'Authorization': 'Bearer ' + token },
-                    body: formData,
-                });
-                const d = await res.json();
-                if (!res.ok) {
-                    showMsg('csv-error', d.error || 'Upload failed.');
-                } else {
-                    showMsg('csv-success', `Successfully uploaded ${d.count} lead${d.count !== 1 ? 's' : ''}.`);
-                    selectedFile = null;
-                    csvInput.value = '';
-                    filePreview.classList.remove('visible');
-                    dropZone.querySelector('.drop-text').textContent = 'Drag & drop your CSV file here';
-                    await loadDashboard();
-                    await loadLeads();
-                }
-            } catch (err) {
-                showMsg('csv-error', 'Network error. Please try again.');
-            } finally {
-                uploadBtn.disabled = true;
-                uploadBtn.textContent = 'Upload Leads';
-            }
-        });
-
-        // ─── Manual Add ────────────────────────────────────────────────
-        document.getElementById('manual-form').addEventListener('submit', async function (e) {
-            e.preventDefault();
-            hideMsg('manual-error');
-            hideMsg('manual-success');
-
-            const form = e.target;
-            const data = {};
-            new FormData(form).forEach(function (v, k) { data[k] = v.trim(); });
-
-            if (!data.first_name) {
-                showMsg('manual-error', 'First name is required.');
-                return;
-            }
-
-            const submitBtn = form.querySelector('button[type="submit"]');
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Adding…';
-
-            try {
-                const res = await fetch('/api/portal/add-lead', {
-                    method: 'POST',
-                    headers: authHeaders(),
-                    body: JSON.stringify(data),
-                });
-                const d = await res.json();
-                if (!res.ok) {
-                    showMsg('manual-error', d.error || 'Failed to add lead.');
-                } else {
-                    showMsg('manual-success', 'Lead added successfully.');
-                    form.reset();
-                    await loadDashboard();
-                    await loadLeads();
-                }
-            } catch (err) {
-                showMsg('manual-error', 'Network error. Please try again.');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.textContent = 'Add Lead';
-            }
-        });
-
-        // ─── Helpers ───────────────────────────────────────────────────
-        function showMsg(id, msg) {
-            const el = document.getElementById(id);
-            el.textContent = msg;
-            el.classList.add('visible');
-        }
-
-        function hideMsg(id) {
-            const el = document.getElementById(id);
-            el.classList.remove('visible');
-        }
-
-        function escHtml(str) {
-            if (!str) return '';
-            return String(str)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;');
-        }
-
-        // ─── Change Password ───────────────────────────────────────────
-        document.getElementById('password-form').addEventListener('submit', async function (e) {
-            e.preventDefault();
-            hideMsg('password-error');
-            hideMsg('password-success');
-
-            const currentPassword = document.getElementById('current-password').value;
-            const newPassword = document.getElementById('new-password').value;
-
-            if (!currentPassword || !newPassword) {
-                showMsg('password-error', 'Both fields are required.');
-                return;
-            }
-
-            const btn = e.target.querySelector('button[type="submit"]');
-            btn.disabled = true;
-            btn.textContent = 'Updating…';
-
-            try {
-                const res = await fetch('/api/portal/change-password', {
-                    method: 'POST',
-                    headers: authHeaders(),
-                    body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
-                });
-                const d = await res.json();
-                if (!res.ok) {
-                    showMsg('password-error', d.error || 'Failed to update password.');
-                } else {
-                    showMsg('password-success', 'Password updated successfully.');
-                    e.target.reset();
-                }
-            } catch (err) {
-                showMsg('password-error', 'Network error. Please try again.');
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Update Password';
-            }
-        });
-
-        // ─── Load /me (banner + ICP pre-fill) ─────────────────────────
-        async function loadMe() {
-            try {
-                const res = await fetch('/api/portal/me', { headers: authHeaders() });
-                if (!res.ok) return;
-                const d = await res.json();
-
-                // Pre-fill ICP field
-                if (d.target_icp) {
-                    document.getElementById('target-icp-input').value = d.target_icp;
-                }
-
-                // Setup banner
-                const sheetId = d.google_sheet_id || '';
-                const banner = document.getElementById('setup-banner');
-                banner.style.display = 'block';
-                if (sheetId && sheetId !== 'placeholder') {
-                    banner.className = 'setup-banner setup-banner-green';
-                    banner.innerHTML = '&#10003; Your portal is fully set up. Upload your leads below.';
-                } else {
-                    banner.className = 'setup-banner setup-banner-yellow';
-                    banner.innerHTML = '&#8987; Your portal is being set up. While you wait, complete your intake form to optimize your lead scoring. &nbsp;<a href="/portal/intake" class="banner-btn">Complete Intake Form &rarr;</a>';
-                }
-            } catch (e) {
-                console.error('loadMe error', e);
-            }
-        }
-
-        // ─── Save ICP ──────────────────────────────────────────────────
-        document.getElementById('save-icp-btn').addEventListener('click', async function () {
-            hideMsg('icp-error');
-            hideMsg('icp-success');
-            const target_icp = document.getElementById('target-icp-input').value.trim();
-            const btn = this;
-            btn.disabled = true;
-            btn.textContent = 'Saving…';
-
-            try {
-                const res = await fetch('/api/portal/settings', {
-                    method: 'POST',
-                    headers: authHeaders(),
-                    body: JSON.stringify({ target_icp }),
-                });
-                const d = await res.json();
-                if (!res.ok) {
-                    showMsg('icp-error', d.error || 'Failed to save settings.');
-                } else {
-                    showMsg('icp-success', 'Lead scoring settings saved.');
-                }
-            } catch (err) {
-                showMsg('icp-error', 'Network error. Please try again.');
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Save';
-            }
-        });
-
-        // ─── Show intake success toast if redirected from intake form ──
-        if (sessionStorage.getItem('cm_intake_success')) {
-            sessionStorage.removeItem('cm_intake_success');
-            showMsg('icp-success', 'Settings saved. Your lead scoring is now optimized for your business.');
-            document.getElementById('icp-success').scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-
-        // ─── Init ──────────────────────────────────────────────────────
-        loadDashboard();
-        loadLeads();
-        loadSequences();
-        loadMe();
-    }());
-    </script>
+    // ─── Init ─────────────────────────────────────────────────────────
+    loadDashboard();
+    loadLeads();
+    loadSequences();
+    loadMe();
+}());
+</script>
 </body>
 </html>
