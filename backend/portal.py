@@ -1,7 +1,10 @@
 import csv
 import io
+import logging
 import os
 from flask import Blueprint, request, jsonify, g
+
+logger = logging.getLogger(__name__)
 from werkzeug.security import check_password_hash, generate_password_hash
 from database import get_db
 from auth import require_auth
@@ -138,8 +141,12 @@ def add_lead():
         return jsonify({"error": "Request body required"}), 400
 
     db = get_db()
+    client = db.execute(
+        "SELECT * FROM clients WHERE id = ?", (client_id,)
+    ).fetchone()
     insert_lead(db, client_id, data)
     lead_with_meta = {**data, "niche": client["niche"]}
+    logger.info(f"[sheets] Attempting to append to sheet_id: '{client['google_sheet_id']}'")
     append_lead_to_sheet(client["google_sheet_id"], lead_with_meta)
 
     name = f"{data.get('first_name', '')} {data.get('last_name', '')}".strip()
