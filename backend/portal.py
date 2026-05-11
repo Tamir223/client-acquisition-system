@@ -226,7 +226,7 @@ def admin_check_client():
 
     db = get_db()
     client = db.execute(
-        "SELECT id, name, email, business_name, google_sheet_id, niche, plan, status FROM clients WHERE email = ?",
+        "SELECT id, name, email, business_name, google_sheet_id, niche, status FROM clients WHERE email = ?",
         (data["email"].strip().lower(),)
     ).fetchone()
 
