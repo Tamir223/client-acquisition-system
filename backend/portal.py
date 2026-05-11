@@ -1,5 +1,6 @@
 import csv
 import io
+import os
 from flask import Blueprint, request, jsonify, g
 from werkzeug.security import check_password_hash, generate_password_hash
 from database import get_db
@@ -179,6 +180,29 @@ def get_sequences():
     ).fetchall()
 
     return jsonify({"sequences": [dict(r) for r in rows]}), 200
+
+
+@portal_bp.route("/api/portal/admin/update-sheet", methods=["GET", "PUT"])
+def admin_update_sheet():
+    admin_key = os.environ.get("ADMIN_KEY")
+    if not admin_key or request.headers.get("X-Admin-Key") != admin_key:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json()
+    if not data or not data.get("email") or not data.get("google_sheet_id"):
+        return jsonify({"error": "email and google_sheet_id are required"}), 400
+
+    db = get_db()
+    result = db.execute(
+        "UPDATE clients SET google_sheet_id = ? WHERE email = ?",
+        (data["google_sheet_id"], data["email"]),
+    )
+    db.commit()
+
+    if result.rowcount == 0:
+        return jsonify({"error": "No client found with that email"}), 404
+
+    return jsonify({"success": True}), 200
 
 
 @portal_bp.route("/api/portal/change-password", methods=["POST"])
