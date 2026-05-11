@@ -140,10 +140,14 @@ def add_lead():
     if not data:
         return jsonify({"error": "Request body required"}), 400
 
+    sql = "SELECT id, name, email, business_name, google_sheet_id, niche, status FROM clients WHERE id = %s"
+    logger.info(f"[sheets] Fetching client with SQL: {sql} | client_id={client_id}")
     db = get_db()
     client = db.execute(
-        "SELECT * FROM clients WHERE id = ?", (client_id,)
+        "SELECT id, name, email, business_name, google_sheet_id, niche, status FROM clients WHERE id = ?",
+        (client_id,)
     ).fetchone()
+    logger.info(f"[sheets] Client row: {dict(client) if client else None}")
     insert_lead(db, client_id, data)
     lead_with_meta = {**data, "niche": client["niche"]}
     logger.info(f"[sheets] Attempting to append to sheet_id: '{client['google_sheet_id']}'")
