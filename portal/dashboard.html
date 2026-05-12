@@ -520,7 +520,7 @@
         var main = document.getElementById('portal-main');
         if (main) main.scrollTop = 0;
         sessionStorage.setItem('cm_active_tab', tabName);
-        closeDrawer();
+        if (drawer && drawer.classList.contains('open')) closeDrawer();
     }
 
     document.querySelectorAll('.sidebar-item[data-tab]').forEach(function(item) {
@@ -565,9 +565,10 @@
     }
 
     function closeDrawer() {
+        if (!drawer) return;
         drawer.classList.remove('open');
         drawer.setAttribute('aria-hidden', 'true');
-        drawerOverlay.classList.remove('visible');
+        if (drawerOverlay) drawerOverlay.classList.remove('visible');
         document.body.style.overflow = '';
     }
 
