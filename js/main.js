@@ -265,6 +265,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initReveal();
 
+    // ── Mobile Nav ──
+    const hamburger      = document.getElementById('hamburger');
+    const mobileOverlay  = document.getElementById('mobile-overlay');
+    const overlayClose   = document.getElementById('mobile-overlay-close');
+
+    function openMobileNav() {
+        mobileOverlay.classList.add('active');
+        mobileOverlay.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeMobileNav() {
+        mobileOverlay.classList.remove('active');
+        mobileOverlay.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+    }
+
+    if (hamburger)    hamburger.addEventListener('click', openMobileNav);
+    if (overlayClose) overlayClose.addEventListener('click', closeMobileNav);
+
+    if (mobileOverlay) {
+        mobileOverlay.querySelectorAll('.mobile-overlay-link').forEach(link => {
+            link.addEventListener('click', closeMobileNav);
+        });
+    }
+
     // ── FAQ Accordion ──
     document.querySelectorAll('.faq-question').forEach((btn) => {
         btn.addEventListener('click', () => {

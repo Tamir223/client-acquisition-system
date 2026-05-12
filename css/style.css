@@ -266,6 +266,91 @@ h1 {
     border-color: rgba(255, 255, 255, 0.75);
 }
 
+/* ─── Nav Actions ─── */
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* ─── Hamburger ─── */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 36px;
+    height: 36px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    flex-shrink: 0;
+}
+
+.hamburger span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: var(--white);
+    border-radius: 2px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+/* ─── Mobile Overlay ─── */
+.mobile-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: #0d1117;
+    z-index: 1000;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 48px;
+}
+
+.mobile-overlay.active {
+    display: flex;
+}
+
+.mobile-overlay-close {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    background: transparent;
+    border: none;
+    color: var(--white);
+    font-size: 1.75rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 8px;
+    transition: color 0.2s ease;
+}
+
+.mobile-overlay-close:hover { color: var(--accent); }
+
+.mobile-overlay-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 36px;
+}
+
+.mobile-overlay-link {
+    color: var(--white);
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    transition: color 0.2s ease;
+}
+
+.mobile-overlay-link:hover { color: var(--accent); }
+
+.mobile-overlay-cta { margin-top: 8px; }
+
 /* ─── Section Glow Dividers ─── */
 .problem,
 .how-it-works,
@@ -370,12 +455,12 @@ h1 {
 /* ─── Portal Features ─── */
 .portal-features {
     padding: 100px 0;
-    background: var(--dark);
+    background: #1E3A5F;
     text-align: center;
 }
 
-.portal-features h2 { margin-bottom: 16px; }
-.portal-features .section-sub { margin-bottom: 48px; }
+.portal-features h2 { color: #fff; margin-bottom: 16px; }
+.portal-features .section-sub { color: rgba(255, 255, 255, 0.7); margin-bottom: 48px; }
 
 .feature-cards {
     display: grid;
@@ -385,20 +470,20 @@ h1 {
 }
 
 .feature-card {
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 10px;
-    padding: 32px 28px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 32px;
     transition: border-color 0.2s, background 0.2s;
 }
 
 .feature-card:hover {
-    background: rgba(255, 255, 255, 0.09);
-    border-color: rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
 }
 
 .feature-icon {
-    color: rgba(255, 255, 255, 0.8);
+    color: #2E75B6;
     margin-bottom: 20px;
     display: flex;
 }
@@ -412,7 +497,7 @@ h1 {
 }
 
 .feature-card p {
-    color: rgba(255, 255, 255, 0.65);
+    color: rgba(255, 255, 255, 0.8);
     font-size: 0.9375rem;
     line-height: 1.65;
     margin: 0;
@@ -423,27 +508,32 @@ h1 {
     grid-template-columns: repeat(3, 1fr);
     gap: 24px;
     text-align: left;
+    align-items: stretch;
 }
 
 .step {
-    padding: 36px 28px;
-    background: var(--dark);
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    padding: 32px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
 }
 
 .step-number {
     display: block;
-    font-size: 0.7rem;
+    font-size: 3rem;
     font-weight: 700;
-    letter-spacing: 0.15em;
-    color: var(--accent);
-    margin-bottom: 20px;
+    color: #2E75B6;
+    margin-bottom: 16px;
+    line-height: 1;
+    letter-spacing: -0.02em;
 }
 
 .step h3 {
     font-size: 1.1rem;
     font-weight: 700;
+    color: #ffffff;
     margin-bottom: 12px;
     letter-spacing: -0.01em;
     line-height: 1.4;
@@ -451,8 +541,9 @@ h1 {
 
 .step p {
     font-size: 0.9rem;
-    color: var(--muted);
+    color: rgba(255, 255, 255, 0.7);
     line-height: 1.7;
+    margin: 0;
 }
 
 /* ─── Timeline ─── */
@@ -810,12 +901,21 @@ h1 {
 .contact h2           { margin-bottom: 12px; }
 .contact .section-sub { margin-bottom: 48px; }
 
+.form-wrapper {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 40px;
+    background: var(--mid);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
 form {
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    max-width: 480px;
-    margin: 0 auto;
+    gap: 16px;
+    max-width: 100%;
+    margin: 0;
 }
 
 form input {
@@ -940,6 +1040,8 @@ form input::placeholder { color: var(--muted); }
     .timeline-steps   { grid-template-columns: 1fr; }
 
     .nav-links        { display: none; }
+    .btn-ghost-nav    { display: none; }
+    .hamburger        { display: flex; }
 
     .trust-bar {
         font-size: 0.8rem;
@@ -951,6 +1053,10 @@ form input::placeholder { color: var(--muted); }
     .hero-content       { padding: 60px 24px; }
     .footer-nav         { gap: 20px; }
     .pricing-card-inner { padding: 40px 24px; }
+
+    .form-wrapper {
+        padding: 28px 20px;
+    }
 }
 
 @media (max-width: 480px) {

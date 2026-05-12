@@ -44,12 +44,31 @@
                 <a href="#faq" class="nav-link">FAQ</a>
                 <a href="#contact" class="nav-link">Contact</a>
             </div>
-            <a href="/portal" class="btn-ghost-nav">Client Login</a>
+            <div class="nav-actions">
+                <a href="/portal" class="btn-ghost-nav">Client Login</a>
+                <button class="hamburger" id="hamburger" aria-label="Open navigation menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
         </nav>
+
+        <!-- Mobile overlay -->
+        <div class="mobile-overlay" id="mobile-overlay" aria-hidden="true">
+            <button class="mobile-overlay-close" id="mobile-overlay-close" aria-label="Close navigation">✕</button>
+            <nav class="mobile-overlay-nav">
+                <a href="#how-it-works" class="mobile-overlay-link">How It Works</a>
+                <a href="#pricing" class="mobile-overlay-link">Pricing</a>
+                <a href="#faq" class="mobile-overlay-link">FAQ</a>
+                <a href="#contact" class="mobile-overlay-link">Contact</a>
+            </nav>
+            <a href="/portal" class="btn-primary mobile-overlay-cta">Client Login</a>
+        </div>
         <div class="hero-content">
-            <p class="eyebrow">Revenue Recovery System</p>
-            <h1>We Help Local Service Businesses Recover 20–40% of Missed Leads</h1>
-            <p class="subheadline">Most businesses lose 20-40% of their leads to slow follow up. We install a done-for-you automated system in 48 hours — and give you a real time dashboard to track every lead.</p>
+            <p class="eyebrow">AUTOMATED LEAD FOLLOW UP</p>
+            <h1>We Help Businesses Stop Losing Leads to Slow Follow Up</h1>
+            <p class="subheadline">Any business that gets inbound leads is losing revenue to slow follow up. We install a done-for-you automated system in 48 hours — and give you a real time dashboard to track every lead.</p>
             <div class="hero-cta">
                 <a href="https://calendly.com/donald-clientmachinery/30min" class="btn-primary" target="_blank" rel="noopener">Book Your Free Lead Recovery Audit</a>
             </div>
@@ -110,10 +129,10 @@
     </section>
 
     <!-- Lead Dashboard Feature Section -->
-    <section class="portal-features" id="portal-features" style="background:#1E3A5F;padding:80px 0;">
+    <section class="portal-features" id="portal-features">
         <div class="container">
-            <h2 style="color:#fff;text-align:center;margin-bottom:12px;">Your Own Lead Dashboard — Included</h2>
-            <p class="section-sub" style="color:rgba(255,255,255,0.7);text-align:center;margin-bottom:48px;">Every client gets a real time portal to manage their leads and track results.</p>
+            <h2>Your Own Lead Dashboard — Included</h2>
+            <p class="section-sub">Every client gets a real time portal to manage their leads and track results.</p>
             <div class="feature-cards">
                 <div class="feature-card">
                     <div class="feature-icon">
@@ -333,16 +352,18 @@
         <div class="container">
             <h2>Not Ready to Book a Call?</h2>
             <p class="section-sub">Leave your info and we'll send a free lead flow analysis within 24 hours.</p>
-            <form id="lead-form">
-                <input type="text" name="first_name" placeholder="First Name" required>
-                <input type="text" name="last_name" placeholder="Last Name" required>
-                <input type="email" name="email" placeholder="Business Email" required>
-                <input type="text" name="company" placeholder="Business Name" required>
-                <input type="tel" name="phone" placeholder="Phone Number">
-                <input type="text" name="niche" placeholder="Your Industry (e.g. HVAC, Plumbing, Roofing, Trucking)">
-                <button type="submit" class="btn-primary">Send My Free Analysis</button>
-            </form>
-            <div id="form-message" class="form-message"></div>
+            <div class="form-wrapper">
+                <form id="lead-form">
+                    <input type="text" name="first_name" placeholder="First Name" required>
+                    <input type="text" name="last_name" placeholder="Last Name" required>
+                    <input type="email" name="email" placeholder="Business Email" required>
+                    <input type="text" name="company" placeholder="Business Name" required>
+                    <input type="tel" name="phone" placeholder="Phone Number">
+                    <input type="text" name="niche" placeholder="Your Industry (e.g. HVAC, Plumbing, Roofing, Trucking)">
+                    <button type="submit" class="btn-primary">Send My Free Analysis</button>
+                </form>
+                <div id="form-message" class="form-message"></div>
+            </div>
         </div>
     </section>
 
