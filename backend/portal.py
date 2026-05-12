@@ -11,7 +11,7 @@ import psycopg2
 from flask import Blueprint, request, jsonify, g
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from database import get_db, seed_sequences
+from database import get_db, seed_sequences, add_notification, DEFAULT_SEQUENCES
 from auth import require_auth
 from sheets import create_client_sheet, append_lead_to_sheet
 
@@ -151,6 +151,7 @@ def upload_csv():
         append_lead_to_sheet(sheet_id, lead_with_meta)
 
     log_activity(db, client_id, "csv_upload", f"Uploaded {len(leads)} leads via CSV")
+    add_notification(db, client_id, "csv_upload", f"Uploaded {len(leads)} leads via CSV")
     db.commit()
 
     return jsonify({"success": True, "count": len(leads)}), 200
@@ -182,6 +183,7 @@ def add_lead():
 
     name = f"{data.get('first_name', '')} {data.get('last_name', '')}".strip()
     log_activity(db, client_id, "manual_add", f"Manually added lead: {name}")
+    add_notification(db, client_id, "manual_add", f"New lead added: {name}")
     db.commit()
 
     return jsonify({"success": True}), 200
@@ -194,9 +196,10 @@ def get_leads():
     db = get_db()
 
     rows = db.execute(
-        """SELECT id, first_name, last_name, email, phone, service_requested, lead_source, uploaded_at
+        """SELECT id, first_name, last_name, email, phone, service_requested,
+                  lead_source, status, notes, uploaded_at
            FROM lead_uploads WHERE client_id = ?
-           ORDER BY uploaded_at DESC LIMIT 100""",
+           ORDER BY uploaded_at DESC LIMIT 200""",
         (client_id,)
     ).fetchall()
 
@@ -211,7 +214,7 @@ def get_sequences():
     db = get_db()
 
     rows = db.execute(
-        """SELECT touch_number, send_day, subject, status
+        """SELECT id, touch_number, send_day, subject, body, status
            FROM sequences WHERE client_id = ?
            ORDER BY touch_number ASC""",
         (client_id,)
@@ -492,3 +495,134 @@ def change_password():
     db.commit()
 
     return jsonify({"success": True}), 200
+
+
+@portal_bp.route("/api/portal/sequences/update", methods=["POST"])
+@require_auth
+def update_sequence():
+    client_id = g.client["id"]
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Request body required"}), 400
+
+    touch_number = data.get("touch_number")
+    if not touch_number:
+        return jsonify({"error": "touch_number is required"}), 400
+
+    db = get_db()
+    db.execute(
+        """UPDATE sequences
+           SET subject = ?, body = ?, send_day = ?, status = ?
+           WHERE client_id = ? AND touch_number = ?""",
+        (
+            (data.get("subject") or "").strip(),
+            (data.get("body") or "").strip(),
+            int(data.get("send_day", 1)),
+            data.get("status", "active"),
+            client_id,
+            int(touch_number),
+        ),
+    )
+    db.commit()
+    return jsonify({"success": True}), 200
+
+
+@portal_bp.route("/api/portal/sequences/reset", methods=["POST"])
+@require_auth
+def reset_sequences():
+    client_id = g.client["id"]
+    db = get_db()
+    db.execute("DELETE FROM sequences WHERE client_id = ?", (client_id,))
+    seed_sequences(db, client_id)
+    db.commit()
+    return jsonify({"success": True}), 200
+
+
+@portal_bp.route("/api/portal/notifications", methods=["GET"])
+@require_auth
+def get_notifications():
+    client_id = g.client["id"]
+    db = get_db()
+    rows = db.execute(
+        """SELECT id, type, message, is_read, created_at
+           FROM notifications WHERE client_id = ?
+           ORDER BY created_at DESC LIMIT 20""",
+        (client_id,)
+    ).fetchall()
+    unread = db.execute(
+        "SELECT COUNT(*) AS count FROM notifications WHERE client_id = ? AND is_read = FALSE",
+        (client_id,)
+    ).fetchone()["count"]
+    return jsonify({"notifications": [dict(r) for r in rows], "unread_count": unread}), 200
+
+
+@portal_bp.route("/api/portal/notifications/read", methods=["POST"])
+@require_auth
+def mark_notifications_read():
+    client_id = g.client["id"]
+    data = request.get_json() or {}
+    db = get_db()
+    if data.get("all"):
+        db.execute(
+            "UPDATE notifications SET is_read = TRUE WHERE client_id = ?",
+            (client_id,)
+        )
+    elif data.get("notification_id"):
+        db.execute(
+            "UPDATE notifications SET is_read = TRUE WHERE id = ? AND client_id = ?",
+            (int(data["notification_id"]), client_id)
+        )
+    db.commit()
+    return jsonify({"success": True}), 200
+
+
+@portal_bp.route("/api/portal/leads/status", methods=["PATCH"])
+@require_auth
+def update_lead_status():
+    client_id = g.client["id"]
+    data = request.get_json()
+    if not data or not data.get("lead_id") or not data.get("status"):
+        return jsonify({"error": "lead_id and status are required"}), 400
+    valid_statuses = {"New", "Contacted", "Replied", "Booked", "Closed"}
+    if data["status"] not in valid_statuses:
+        return jsonify({"error": "Invalid status"}), 400
+    db = get_db()
+    db.execute(
+        "UPDATE lead_uploads SET status = ? WHERE id = ? AND client_id = ?",
+        (data["status"], int(data["lead_id"]), client_id)
+    )
+    db.commit()
+    return jsonify({"success": True}), 200
+
+
+@portal_bp.route("/api/portal/leads/notes", methods=["PATCH"])
+@require_auth
+def update_lead_notes():
+    client_id = g.client["id"]
+    data = request.get_json()
+    if not data or data.get("lead_id") is None:
+        return jsonify({"error": "lead_id is required"}), 400
+    db = get_db()
+    db.execute(
+        "UPDATE lead_uploads SET notes = ? WHERE id = ? AND client_id = ?",
+        ((data.get("notes") or "").strip(), int(data["lead_id"]), client_id)
+    )
+    db.commit()
+    return jsonify({"success": True}), 200
+
+
+@portal_bp.route("/api/portal/refresh-token", methods=["POST"])
+@require_auth
+def refresh_token():
+    import datetime
+    import jwt as pyjwt
+    client = g.client
+    secret = os.environ.get("PORTAL_JWT_SECRET", "dev-secret")
+    payload = {
+        "client_id": client["id"],
+        "exp": datetime.datetime.utcnow() + datetime.timedelta(days=7),
+    }
+    new_token = pyjwt.encode(payload, secret, algorithm="HS256")
+    if isinstance(new_token, bytes):
+        new_token = new_token.decode("utf-8")
+    return jsonify({"token": new_token}), 200

@@ -145,9 +145,28 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS notifications (
+            id SERIAL PRIMARY KEY,
+            client_id INTEGER NOT NULL REFERENCES clients(id),
+            type TEXT,
+            message TEXT,
+            is_read BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cur.execute("ALTER TABLE lead_uploads ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'New'")
+    cur.execute("ALTER TABLE lead_uploads ADD COLUMN IF NOT EXISTS notes TEXT DEFAULT ''")
     conn.commit()
     cur.close()
     conn.close()
+
+
+def add_notification(db, client_id, notif_type, message):
+    db.execute(
+        "INSERT INTO notifications (client_id, type, message) VALUES (?, ?, ?)",
+        (client_id, notif_type, message)
+    )
 
 
 def seed_sequences(db, client_id):

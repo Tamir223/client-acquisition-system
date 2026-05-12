@@ -15,13 +15,77 @@
     <!-- ── Topbar ─────────────────────────────────────────────────── -->
     <header class="topbar">
         <div class="topbar-left">
+            <button class="hamburger-btn" id="hamburger-btn" aria-label="Open menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
             <div class="topbar-logo">Client Machinery</div>
         </div>
         <div class="topbar-right">
             <div class="topbar-welcome">Welcome, <span id="business-name">—</span></div>
+            <!-- Notifications Bell -->
+            <div class="notif-wrap" id="notif-wrap">
+                <button class="notif-bell-btn" id="notif-bell-btn" aria-label="Notifications">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    <span class="notif-badge" id="notif-badge" style="display:none;"></span>
+                </button>
+                <div class="notif-panel" id="notif-panel" style="display:none;">
+                    <div class="notif-panel-header">
+                        <span class="notif-panel-title">Notifications</span>
+                        <button class="notif-mark-all" id="notif-mark-all">Mark all read</button>
+                    </div>
+                    <div class="notif-list" id="notif-list">
+                        <div class="notif-empty">No notifications yet.</div>
+                    </div>
+                </div>
+            </div>
             <button class="btn btn-danger" id="signout-btn">Sign Out</button>
         </div>
     </header>
+
+    <!-- ── Mobile Drawer ─────────────────────────────────────────── -->
+    <div class="mobile-drawer" id="mobile-drawer" aria-hidden="true">
+        <div class="drawer-header">
+            <div class="drawer-logo">Client Machinery</div>
+            <button class="drawer-close" id="drawer-close" aria-label="Close menu">✕</button>
+        </div>
+        <ul class="drawer-nav">
+            <li class="drawer-item active" data-tab="dashboard">
+                <span class="drawer-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
+                <span>Dashboard</span>
+            </li>
+            <li class="drawer-item" data-tab="leads">
+                <span class="drawer-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span>
+                <span>My Leads</span>
+            </li>
+            <li class="drawer-item" data-tab="sequence">
+                <span class="drawer-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+                <span>My Sequence</span>
+            </li>
+            <li class="drawer-item" data-tab="settings">
+                <span class="drawer-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+                <span>Settings</span>
+            </li>
+        </ul>
+        <div class="drawer-divider"></div>
+        <ul class="drawer-nav">
+            <li>
+                <a href="/portal/intake" class="drawer-link">
+                    <span class="drawer-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg></span>
+                    <span>Intake Form</span>
+                </a>
+            </li>
+            <li>
+                <a href="mailto:support@clientmachinery.com" class="drawer-link">
+                    <span class="drawer-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+                    <span>Support</span>
+                </a>
+            </li>
+        </ul>
+        <div class="drawer-signout">
+            <button class="btn btn-danger" id="drawer-signout-btn" style="width:100%;justify-content:center;">Sign Out</button>
+        </div>
+    </div>
+    <div class="drawer-overlay" id="drawer-overlay"></div>
 
     <!-- ── Body ──────────────────────────────────────────────────── -->
     <div class="portal-body">
@@ -71,7 +135,6 @@
             <!-- ════ PANEL: DASHBOARD ════ -->
             <div class="panel active" id="panel-dashboard">
 
-                <!-- Setup Banner -->
                 <div id="setup-banner" class="setup-banner" style="display:none;"></div>
 
                 <!-- Welcome Card (0 leads) -->
@@ -94,28 +157,12 @@
                     </div>
                 </div>
 
-                <!-- Stats -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value" id="stat-total">—</div>
-                        <div class="stat-label">Total Leads</div>
-                        <div class="stat-hint" id="hint-total"></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="stat-contacted">—</div>
-                        <div class="stat-label">Contacted</div>
-                        <div class="stat-hint" id="hint-contacted"></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="stat-replied">—</div>
-                        <div class="stat-label">Replied</div>
-                        <div class="stat-hint" id="hint-replied"></div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="stat-booked">—</div>
-                        <div class="stat-label">Booked</div>
-                        <div class="stat-hint" id="hint-booked"></div>
-                    </div>
+                <!-- Stats (with skeleton) -->
+                <div class="stats-grid" id="stats-grid">
+                    <div class="stat-card skeleton-card" id="stat-card-0"><div class="skeleton-line skeleton-lg"></div><div class="skeleton-line skeleton-sm"></div></div>
+                    <div class="stat-card skeleton-card" id="stat-card-1"><div class="skeleton-line skeleton-lg"></div><div class="skeleton-line skeleton-sm"></div></div>
+                    <div class="stat-card skeleton-card" id="stat-card-2"><div class="skeleton-line skeleton-lg"></div><div class="skeleton-line skeleton-sm"></div></div>
+                    <div class="stat-card skeleton-card" id="stat-card-3"><div class="skeleton-line skeleton-lg"></div><div class="skeleton-line skeleton-sm"></div></div>
                 </div>
 
                 <!-- Activity + Pipeline -->
@@ -126,7 +173,9 @@
                             <a href="#" id="activity-view-all" class="activity-view-all" style="display:none;">View all</a>
                         </div>
                         <ul class="activity-list" id="activity-list">
-                            <li class="activity-empty">Loading activity&hellip;</li>
+                            <li class="activity-item"><div class="skeleton-line" style="width:100%;height:32px;border-radius:6px;margin:4px 0;"></div></li>
+                            <li class="activity-item"><div class="skeleton-line" style="width:80%;height:32px;border-radius:6px;margin:4px 0;"></div></li>
+                            <li class="activity-item"><div class="skeleton-line" style="width:90%;height:32px;border-radius:6px;margin:4px 0;"></div></li>
                         </ul>
                     </div>
 
@@ -171,8 +220,6 @@
                         </div>
                         <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
                             <button class="btn btn-primary" id="upload-btn" style="width:auto;" disabled>Upload Leads</button>
-                            <div class="success-msg" id="csv-success" style="margin:0;flex:1;"></div>
-                            <div class="error-msg" id="csv-error" style="margin:0;flex:1;"></div>
                         </div>
                     </div>
 
@@ -201,13 +248,11 @@
                             </div>
                             <button type="submit" class="btn btn-primary">Add Lead</button>
                         </form>
-                        <div class="success-msg" id="manual-success" style="margin-top:16px;"></div>
-                        <div class="error-msg" id="manual-error" style="margin-top:16px;"></div>
                     </div>
                 </div>
 
                 <!-- Leads Table -->
-                <div class="card">
+                <div class="card" id="leads-table-card">
                     <div class="table-wrapper">
                         <table class="leads-table">
                             <thead>
@@ -216,14 +261,24 @@
                                     <th>Email</th>
                                     <th>Phone</th>
                                     <th>Service</th>
+                                    <th>Notes</th>
                                     <th>Status</th>
                                     <th>Date Added</th>
                                 </tr>
                             </thead>
                             <tbody id="leads-tbody">
-                                <tr class="empty-row"><td colspan="6">Loading leads&hellip;</td></tr>
+                                <tr class="empty-row"><td colspan="7">
+                                    <div class="skeleton-line" style="width:100%;height:20px;border-radius:4px;margin:4px 0;"></div>
+                                    <div class="skeleton-line" style="width:90%;height:20px;border-radius:4px;margin:4px 0;"></div>
+                                    <div class="skeleton-line" style="width:95%;height:20px;border-radius:4px;margin:4px 0;"></div>
+                                </td></tr>
                             </tbody>
                         </table>
+                    </div>
+                    <!-- Pagination -->
+                    <div class="pagination-wrap" id="pagination-wrap" style="display:none;">
+                        <div class="pagination-info" id="pagination-info"></div>
+                        <div class="pagination-controls" id="pagination-controls"></div>
                     </div>
                 </div>
 
@@ -232,15 +287,22 @@
             <!-- ════ PANEL: MY SEQUENCE ════ -->
             <div class="panel" id="panel-sequence">
 
-                <h2 class="panel-title" style="margin-bottom:8px;">My Sequence</h2>
-                <p style="font-size:0.875rem;color:var(--muted);margin-bottom:24px;">Your 5-touch automated follow-up sequence &mdash; <span style="color:var(--success);font-weight:600;">Active</span></p>
+                <div class="sequence-panel-header">
+                    <div>
+                        <h2 class="panel-title" style="margin-bottom:4px;">My Sequence</h2>
+                        <p style="font-size:0.875rem;color:var(--muted);margin-bottom:0;">Your 5-touch automated follow-up sequence &mdash; <span style="color:var(--success);font-weight:600;" id="seq-status-label">Active</span></p>
+                    </div>
+                    <button class="btn btn-secondary" id="reset-sequences-btn" style="width:auto;white-space:nowrap;">Reset to Default</button>
+                </div>
 
                 <div class="sequence-empty" id="sequence-empty" style="display:none;">
                     Your 5-touch follow-up sequence is being configured.<br>
                     <a href="/portal/intake">Complete your intake form</a> to speed up the process.
                 </div>
 
-                <div class="sequence-cards" id="sequence-cards" style="display:none;"></div>
+                <div class="sequence-list" id="sequence-list" style="display:none;">
+                    <!-- Cards rendered by JS -->
+                </div>
 
             </div><!-- /panel-sequence -->
 
@@ -319,30 +381,38 @@
         </main>
     </div><!-- /portal-body -->
 
-    <!-- ── Mobile Bottom Nav ──────────────────────────────────────── -->
-    <nav class="mobile-nav" id="mobile-nav">
-        <button class="mobile-nav-btn active" data-tab="dashboard">
-            <span class="mobile-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></span>
-            <span class="mobile-nav-label">Home</span>
-        </button>
-        <button class="mobile-nav-btn" data-tab="leads">
-            <span class="mobile-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span>
-            <span class="mobile-nav-label">Leads</span>
-        </button>
-        <button class="mobile-nav-btn" data-tab="sequence">
-            <span class="mobile-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
-            <span class="mobile-nav-label">Sequence</span>
-        </button>
-        <button class="mobile-nav-btn" data-tab="settings">
-            <span class="mobile-nav-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
-            <span class="mobile-nav-label">Settings</span>
-        </button>
-    </nav>
+    <!-- ── Toast Container ───────────────────────────────────────── -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- ── Confirm Dialog ────────────────────────────────────────── -->
+    <div class="modal-backdrop" id="confirm-modal" style="display:none;" role="dialog" aria-modal="true">
+        <div class="modal-box">
+            <p class="modal-message" id="confirm-message">Are you sure?</p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="confirm-no">Cancel</button>
+                <button class="btn btn-primary" id="confirm-yes" style="width:auto;">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Session Timeout Modal ─────────────────────────────────── -->
+    <div class="modal-backdrop" id="session-modal" style="display:none;" role="dialog" aria-modal="true">
+        <div class="modal-box">
+            <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:8px;">Session Expiring</h3>
+            <p class="modal-message">Your session is about to expire. Click below to stay logged in.</p>
+            <div class="modal-actions" style="margin-top:20px;">
+                <button class="btn btn-secondary" id="session-logout-btn">Log Out</button>
+                <button class="btn btn-primary" id="session-stay-btn" style="width:auto;">Stay Logged In</button>
+            </div>
+        </div>
+    </div>
 
 </div><!-- /portal-shell -->
 
 <script>
 (function () {
+    'use strict';
+
     const token = sessionStorage.getItem('cm_token');
     if (!token) { window.location.href = '/portal'; return; }
 
@@ -350,10 +420,14 @@
     document.getElementById('business-name').textContent = business;
 
     // ─── State ──────────────────────────────────────────────────────
-    let dashData  = null;
-    let allLeads  = [];
-    let meData    = null;
-    let leadsFilter = '';
+    let dashData       = null;
+    let allLeads       = [];
+    let seqData        = [];
+    let meData         = null;
+    let leadsFilter    = '';
+    let currentPage    = 1;
+    const PAGE_SIZE    = 5;
+    const SEND_DAYS    = [1, 2, 3, 5, 7, 10, 14, 21, 30];
 
     // ─── Helpers ────────────────────────────────────────────────────
     function authHeaders() {
@@ -395,70 +469,210 @@
         if (el) el.classList.remove('visible');
     }
 
-    // ─── Tab / Panel Navigation ──────────────────────────────────────
-    function switchTab(tabName) {
-        document.querySelectorAll('.sidebar-item[data-tab]').forEach(function (el) {
-            el.classList.toggle('active', el.dataset.tab === tabName);
+    // ─── Toast Notifications ─────────────────────────────────────────
+    function showToast(message, type) {
+        type = type || 'success';
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = 'toast toast-' + type;
+        toast.innerHTML = '<span class="toast-msg">' + escHtml(message) + '</span>' +
+            '<button class="toast-close" aria-label="Dismiss">&times;</button>';
+        container.appendChild(toast);
+        // trigger transition
+        requestAnimationFrame(function() {
+            requestAnimationFrame(function() { toast.classList.add('visible'); });
         });
-        document.querySelectorAll('.mobile-nav-btn[data-tab]').forEach(function (el) {
-            el.classList.toggle('active', el.dataset.tab === tabName);
+        var timer = setTimeout(function() { dismissToast(toast); }, 3500);
+        toast.querySelector('.toast-close').addEventListener('click', function() {
+            clearTimeout(timer);
+            dismissToast(toast);
         });
-        document.querySelectorAll('.panel').forEach(function (el) {
-            el.classList.toggle('active', el.id === 'panel-' + tabName);
-        });
-        // Scroll portal-main to top on tab switch
-        const main = document.getElementById('portal-main');
-        if (main) main.scrollTop = 0;
-        sessionStorage.setItem('cm_active_tab', tabName);
     }
 
-    document.querySelectorAll('.sidebar-item[data-tab]').forEach(function (item) {
-        item.addEventListener('click', function () { switchTab(this.dataset.tab); });
+    function dismissToast(toast) {
+        toast.classList.remove('visible');
+        setTimeout(function() { toast && toast.remove(); }, 350);
+    }
+
+    // ─── Confirm Dialog ──────────────────────────────────────────────
+    function showConfirm(message) {
+        return new Promise(function(resolve) {
+            var modal = document.getElementById('confirm-modal');
+            document.getElementById('confirm-message').textContent = message;
+            modal.style.display = 'flex';
+            function cleanup() { modal.style.display = 'none'; }
+            document.getElementById('confirm-yes').onclick = function() { cleanup(); resolve(true); };
+            document.getElementById('confirm-no').onclick  = function() { cleanup(); resolve(false); };
+        });
+    }
+
+    // ─── Tab / Panel Navigation ──────────────────────────────────────
+    function switchTab(tabName) {
+        document.querySelectorAll('.sidebar-item[data-tab]').forEach(function(el) {
+            el.classList.toggle('active', el.dataset.tab === tabName);
+        });
+        document.querySelectorAll('.drawer-item[data-tab]').forEach(function(el) {
+            el.classList.toggle('active', el.dataset.tab === tabName);
+        });
+        document.querySelectorAll('.panel').forEach(function(el) {
+            el.classList.toggle('active', el.id === 'panel-' + tabName);
+        });
+        var main = document.getElementById('portal-main');
+        if (main) main.scrollTop = 0;
+        sessionStorage.setItem('cm_active_tab', tabName);
+        closeDrawer();
+    }
+
+    document.querySelectorAll('.sidebar-item[data-tab]').forEach(function(item) {
+        item.addEventListener('click', function() { switchTab(this.dataset.tab); });
     });
 
-    document.querySelectorAll('.mobile-nav-btn[data-tab]').forEach(function (btn) {
-        btn.addEventListener('click', function () { switchTab(this.dataset.tab); });
+    document.querySelectorAll('.drawer-item[data-tab]').forEach(function(item) {
+        item.addEventListener('click', function() { switchTab(this.dataset.tab); });
     });
 
-    // Welcome card "Leads tab" link
-    document.querySelector('.go-leads-link').addEventListener('click', function (e) {
+    document.querySelector('.go-leads-link').addEventListener('click', function(e) {
         e.preventDefault();
         switchTab('leads');
     });
 
-    // Restore last active tab
-    const savedTab = sessionStorage.getItem('cm_active_tab') || 'dashboard';
+    document.getElementById('activity-view-all').addEventListener('click', function(e) {
+        e.preventDefault();
+        switchTab('leads');
+    });
+
+    var savedTab = sessionStorage.getItem('cm_active_tab') || 'dashboard';
     switchTab(savedTab);
 
     // ─── Sign Out ────────────────────────────────────────────────────
-    document.getElementById('signout-btn').addEventListener('click', async function () {
-        await fetch('/api/portal/logout', { method: 'POST', headers: authHeaders() }).catch(() => {});
+    function doSignOut() {
+        fetch('/api/portal/logout', { method: 'POST', headers: authHeaders() }).catch(function(){});
         sessionStorage.clear();
         window.location.href = '/portal';
+    }
+    document.getElementById('signout-btn').addEventListener('click', doSignOut);
+    document.getElementById('drawer-signout-btn').addEventListener('click', doSignOut);
+
+    // ─── Mobile Drawer ───────────────────────────────────────────────
+    var drawer        = document.getElementById('mobile-drawer');
+    var drawerOverlay = document.getElementById('drawer-overlay');
+
+    function openDrawer() {
+        drawer.classList.add('open');
+        drawer.setAttribute('aria-hidden', 'false');
+        drawerOverlay.classList.add('visible');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDrawer() {
+        drawer.classList.remove('open');
+        drawer.setAttribute('aria-hidden', 'true');
+        drawerOverlay.classList.remove('visible');
+        document.body.style.overflow = '';
+    }
+
+    document.getElementById('hamburger-btn').addEventListener('click', openDrawer);
+    document.getElementById('drawer-close').addEventListener('click', closeDrawer);
+    drawerOverlay.addEventListener('click', closeDrawer);
+
+    // ─── Notifications ───────────────────────────────────────────────
+    var notifPanel = document.getElementById('notif-panel');
+    var notifOpen  = false;
+
+    document.getElementById('notif-bell-btn').addEventListener('click', function(e) {
+        e.stopPropagation();
+        notifOpen = !notifOpen;
+        notifPanel.style.display = notifOpen ? 'block' : 'none';
+        if (notifOpen) loadNotifications();
     });
+
+    document.addEventListener('click', function(e) {
+        if (notifOpen && !document.getElementById('notif-wrap').contains(e.target)) {
+            notifOpen = false;
+            notifPanel.style.display = 'none';
+        }
+    });
+
+    document.getElementById('notif-mark-all').addEventListener('click', function() {
+        fetch('/api/portal/notifications/read', {
+            method: 'POST', headers: authHeaders(), body: JSON.stringify({ all: true })
+        }).then(function() { loadNotifications(); });
+    });
+
+    async function loadNotifications() {
+        try {
+            var res = await fetch('/api/portal/notifications', { headers: authHeaders() });
+            if (!res.ok) return;
+            var data = await res.json();
+            renderNotifications(data.notifications || [], data.unread_count || 0);
+        } catch(e) {}
+    }
+
+    var NOTIF_ICONS = {
+        csv_upload: '&#8679;',
+        manual_add: '&#43;',
+        contacted:  '&#9993;',
+        replied:    '&#8617;',
+        booked:     '&#128222;',
+    };
+
+    function renderNotifications(items, unread) {
+        var badge = document.getElementById('notif-badge');
+        if (unread > 0) {
+            badge.style.display = 'flex';
+            badge.textContent = unread > 9 ? '9+' : String(unread);
+        } else {
+            badge.style.display = 'none';
+        }
+
+        var list = document.getElementById('notif-list');
+        if (!items.length) {
+            list.innerHTML = '<div class="notif-empty">No notifications yet.</div>';
+            return;
+        }
+        list.innerHTML = items.map(function(n) {
+            return '<div class="notif-item' + (n.is_read ? '' : ' notif-unread') + '" data-id="' + n.id + '">' +
+                '<div class="notif-item-icon">' + (NOTIF_ICONS[n.type] || '&#8226;') + '</div>' +
+                '<div class="notif-item-body">' +
+                    '<div class="notif-item-msg">' + escHtml(n.message) + '</div>' +
+                    '<div class="notif-item-time">' + timeAgo(n.created_at) + '</div>' +
+                '</div></div>';
+        }).join('');
+
+        list.querySelectorAll('.notif-item').forEach(function(el) {
+            el.addEventListener('click', function() {
+                var id = this.dataset.id;
+                fetch('/api/portal/notifications/read', {
+                    method: 'POST', headers: authHeaders(),
+                    body: JSON.stringify({ notification_id: id })
+                }).then(function() { loadNotifications(); });
+            });
+        });
+    }
+
+    // Poll unread count every 60s
+    loadNotifications();
+    setInterval(loadNotifications, 60000);
 
     // ─── Load /me ────────────────────────────────────────────────────
     async function loadMe() {
         try {
-            const res = await fetch('/api/portal/me', { headers: authHeaders() });
+            var res = await fetch('/api/portal/me', { headers: authHeaders() });
             if (!res.ok) return;
             meData = await res.json();
 
-            // ICP textarea
-            const icpInput = document.getElementById('target-icp-input');
+            var icpInput = document.getElementById('target-icp-input');
             if (meData.target_icp) {
                 icpInput.value = meData.target_icp;
                 document.getElementById('icp-char-count').textContent = meData.target_icp.length + '/500';
             }
 
-            // Account info
             document.getElementById('account-name').textContent     = meData.name          || '—';
             document.getElementById('account-email').textContent    = meData.email         || '—';
             document.getElementById('account-business').textContent = meData.business_name || '—';
 
-            // Setup banner
-            const sheetId = meData.google_sheet_id || '';
-            const banner  = document.getElementById('setup-banner');
+            var sheetId = meData.google_sheet_id || '';
+            var banner  = document.getElementById('setup-banner');
             banner.style.display = 'flex';
             if (sheetId && sheetId !== 'placeholder') {
                 banner.className = 'setup-banner setup-banner-green';
@@ -467,61 +681,73 @@
                 banner.className = 'setup-banner setup-banner-yellow';
                 banner.innerHTML = '&#8987; Your portal is being set up. While you wait, <a href="/portal/intake" class="banner-btn">complete your intake form &rarr;</a>';
             }
-        } catch (e) {
-            console.error('loadMe error', e);
-        }
+        } catch(e) { console.error('loadMe error', e); }
     }
 
-    // Expose for inline onclick in banner HTML
     window.switchTabGlobal = switchTab;
 
     // ─── Stats ───────────────────────────────────────────────────────
     function renderStats() {
         if (!dashData) return;
-        const total = dashData.total_leads || 0;
+        var total = dashData.total_leads || 0;
 
         document.getElementById('welcome-card').style.display = total === 0 ? 'block' : 'none';
 
-        document.getElementById('stat-total').textContent     = total;
-        document.getElementById('stat-contacted').textContent = dashData.contacted;
-        document.getElementById('stat-replied').textContent   = dashData.replied;
-        document.getElementById('stat-booked').textContent    = dashData.booked;
+        var statsGrid = document.getElementById('stats-grid');
+        statsGrid.innerHTML =
+            makeStatCard('stat-total',     String(total),            'Total Leads',  '') +
+            makeStatCard('stat-contacted', String(dashData.contacted || 0), 'Contacted', '') +
+            makeStatCard('stat-replied',   String(dashData.replied   || 0), 'Replied',   '') +
+            makeStatCard('stat-booked',    String(dashData.booked    || 0), 'Booked',    '');
 
         if (total === 0) {
-            document.getElementById('hint-total').textContent     = 'No leads yet';
-            document.getElementById('hint-contacted').textContent = '—';
-            document.getElementById('hint-replied').textContent   = '—';
-            document.getElementById('hint-booked').textContent    = '—';
+            setStat('stat-total',     '', 'No leads yet');
+            setStat('stat-contacted', '', '—');
+            setStat('stat-replied',   '', '—');
+            setStat('stat-booked',    '', '—');
         } else {
-            const weekAgo   = Date.now() - 7 * 86400000;
-            const thisWeek  = allLeads.filter(function (l) {
-                const d = new Date(String(l.uploaded_at || '').replace(' ', 'T'));
+            var weekAgo  = Date.now() - 7 * 86400000;
+            var thisWeek = allLeads.filter(function(l) {
+                var d = new Date(String(l.uploaded_at || '').replace(' ', 'T'));
                 return !isNaN(d.getTime()) && d.getTime() > weekAgo;
             }).length;
-            const pct = function (n) { return Math.round((n / total) * 100) + '%'; };
-            document.getElementById('hint-total').textContent     = thisWeek + ' uploaded this week';
-            document.getElementById('hint-contacted').textContent = pct(dashData.contacted) + ' contact rate';
-            document.getElementById('hint-replied').textContent   = pct(dashData.replied)   + ' reply rate';
-            document.getElementById('hint-booked').textContent    = pct(dashData.booked)    + ' book rate';
+            var pct = function(n) { return Math.round((n / total) * 100) + '%'; };
+            setStat('stat-total',     '', thisWeek + ' uploaded this week');
+            setStat('stat-contacted', '', pct(dashData.contacted) + ' contact rate');
+            setStat('stat-replied',   '', pct(dashData.replied)   + ' reply rate');
+            setStat('stat-booked',    '', pct(dashData.booked)    + ' book rate');
         }
+    }
+
+    function makeStatCard(id, value, label, hint) {
+        return '<div class="stat-card">' +
+            '<div class="stat-value" id="' + id + '">' + escHtml(value) + '</div>' +
+            '<div class="stat-label">' + escHtml(label) + '</div>' +
+            '<div class="stat-hint" id="hint-' + id + '">' + escHtml(hint) + '</div>' +
+        '</div>';
+    }
+
+    function setStat(id, value, hint) {
+        var valEl  = document.getElementById(id);
+        var hintEl = document.getElementById('hint-' + id);
+        if (valEl  && value !== '') valEl.textContent  = value;
+        if (hintEl && hint  !== '') hintEl.textContent = hint;
     }
 
     // ─── Load Dashboard ──────────────────────────────────────────────
     async function loadDashboard() {
         try {
-            const res = await fetch('/api/portal/dashboard', { headers: authHeaders() });
+            var res = await fetch('/api/portal/dashboard', { headers: authHeaders() });
             if (res.status === 401) { sessionStorage.clear(); window.location.href = '/portal'; return; }
             dashData = await res.json();
             renderStats();
             renderActivity(dashData.recent_activity || []);
             renderPipeline(dashData);
-        } catch (e) {
-            console.error('Dashboard load error', e);
-        }
+        } catch(e) { console.error('Dashboard load error', e); }
     }
 
     // ─── Activity ────────────────────────────────────────────────────
-    const ICONS = {
+    var ICONS = {
         csv_upload: '&#8679;',
         manual_add: '&#43;',
         contacted:  '&#9993;',
@@ -531,14 +757,14 @@
     };
 
     function renderActivity(items) {
-        const list      = document.getElementById('activity-list');
-        const viewAllEl = document.getElementById('activity-view-all');
+        var list      = document.getElementById('activity-list');
+        var viewAllEl = document.getElementById('activity-view-all');
         if (!items.length) {
             list.innerHTML = '<li class="activity-empty"><div style="font-size:1.5rem;margin-bottom:8px;opacity:0.3;">&#9632;</div><div>No activity yet &mdash; upload your first leads to get started.</div></li>';
             viewAllEl.style.display = 'none';
             return;
         }
-        list.innerHTML = items.slice(0, 5).map(function (item) {
+        list.innerHTML = items.slice(0, 5).map(function(item) {
             return '<li class="activity-item">' +
                 '<div class="activity-icon">' + (ICONS[item.event_type] || '&#8226;') + '</div>' +
                 '<div class="activity-text">' +
@@ -551,15 +777,15 @@
 
     // ─── Pipeline ────────────────────────────────────────────────────
     function renderPipeline(d) {
-        const total = d.total_leads || 0;
-        const rows = [
+        var total = d.total_leads || 0;
+        var rows  = [
             { label: 'Leads Uploaded', value: total,        color: 'var(--accent)' },
             { label: 'Contacted',       value: d.contacted, color: 'var(--warning)' },
             { label: 'Replied',         value: d.replied,   color: 'var(--success)' },
             { label: 'Booked',          value: d.booked,    color: '#a78bfa' },
         ];
-        document.getElementById('pipeline-overview').innerHTML = rows.map(function (r) {
-            const pct = total > 0 ? Math.round((r.value / total) * 100) : 0;
+        document.getElementById('pipeline-overview').innerHTML = rows.map(function(r) {
+            var pct = total > 0 ? Math.round((r.value / total) * 100) : 0;
             return '<div style="margin-bottom:16px;">' +
                 '<div style="display:flex;justify-content:space-between;font-size:0.8125rem;margin-bottom:6px;">' +
                     '<span style="color:var(--off-white);">' + escHtml(r.label) + '</span>' +
@@ -574,65 +800,235 @@
     // ─── Sequences ───────────────────────────────────────────────────
     async function loadSequences() {
         try {
-            const res = await fetch('/api/portal/sequences', { headers: authHeaders() });
+            var res = await fetch('/api/portal/sequences', { headers: authHeaders() });
             if (!res.ok) return;
-            renderSequences((await res.json()).sequences || []);
-        } catch (e) {
-            console.error('Sequences load error', e);
-        }
+            seqData = (await res.json()).sequences || [];
+            renderSequences(seqData);
+        } catch(e) { console.error('Sequences load error', e); }
     }
 
     function renderSequences(sequences) {
-        const cardsEl = document.getElementById('sequence-cards');
-        const emptyEl = document.getElementById('sequence-empty');
+        var listEl  = document.getElementById('sequence-list');
+        var emptyEl = document.getElementById('sequence-empty');
         if (!sequences.length) {
-            cardsEl.style.display = 'none';
+            listEl.style.display  = 'none';
             emptyEl.style.display = 'block';
             return;
         }
         emptyEl.style.display = 'none';
-        cardsEl.style.display = 'flex';
-        cardsEl.innerHTML = sequences.map(function (s) {
-            const bodyPreview = s.body ? escHtml(s.body.slice(0, 120)) + (s.body.length > 120 ? '…' : '') : '';
-            return '<div class="sequence-card">' +
-                '<div class="sequence-day">Day ' + escHtml(String(s.send_day)) + '</div>' +
-                '<div class="sequence-touch">Touch ' + escHtml(String(s.touch_number)) + '</div>' +
-                '<div class="sequence-subject">' + escHtml(s.subject || '—') + '</div>' +
-                (bodyPreview ? '<div class="sequence-body-preview">' + bodyPreview + '</div>' : '') +
-                '<span class="badge sequence-status-badge">' + escHtml(s.status || 'active') + '</span>' +
+        listEl.style.display  = 'flex';
+
+        listEl.innerHTML = sequences.map(function(s, idx) {
+            var bodyPreview = s.body ? escHtml(s.body.slice(0, 100)) + (s.body.length > 100 ? '&hellip;' : '') : '';
+            var isActive    = (s.status || 'active') === 'active';
+            var dayOptions  = [1,2,3,5,7,10,14,21,30].map(function(d) {
+                return '<option value="' + d + '"' + (d === s.send_day ? ' selected' : '') + '>Day ' + d + '</option>';
+            }).join('');
+
+            return '<div class="seq-card" data-touch="' + s.touch_number + '" data-idx="' + idx + '" draggable="true">' +
+                '<div class="seq-drag-handle" title="Drag to reorder">' +
+                    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1.5" fill="currentColor"/><circle cx="15" cy="5" r="1.5" fill="currentColor"/><circle cx="9" cy="12" r="1.5" fill="currentColor"/><circle cx="15" cy="12" r="1.5" fill="currentColor"/><circle cx="9" cy="19" r="1.5" fill="currentColor"/><circle cx="15" cy="19" r="1.5" fill="currentColor"/></svg>' +
+                '</div>' +
+                '<div class="seq-card-body">' +
+
+                    // View mode
+                    '<div class="seq-view">' +
+                        '<div class="seq-view-header">' +
+                            '<div class="seq-view-meta">' +
+                                '<span class="seq-day-badge">Day ' + escHtml(String(s.send_day)) + '</span>' +
+                                '<span class="seq-touch-label">Touch ' + escHtml(String(s.touch_number)) + '</span>' +
+                            '</div>' +
+                            '<div class="seq-view-actions">' +
+                                '<button class="seq-toggle-btn ' + (isActive ? 'active' : 'paused') + '" data-touch="' + s.touch_number + '" title="' + (isActive ? 'Active — click to pause' : 'Paused — click to activate') + '">' +
+                                    (isActive ? 'Active' : 'Paused') +
+                                '</button>' +
+                                '<button class="btn btn-secondary seq-edit-btn" data-touch="' + s.touch_number + '" style="width:auto;padding:6px 14px;font-size:0.8125rem;">Edit</button>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="seq-subject">' + escHtml(s.subject || '—') + '</div>' +
+                        (bodyPreview ? '<div class="seq-body-preview">' + bodyPreview + '</div>' : '') +
+                    '</div>' +
+
+                    // Edit mode
+                    '<div class="seq-edit" style="display:none;">' +
+                        '<div class="form-group" style="margin-bottom:12px;">' +
+                            '<label style="font-size:0.8125rem;">Subject Line</label>' +
+                            '<input type="text" class="seq-subject-input" value="' + escHtml(s.subject || '') + '" placeholder="Subject line">' +
+                        '</div>' +
+                        '<div class="form-group" style="margin-bottom:12px;">' +
+                            '<label style="font-size:0.8125rem;">Email Body</label>' +
+                            '<textarea class="seq-body-textarea" rows="5" placeholder="Email body...">' + escHtml(s.body || '') + '</textarea>' +
+                        '</div>' +
+                        '<div class="form-group" style="margin-bottom:16px;">' +
+                            '<label style="font-size:0.8125rem;">Send on</label>' +
+                            '<select class="seq-day-select">' + dayOptions + '</select>' +
+                        '</div>' +
+                        '<div class="seq-edit-actions">' +
+                            '<button class="btn btn-primary seq-save-btn" data-touch="' + s.touch_number + '" style="width:auto;padding:10px 20px;">Save</button>' +
+                            '<button class="btn btn-secondary seq-cancel-btn" style="width:auto;padding:10px 20px;">Cancel</button>' +
+                        '</div>' +
+                    '</div>' +
+
+                '</div>' +
             '</div>';
         }).join('');
+
+        // Edit button handlers
+        listEl.querySelectorAll('.seq-edit-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var card = btn.closest('.seq-card');
+                card.querySelector('.seq-view').style.display = 'none';
+                card.querySelector('.seq-edit').style.display = 'block';
+            });
+        });
+
+        // Cancel button handlers
+        listEl.querySelectorAll('.seq-cancel-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var card = btn.closest('.seq-card');
+                card.querySelector('.seq-edit').style.display = 'none';
+                card.querySelector('.seq-view').style.display = 'block';
+            });
+        });
+
+        // Save button handlers
+        listEl.querySelectorAll('.seq-save-btn').forEach(function(btn) {
+            btn.addEventListener('click', async function() {
+                var card       = btn.closest('.seq-card');
+                var touch      = parseInt(btn.dataset.touch);
+                var subject    = card.querySelector('.seq-subject-input').value.trim();
+                var body       = card.querySelector('.seq-body-textarea').value.trim();
+                var sendDay    = parseInt(card.querySelector('.seq-day-select').value);
+                var toggleBtn  = card.querySelector('.seq-toggle-btn');
+                var status     = toggleBtn.classList.contains('active') ? 'active' : 'paused';
+
+                btn.disabled   = true;
+                btn.textContent = 'Saving…';
+                try {
+                    var res = await fetch('/api/portal/sequences/update', {
+                        method: 'POST', headers: authHeaders(),
+                        body: JSON.stringify({ touch_number: touch, subject: subject, body: body, send_day: sendDay, status: status })
+                    });
+                    if (res.ok) {
+                        showToast('Touch ' + touch + ' saved.', 'success');
+                        await loadSequences();
+                    } else {
+                        showToast('Failed to save sequence.', 'error');
+                        btn.disabled   = false;
+                        btn.textContent = 'Save';
+                    }
+                } catch(e) {
+                    showToast('Network error.', 'error');
+                    btn.disabled   = false;
+                    btn.textContent = 'Save';
+                }
+            });
+        });
+
+        // Toggle active/paused
+        listEl.querySelectorAll('.seq-toggle-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                if (btn.classList.contains('active')) {
+                    btn.classList.replace('active', 'paused');
+                    btn.textContent = 'Paused';
+                    btn.title = 'Paused — click to activate';
+                } else {
+                    btn.classList.replace('paused', 'active');
+                    btn.textContent = 'Active';
+                    btn.title = 'Active — click to pause';
+                }
+            });
+        });
+
+        // Drag and drop reorder
+        initSequenceDrag(listEl);
     }
+
+    function initSequenceDrag(listEl) {
+        var dragged = null;
+
+        listEl.querySelectorAll('.seq-card').forEach(function(card) {
+            card.addEventListener('dragstart', function(e) {
+                dragged = card;
+                setTimeout(function() { card.classList.add('dragging'); }, 0);
+                e.dataTransfer.effectAllowed = 'move';
+            });
+            card.addEventListener('dragend', function() {
+                card.classList.remove('dragging');
+                listEl.querySelectorAll('.seq-card').forEach(function(c) { c.classList.remove('drag-over'); });
+                dragged = null;
+            });
+            card.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                if (dragged && dragged !== card) {
+                    listEl.querySelectorAll('.seq-card').forEach(function(c) { c.classList.remove('drag-over'); });
+                    card.classList.add('drag-over');
+                }
+            });
+            card.addEventListener('drop', function(e) {
+                e.preventDefault();
+                if (!dragged || dragged === card) return;
+                card.classList.remove('drag-over');
+                var allCards = Array.from(listEl.querySelectorAll('.seq-card'));
+                var fromIdx  = allCards.indexOf(dragged);
+                var toIdx    = allCards.indexOf(card);
+                if (fromIdx < toIdx) {
+                    listEl.insertBefore(dragged, card.nextSibling);
+                } else {
+                    listEl.insertBefore(dragged, card);
+                }
+            });
+        });
+    }
+
+    // Reset sequences
+    document.getElementById('reset-sequences-btn').addEventListener('click', async function() {
+        var confirmed = await showConfirm('Reset all 5 sequences to the default templates? Your custom changes will be lost.');
+        if (!confirmed) return;
+        var btn = this;
+        btn.disabled = true;
+        try {
+            var res = await fetch('/api/portal/sequences/reset', { method: 'POST', headers: authHeaders() });
+            if (res.ok) {
+                showToast('Sequences reset to defaults.', 'success');
+                await loadSequences();
+            } else {
+                showToast('Failed to reset sequences.', 'error');
+            }
+        } catch(e) { showToast('Network error.', 'error'); }
+        finally { btn.disabled = false; }
+    });
 
     // ─── Leads ───────────────────────────────────────────────────────
     async function loadLeads() {
         try {
-            const res = await fetch('/api/portal/leads', { headers: authHeaders() });
+            var res = await fetch('/api/portal/leads', { headers: authHeaders() });
             if (!res.ok) return;
             allLeads = (await res.json()).leads || [];
             renderLeads();
             renderStats();
-        } catch (e) {
-            console.error('Leads load error', e);
-        }
+        } catch(e) { console.error('Leads load error', e); }
     }
 
-    function statusBadge(status) {
-        const map = { 'New':'badge-status-new','Contacted':'badge-status-contacted','Replied':'badge-status-replied','Booked':'badge-status-booked' };
-        return '<span class="badge ' + (map[status] || 'badge-status-new') + '">' + escHtml(status) + '</span>';
+    var STATUS_OPTIONS = ['New', 'Contacted', 'Replied', 'Booked', 'Closed'];
+
+    function statusClass(status) {
+        var map = { 'New':'badge-status-new','Contacted':'badge-status-contacted','Replied':'badge-status-replied','Booked':'badge-status-booked','Closed':'badge-status-closed' };
+        return map[status] || 'badge-status-new';
     }
 
     function renderLeads() {
-        const tbody = document.getElementById('leads-tbody');
-        const q = leadsFilter.toLowerCase();
-        const filtered = q
-            ? allLeads.filter(function (l) {
+        var tbody   = document.getElementById('leads-tbody');
+        var q       = leadsFilter.toLowerCase();
+        var filtered = q
+            ? allLeads.filter(function(l) {
                 return (((l.first_name || '') + ' ' + (l.last_name || '')).toLowerCase().includes(q)) ||
                        ((l.email || '').toLowerCase().includes(q));
-            })
+              })
             : allLeads;
 
-        const countEl = document.getElementById('leads-count');
+        var countEl = document.getElementById('leads-count');
         if (countEl) {
             countEl.textContent = allLeads.length
                 ? (q && filtered.length !== allLeads.length
@@ -642,80 +1038,217 @@
         }
 
         if (!allLeads.length) {
-            tbody.innerHTML = '<tr class="empty-row"><td colspan="6"><div style="padding:8px 0;">No leads uploaded yet.<br><span style="font-size:0.8125rem;color:var(--muted);">Use the upload section above to add your first leads.</span></div></td></tr>';
+            tbody.innerHTML = '<tr class="empty-row"><td colspan="7">' +
+                '<div style="padding:8px 0;">No leads uploaded yet.<br>' +
+                '<span style="font-size:0.8125rem;color:var(--muted);">Use the upload section above to add your first leads.</span></div></td></tr>';
+            document.getElementById('pagination-wrap').style.display = 'none';
             return;
         }
         if (!filtered.length) {
-            tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No leads match your search.</td></tr>';
+            tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No leads match your search.</td></tr>';
+            document.getElementById('pagination-wrap').style.display = 'none';
             return;
         }
-        tbody.innerHTML = filtered.slice(0, 20).map(function (l) {
-            const name  = [l.first_name, l.last_name].filter(Boolean).join(' ') || '—';
-            const email = l.email || '';
-            const emailCell = email
+
+        var totalPages   = Math.ceil(filtered.length / PAGE_SIZE);
+        if (currentPage > totalPages) currentPage = totalPages;
+        var start        = (currentPage - 1) * PAGE_SIZE;
+        var pageLeads    = filtered.slice(start, start + PAGE_SIZE);
+
+        tbody.innerHTML = pageLeads.map(function(l) {
+            var name  = [l.first_name, l.last_name].filter(Boolean).join(' ') || '—';
+            var email = l.email || '';
+            var emailCell = email
                 ? '<a href="mailto:' + escHtml(email) + '" class="email-link">' + escHtml(email) + '</a>'
                 : '<span>—</span>';
+            var statusOpts = STATUS_OPTIONS.map(function(s) {
+                return '<option value="' + s + '"' + (s === (l.status || 'New') ? ' selected' : '') + '>' + s + '</option>';
+            }).join('');
+            var notes = (l.notes || '').replace(/"/g, '&quot;');
             return '<tr>' +
-                '<td style="font-weight:500;">'    + escHtml(name) + '</td>' +
-                '<td class="muted">'               + emailCell + '</td>' +
-                '<td class="muted">'               + escHtml(l.phone || '—') + '</td>' +
-                '<td>'                             + escHtml(l.service_requested || '—') + '</td>' +
-                '<td>'                             + statusBadge(l.status || 'New') + '</td>' +
-                '<td class="muted">'               + escHtml(formatDate(l.uploaded_at)) + '</td>' +
+                '<td style="font-weight:500;">'   + escHtml(name) + '</td>' +
+                '<td class="muted">'              + emailCell + '</td>' +
+                '<td class="muted">'              + escHtml(l.phone || '—') + '</td>' +
+                '<td>'                            + escHtml(l.service_requested || '—') + '</td>' +
+                '<td class="notes-cell" data-id="' + l.id + '">' +
+                    '<span class="notes-view">' + escHtml(l.notes || '') + '</span>' +
+                    '<input type="text" class="notes-input" value="' + notes + '" placeholder="Add note…" style="display:none;">' +
+                '</td>' +
+                '<td>' +
+                    '<select class="status-select ' + statusClass(l.status || 'New') + '" data-id="' + l.id + '">' +
+                    statusOpts + '</select>' +
+                '</td>' +
+                '<td class="muted">'              + escHtml(formatDate(l.uploaded_at)) + '</td>' +
             '</tr>';
         }).join('');
+
+        // Status change handlers
+        tbody.querySelectorAll('.status-select').forEach(function(sel) {
+            sel.addEventListener('change', async function() {
+                var leadId = this.dataset.id;
+                var status = this.value;
+                sel.className = 'status-select ' + statusClass(status);
+                try {
+                    await fetch('/api/portal/leads/status', {
+                        method: 'PATCH', headers: authHeaders(),
+                        body: JSON.stringify({ lead_id: leadId, status: status })
+                    });
+                    var lead = allLeads.find(function(l) { return String(l.id) === String(leadId); });
+                    if (lead) lead.status = status;
+                } catch(e) { showToast('Failed to update status.', 'error'); }
+            });
+        });
+
+        // Notes inline edit handlers
+        tbody.querySelectorAll('.notes-cell').forEach(function(cell) {
+            var view  = cell.querySelector('.notes-view');
+            var input = cell.querySelector('.notes-input');
+            var leadId = cell.dataset.id;
+
+            view.addEventListener('click', function() {
+                view.style.display  = 'none';
+                input.style.display = 'block';
+                input.focus();
+                input.select();
+            });
+
+            async function saveNotes() {
+                var notes = input.value.trim();
+                view.textContent    = notes;
+                view.style.display  = '';
+                input.style.display = 'none';
+                try {
+                    await fetch('/api/portal/leads/notes', {
+                        method: 'PATCH', headers: authHeaders(),
+                        body: JSON.stringify({ lead_id: leadId, notes: notes })
+                    });
+                    var lead = allLeads.find(function(l) { return String(l.id) === String(leadId); });
+                    if (lead) lead.notes = notes;
+                } catch(e) { showToast('Failed to save note.', 'error'); }
+            }
+
+            input.addEventListener('blur', saveNotes);
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') { e.preventDefault(); saveNotes(); }
+                if (e.key === 'Escape') { input.value = view.textContent; view.style.display = ''; input.style.display = 'none'; }
+            });
+        });
+
+        renderPagination(filtered);
     }
 
-    document.getElementById('leads-search').addEventListener('input', function () {
+    function renderPagination(filtered) {
+        var wrap  = document.getElementById('pagination-wrap');
+        var info  = document.getElementById('pagination-info');
+        var ctrl  = document.getElementById('pagination-controls');
+        var total = filtered.length;
+
+        if (total <= PAGE_SIZE) {
+            wrap.style.display = 'none';
+            return;
+        }
+        wrap.style.display  = 'flex';
+        var totalPages = Math.ceil(total / PAGE_SIZE);
+        var start      = (currentPage - 1) * PAGE_SIZE + 1;
+        var end        = Math.min(currentPage * PAGE_SIZE, total);
+        info.textContent = 'Showing ' + start + '–' + end + ' of ' + total + ' leads';
+
+        var btns = '';
+        btns += '<button class="page-btn page-prev" ' + (currentPage === 1 ? 'disabled' : '') + '>&#8592; Prev</button>';
+
+        var pages = getPaginationPages(currentPage, totalPages);
+        pages.forEach(function(p) {
+            if (p === '…') {
+                btns += '<span class="page-ellipsis">…</span>';
+            } else {
+                btns += '<button class="page-btn page-num' + (p === currentPage ? ' active' : '') + '" data-page="' + p + '">' + p + '</button>';
+            }
+        });
+
+        btns += '<button class="page-btn page-next" ' + (currentPage === totalPages ? 'disabled' : '') + '>Next &#8594;</button>';
+        ctrl.innerHTML = btns;
+
+        ctrl.querySelector('.page-prev').addEventListener('click', function() {
+            if (currentPage > 1) { currentPage--; renderLeads(); }
+        });
+        ctrl.querySelector('.page-next').addEventListener('click', function() {
+            if (currentPage < totalPages) { currentPage++; renderLeads(); }
+        });
+        ctrl.querySelectorAll('.page-num').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                currentPage = parseInt(this.dataset.page);
+                renderLeads();
+            });
+        });
+    }
+
+    function getPaginationPages(current, total) {
+        if (total <= 5) {
+            var arr = [];
+            for (var i = 1; i <= total; i++) arr.push(i);
+            return arr;
+        }
+        var pages = [1];
+        var lo = Math.max(2, current - 1);
+        var hi = Math.min(total - 1, current + 1);
+        if (lo > 2) pages.push('…');
+        for (var i = lo; i <= hi; i++) pages.push(i);
+        if (hi < total - 1) pages.push('…');
+        pages.push(total);
+        return pages;
+    }
+
+    document.getElementById('leads-search').addEventListener('input', function() {
         leadsFilter = this.value.trim();
+        currentPage = 1;
         renderLeads();
     });
 
-    // ─── CSV upload tab switcher ──────────────────────────────────────
-    document.querySelectorAll('.tab-btn').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
-            document.querySelectorAll('.tab-pane').forEach(function (p) { p.classList.remove('active'); });
+    // ─── CSV Upload Tab Switcher ──────────────────────────────────────
+    document.querySelectorAll('.tab-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+            document.querySelectorAll('.tab-pane').forEach(function(p) { p.classList.remove('active'); });
             btn.classList.add('active');
             document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
         });
     });
 
     // ─── CSV Upload ───────────────────────────────────────────────────
-    let selectedFile = null;
-    const dropZone   = document.getElementById('drop-zone');
-    const csvInput   = document.getElementById('csv-input');
-    const uploadBtn  = document.getElementById('upload-btn');
-    const filePreview = document.getElementById('file-preview');
+    var selectedFile = null;
+    var dropZone     = document.getElementById('drop-zone');
+    var csvInput     = document.getElementById('csv-input');
+    var uploadBtn    = document.getElementById('upload-btn');
+    var filePreview  = document.getElementById('file-preview');
 
-    dropZone.addEventListener('click', function () { csvInput.click(); });
-    dropZone.addEventListener('dragover', function (e) { e.preventDefault(); dropZone.classList.add('drag-over'); });
-    dropZone.addEventListener('dragleave', function () { dropZone.classList.remove('drag-over'); });
-    dropZone.addEventListener('drop', function (e) {
+    dropZone.addEventListener('click', function() { csvInput.click(); });
+    dropZone.addEventListener('dragover', function(e) { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', function() { dropZone.classList.remove('drag-over'); });
+    dropZone.addEventListener('drop', function(e) {
         e.preventDefault(); dropZone.classList.remove('drag-over');
         if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
     });
-    csvInput.addEventListener('change', function () {
+    csvInput.addEventListener('change', function() {
         if (csvInput.files[0]) handleFile(csvInput.files[0]);
     });
 
     function handleFile(file) {
-        if (!file.name.toLowerCase().endsWith('.csv')) { showMsg('csv-error', 'Please select a .csv file.'); return; }
+        if (!file.name.toLowerCase().endsWith('.csv')) { showToast('Please select a .csv file.', 'error'); return; }
         selectedFile = file;
         uploadBtn.disabled = false;
         dropZone.querySelector('.drop-text').textContent = file.name;
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            const lines = e.target.result.split('\n').filter(Boolean);
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            var lines = e.target.result.split('\n').filter(Boolean);
             renderPreview(parseCsvRow(lines[0]), lines.slice(1, 4).map(parseCsvRow));
         };
         reader.readAsText(file);
     }
 
     function parseCsvRow(row) {
-        const result = []; let inQuote = false, cur = '';
-        for (let i = 0; i < row.length; i++) {
-            const ch = row[i];
+        var result = []; var inQuote = false; var cur = '';
+        for (var i = 0; i < row.length; i++) {
+            var ch = row[i];
             if (ch === '"') { inQuote = !inQuote; }
             else if (ch === ',' && !inQuote) { result.push(cur.trim()); cur = ''; }
             else { cur += ch; }
@@ -725,130 +1258,201 @@
 
     function renderPreview(headers, rows) {
         document.getElementById('preview-table').innerHTML =
-            '<tr>' + headers.map(function (h) { return '<th>' + escHtml(h) + '</th>'; }).join('') + '</tr>' +
-            rows.map(function (r) { return '<tr>' + r.map(function (c) { return '<td>' + escHtml(c) + '</td>'; }).join('') + '</tr>'; }).join('');
+            '<tr>' + headers.map(function(h) { return '<th>' + escHtml(h) + '</th>'; }).join('') + '</tr>' +
+            rows.map(function(r) { return '<tr>' + r.map(function(c) { return '<td>' + escHtml(c) + '</td>'; }).join('') + '</tr>'; }).join('');
         filePreview.classList.add('visible');
     }
 
-    uploadBtn.addEventListener('click', async function () {
+    uploadBtn.addEventListener('click', async function() {
         if (!selectedFile) return;
-        hideMsg('csv-error'); hideMsg('csv-success');
         uploadBtn.disabled = true; uploadBtn.textContent = 'Uploading…';
-        const formData = new FormData();
+        var formData = new FormData();
         formData.append('file', selectedFile);
         try {
-            const res = await fetch('/api/portal/upload-csv', {
+            var res = await fetch('/api/portal/upload-csv', {
                 method: 'POST', headers: { 'Authorization': 'Bearer ' + token }, body: formData,
             });
-            const d = await res.json();
+            var d = await res.json();
             if (!res.ok) {
-                showMsg('csv-error', d.error || 'Upload failed.');
+                showToast(d.error || 'Upload failed.', 'error');
             } else {
-                showMsg('csv-success', 'Successfully uploaded ' + d.count + ' lead' + (d.count !== 1 ? 's' : '') + '.');
+                showToast('Successfully uploaded ' + d.count + ' lead' + (d.count !== 1 ? 's' : '') + '.', 'success');
                 selectedFile = null; csvInput.value = '';
                 filePreview.classList.remove('visible');
                 dropZone.querySelector('.drop-text').textContent = 'Drag & drop your CSV file here';
-                await loadDashboard(); await loadLeads();
+                await loadDashboard(); await loadLeads(); loadNotifications();
             }
-        } catch (err) { showMsg('csv-error', 'Network error. Please try again.'); }
+        } catch(err) { showToast('Network error. Please try again.', 'error'); }
         finally { uploadBtn.disabled = true; uploadBtn.textContent = 'Upload Leads'; }
     });
 
     // ─── Manual Add ───────────────────────────────────────────────────
-    document.getElementById('manual-form').addEventListener('submit', async function (e) {
+    document.getElementById('manual-form').addEventListener('submit', async function(e) {
         e.preventDefault();
-        hideMsg('manual-error'); hideMsg('manual-success');
-        const data = {};
-        new FormData(e.target).forEach(function (v, k) { data[k] = v.trim(); });
-        if (!data.first_name) { showMsg('manual-error', 'First name is required.'); return; }
-        const btn = e.target.querySelector('button[type="submit"]');
+        var data = {};
+        new FormData(e.target).forEach(function(v, k) { data[k] = v.trim(); });
+        if (!data.first_name) { showToast('First name is required.', 'error'); return; }
+        var btn = e.target.querySelector('button[type="submit"]');
         btn.disabled = true; btn.textContent = 'Adding…';
         try {
-            const res = await fetch('/api/portal/add-lead', { method: 'POST', headers: authHeaders(), body: JSON.stringify(data) });
-            const d = await res.json();
-            if (!res.ok) { showMsg('manual-error', d.error || 'Failed to add lead.'); }
-            else { showMsg('manual-success', 'Lead added successfully.'); e.target.reset(); await loadDashboard(); await loadLeads(); }
-        } catch (err) { showMsg('manual-error', 'Network error. Please try again.'); }
+            var res = await fetch('/api/portal/add-lead', { method: 'POST', headers: authHeaders(), body: JSON.stringify(data) });
+            var d = await res.json();
+            if (!res.ok) { showToast(d.error || 'Failed to add lead.', 'error'); }
+            else {
+                showToast('Lead added successfully.', 'success');
+                e.target.reset();
+                await loadDashboard(); await loadLeads(); loadNotifications();
+            }
+        } catch(err) { showToast('Network error. Please try again.', 'error'); }
         finally { btn.disabled = false; btn.textContent = 'Add Lead'; }
     });
 
     // ─── ICP / Lead Scoring ───────────────────────────────────────────
-    const icpInput   = document.getElementById('target-icp-input');
-    const icpCounter = document.getElementById('icp-char-count');
-    const saveIcpBtn = document.getElementById('save-icp-btn');
+    var icpInput   = document.getElementById('target-icp-input');
+    var icpCounter = document.getElementById('icp-char-count');
+    var saveIcpBtn = document.getElementById('save-icp-btn');
 
-    icpInput.addEventListener('input', function () {
-        const len = Math.min(this.value.length, 500);
-        icpCounter.textContent   = len + '/500';
-        icpCounter.style.color   = len > 450 ? 'var(--warning)' : 'var(--muted)';
+    icpInput.addEventListener('input', function() {
+        var len = Math.min(this.value.length, 500);
+        icpCounter.textContent = len + '/500';
+        icpCounter.style.color = len > 450 ? 'var(--warning)' : 'var(--muted)';
         if (this.value.length > 500) this.value = this.value.slice(0, 500);
     });
 
-    saveIcpBtn.addEventListener('click', async function () {
-        hideMsg('icp-error'); hideMsg('icp-success');
-        const target_icp = icpInput.value.trim();
+    saveIcpBtn.addEventListener('click', async function() {
+        var target_icp = icpInput.value.trim();
         saveIcpBtn.disabled = true; saveIcpBtn.textContent = 'Saving…';
         try {
-            const res = await fetch('/api/portal/settings', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ target_icp }) });
-            const d = await res.json();
-            if (!res.ok) { showMsg('icp-error', d.error || 'Failed to save.'); saveIcpBtn.textContent = 'Save'; }
-            else { saveIcpBtn.textContent = 'Saved ✓'; setTimeout(function () { saveIcpBtn.textContent = 'Save'; }, 2000); }
-        } catch (err) { showMsg('icp-error', 'Network error.'); saveIcpBtn.textContent = 'Save'; }
-        finally { saveIcpBtn.disabled = false; }
+            var res = await fetch('/api/portal/settings', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ target_icp }) });
+            if (res.ok) { showToast('Lead scoring settings saved.', 'success'); }
+            else { showToast('Failed to save settings.', 'error'); }
+        } catch(err) { showToast('Network error.', 'error'); }
+        finally { saveIcpBtn.disabled = false; saveIcpBtn.textContent = 'Save'; }
     });
 
     // ─── Password Strength ────────────────────────────────────────────
     function passwordStrength(pw) {
         if (pw.length < 8) return 'weak';
-        const types = [/[a-z]/.test(pw), (/[A-Z]/.test(pw) || /\d/.test(pw)), /[^a-zA-Z0-9]/.test(pw)].filter(Boolean).length;
+        var types = [/[a-z]/.test(pw), (/[A-Z]/.test(pw) || /\d/.test(pw)), /[^a-zA-Z0-9]/.test(pw)].filter(Boolean).length;
         return (types >= 3 && pw.length >= 10) ? 'strong' : types >= 2 ? 'medium' : 'weak';
     }
 
-    document.getElementById('new-password').addEventListener('input', function () {
-        const wrap = document.getElementById('pw-strength');
-        const fill = document.getElementById('pw-strength-fill');
-        const lbl  = document.getElementById('pw-strength-label');
+    document.getElementById('new-password').addEventListener('input', function() {
+        var wrap = document.getElementById('pw-strength');
+        var fill = document.getElementById('pw-strength-fill');
+        var lbl  = document.getElementById('pw-strength-label');
         if (!this.value) { wrap.style.display = 'none'; return; }
         wrap.style.display = 'flex';
-        const m = { weak:{ w:'33%',c:'var(--error)',t:'Weak' }, medium:{ w:'66%',c:'var(--warning)',t:'Medium' }, strong:{ w:'100%',c:'var(--success)',t:'Strong' } };
-        const s = m[passwordStrength(this.value)];
+        var m = { weak:{ w:'33%',c:'var(--error)',t:'Weak' }, medium:{ w:'66%',c:'var(--warning)',t:'Medium' }, strong:{ w:'100%',c:'var(--success)',t:'Strong' } };
+        var s = m[passwordStrength(this.value)];
         fill.style.width = s.w; fill.style.background = s.c;
-        lbl.textContent = s.t; lbl.style.color = s.c;
+        lbl.textContent  = s.t; lbl.style.color = s.c;
     });
 
-    // ─── Show/Hide Password ───────────────────────────────────────────
-    document.querySelectorAll('.pw-toggle').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            const input = document.getElementById(this.dataset.target);
+    document.querySelectorAll('.pw-toggle').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var input = document.getElementById(this.dataset.target);
             input.type = input.type === 'password' ? 'text' : 'password';
             this.textContent = input.type === 'password' ? 'Show' : 'Hide';
         });
     });
 
-    // ─── Change Password ──────────────────────────────────────────────
-    document.getElementById('password-form').addEventListener('submit', async function (e) {
+    document.getElementById('password-form').addEventListener('submit', async function(e) {
         e.preventDefault();
-        hideMsg('password-error'); hideMsg('password-success');
-        const currentPw = document.getElementById('current-password').value;
-        const newPw     = document.getElementById('new-password').value;
-        if (!currentPw || !newPw) { showMsg('password-error', 'Both fields are required.'); return; }
-        if (newPw.length < 8)     { showMsg('password-error', 'New password must be at least 8 characters.'); return; }
-        const btn = e.target.querySelector('button[type="submit"]');
+        var currentPw = document.getElementById('current-password').value;
+        var newPw     = document.getElementById('new-password').value;
+        if (!currentPw || !newPw) { showToast('Both fields are required.', 'error'); return; }
+        if (newPw.length < 8)     { showToast('New password must be at least 8 characters.', 'error'); return; }
+        var btn = e.target.querySelector('button[type="submit"]');
         btn.disabled = true; btn.textContent = 'Updating…';
         try {
-            const res = await fetch('/api/portal/change-password', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ current_password: currentPw, new_password: newPw }) });
-            const d = await res.json();
-            if (!res.ok) { showMsg('password-error', d.error || 'Failed to update password.'); }
-            else { showMsg('password-success', 'Password updated successfully.'); e.target.reset(); document.getElementById('pw-strength').style.display = 'none'; }
-        } catch (err) { showMsg('password-error', 'Network error. Please try again.'); }
+            var res = await fetch('/api/portal/change-password', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ current_password: currentPw, new_password: newPw }) });
+            var d = await res.json();
+            if (!res.ok) { showToast(d.error || 'Failed to update password.', 'error'); }
+            else { showToast('Password updated successfully.', 'success'); e.target.reset(); document.getElementById('pw-strength').style.display = 'none'; }
+        } catch(err) { showToast('Network error. Please try again.', 'error'); }
         finally { btn.disabled = false; btn.textContent = 'Update Password'; }
+    });
+
+    // ─── Session Timeout ─────────────────────────────────────────────
+    function setupSessionTimeout() {
+        try {
+            var parts   = token.split('.');
+            if (parts.length < 2) return;
+            var payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+            if (!payload.exp) return;
+            var expiry      = payload.exp * 1000;
+            var warnAt      = expiry - 5 * 60 * 1000;
+            var warnDelay   = warnAt - Date.now();
+            var expireDelay = expiry - Date.now();
+
+            if (expireDelay <= 0) { doSignOut(); return; }
+
+            if (warnDelay > 0) {
+                setTimeout(function() {
+                    document.getElementById('session-modal').style.display = 'flex';
+                }, warnDelay);
+            }
+            setTimeout(function() {
+                document.getElementById('session-modal').style.display = 'none';
+                doSignOut();
+            }, expireDelay);
+        } catch(e) {}
+    }
+
+    document.getElementById('session-stay-btn').addEventListener('click', async function() {
+        document.getElementById('session-modal').style.display = 'none';
+        try {
+            var res = await fetch('/api/portal/refresh-token', { method: 'POST', headers: authHeaders() });
+            if (res.ok) {
+                var d = await res.json();
+                sessionStorage.setItem('cm_token', d.token);
+                // reload page with fresh token
+                window.location.reload();
+            }
+        } catch(e) {}
+    });
+
+    document.getElementById('session-logout-btn').addEventListener('click', doSignOut);
+
+    setupSessionTimeout();
+
+    // ─── Keyboard Shortcuts ──────────────────────────────────────────
+    document.addEventListener('keydown', function(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+        if (e.key === 'u' || e.key === 'U') {
+            switchTab('leads');
+            setTimeout(function() { document.getElementById('drop-zone').click(); }, 100);
+        }
+        if (e.key === 'n' || e.key === 'N') {
+            switchTab('leads');
+            setTimeout(function() {
+                document.querySelector('[data-tab="manual"]').click();
+                var fn = document.querySelector('#manual-form input[name="first_name"]');
+                if (fn) fn.focus();
+            }, 100);
+        }
+        if (e.key === 'Escape') {
+            document.getElementById('confirm-modal').style.display   = 'none';
+            document.getElementById('session-modal').style.display   = 'none';
+            closeDrawer();
+            notifOpen = false;
+            document.getElementById('notif-panel').style.display = 'none';
+            document.querySelectorAll('.seq-edit:not([style*="none"])').forEach(function(el) {
+                var card = el.closest('.seq-card');
+                if (card) {
+                    el.style.display = 'none';
+                    card.querySelector('.seq-view').style.display = '';
+                }
+            });
+        }
     });
 
     // ─── Intake redirect success ──────────────────────────────────────
     if (sessionStorage.getItem('cm_intake_success')) {
         sessionStorage.removeItem('cm_intake_success');
         switchTab('settings');
-        showMsg('icp-success', 'Settings saved. Your lead scoring is now optimized for your business.');
+        showToast('Settings saved. Your lead scoring is now optimized.', 'success');
     }
 
     // ─── Init ─────────────────────────────────────────────────────────
