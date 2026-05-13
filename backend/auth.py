@@ -6,6 +6,7 @@ from functools import wraps
 from flask import Blueprint, request, jsonify, g
 from werkzeug.security import check_password_hash, generate_password_hash
 from database import get_db
+from extensions import limiter
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -51,6 +52,7 @@ def require_auth(f):
 
 
 @auth_bp.route("/api/portal/login", methods=["POST"])
+@limiter.limit("5 per 15 minutes")
 def login():
     data = request.get_json()
     if not data:
@@ -101,6 +103,7 @@ def me():
 
 # SETUP_ROUTE_START
 @auth_bp.route("/api/portal/setup", methods=["POST"])
+@limiter.limit("3 per hour")
 def setup():
     db = get_db()
     if db.execute("SELECT COUNT(*) AS count FROM clients").fetchone()["count"] > 0:

@@ -8,6 +8,7 @@ from auth import auth_bp
 from portal import portal_bp
 from stripe_webhook import stripe_bp
 from database import init_db, close_db
+from extensions import limiter
 
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 
@@ -16,11 +17,19 @@ PORTAL_DIR = os.path.join(ROOT_DIR, "portal")
 
 app = Flask(__name__, static_folder=ROOT_DIR, static_url_path="")
 CORS(app)
+limiter.init_app(app)
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(portal_bp)
 app.register_blueprint(stripe_bp)
 app.teardown_appcontext(close_db)
+
+
+@app.errorhandler(429)
+def rate_limit_exceeded(e):
+    return jsonify({
+        "error": "Too many attempts. Please wait 15 minutes and try again."
+    }), 429
 
 with app.app_context():
     init_db()

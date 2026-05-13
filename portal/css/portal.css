@@ -192,6 +192,18 @@ body {
 
 .error-msg.visible { display: block; }
 
+.privacy-notice {
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+    text-align: center;
+    margin-top: 16px;
+}
+.privacy-notice a {
+    color: rgba(255, 255, 255, 0.4);
+    text-decoration: underline;
+}
+.privacy-notice a:hover { color: rgba(255, 255, 255, 0.65); }
+
 .success-msg {
     background: rgba(16, 185, 129, 0.1);
     border: 1px solid rgba(16, 185, 129, 0.3);
