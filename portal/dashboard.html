@@ -292,7 +292,10 @@
                         <h2 class="panel-title" style="margin-bottom:4px;">My Sequence</h2>
                         <p style="font-size:0.875rem;color:var(--muted);margin-bottom:0;">Your 5-touch automated follow-up sequence &mdash; <span style="color:var(--success);font-weight:600;" id="seq-status-label">Active</span></p>
                     </div>
-                    <button class="btn btn-secondary" id="reset-sequences-btn" style="width:auto;white-space:nowrap;">Reset to Default</button>
+                    <div style="text-align:right;">
+                        <button class="btn btn-secondary" id="reset-sequences-btn" style="width:auto;white-space:nowrap;">Reset to Default</button>
+                        <p class="reset-reminder">Restore original templates with all personalization intact</p>
+                    </div>
                 </div>
 
                 <div class="sequence-empty" id="sequence-empty" style="display:none;">
@@ -391,6 +394,23 @@
             <div class="modal-actions">
                 <button class="btn btn-secondary" id="confirm-no">Cancel</button>
                 <button class="btn btn-primary" id="confirm-yes" style="width:auto;">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Sequence Preview Modal ───────────────────────────────── -->
+    <div class="modal-backdrop" id="preview-modal" style="display:none;" role="dialog" aria-modal="true">
+        <div class="modal-box preview-modal-box">
+            <div class="preview-modal-header">
+                <span class="preview-modal-title">Email Preview</span>
+                <span class="preview-modal-sample">Sample data: Sarah / Smith HVAC / HVAC / HVAC Repair</span>
+            </div>
+            <div class="preview-field-label">Subject</div>
+            <div class="preview-subject" id="preview-modal-subject"></div>
+            <div class="preview-field-label" style="margin-top:16px;">Body</div>
+            <div class="preview-body" id="preview-modal-body"></div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" id="preview-modal-close" style="width:auto;">Close</button>
             </div>
         </div>
     </div>
@@ -495,15 +515,56 @@
     }
 
     // ─── Confirm Dialog ──────────────────────────────────────────────
-    function showConfirm(message) {
+    function showConfirm(message, yesLabel, noLabel) {
         return new Promise(function(resolve) {
-            var modal = document.getElementById('confirm-modal');
+            var modal  = document.getElementById('confirm-modal');
+            var yesBtn = document.getElementById('confirm-yes');
+            var noBtn  = document.getElementById('confirm-no');
             document.getElementById('confirm-message').textContent = message;
+            yesBtn.textContent = yesLabel || 'Confirm';
+            noBtn.textContent  = noLabel  || 'Cancel';
             modal.style.display = 'flex';
-            function cleanup() { modal.style.display = 'none'; }
-            document.getElementById('confirm-yes').onclick = function() { cleanup(); resolve(true); };
-            document.getElementById('confirm-no').onclick  = function() { cleanup(); resolve(false); };
+            function cleanup() {
+                modal.style.display = 'none';
+                yesBtn.textContent = 'Confirm';
+                noBtn.textContent  = 'Cancel';
+            }
+            yesBtn.onclick = function() { cleanup(); resolve(true); };
+            noBtn.onclick  = function() { cleanup(); resolve(false); };
         });
+    }
+
+    // ─── Sequence preview helpers ────────────────────────────────────
+    var PREVIEW_DATA = {
+        '{{First Name}}':    'Sarah',
+        '{{Business Name}}': 'Smith HVAC',
+        '{{Industry}}':      'HVAC',
+        '{{Service}}':       'HVAC Repair',
+    };
+
+    function applyPreviewData(text) {
+        return Object.keys(PREVIEW_DATA).reduce(function(t, key) {
+            return t.replace(new RegExp(key.replace(/[{}]/g, '\\$&'), 'g'), PREVIEW_DATA[key]);
+        }, text || '');
+    }
+
+    function showSequencePreview(subject, body) {
+        document.getElementById('preview-modal-subject').textContent = applyPreviewData(subject) || '(no subject)';
+        document.getElementById('preview-modal-body').innerHTML = applyPreviewData(body).replace(/\n/g, '<br>') || '(no body)';
+        document.getElementById('preview-modal').style.display = 'flex';
+    }
+
+    document.getElementById('preview-modal-close').addEventListener('click', function() {
+        document.getElementById('preview-modal').style.display = 'none';
+    });
+
+    // ─── Cursor insertion helper ─────────────────────────────────────
+    function insertAtCursor(field, text) {
+        var start = field.selectionStart;
+        var end   = field.selectionEnd;
+        field.value = field.value.slice(0, start) + text + field.value.slice(end);
+        field.selectionStart = field.selectionEnd = start + text.length;
+        field.focus();
     }
 
     // ─── Tab / Panel Navigation ──────────────────────────────────────
@@ -852,6 +913,13 @@
 
                     // Edit mode
                     '<div class="seq-edit" style="display:none;">' +
+                        '<div class="placeholder-bar">' +
+                            '<span class="placeholder-bar-label">Insert:</span>' +
+                            '<button type="button" class="placeholder-chip" data-placeholder="{{First Name}}">+ First Name</button>' +
+                            '<button type="button" class="placeholder-chip" data-placeholder="{{Business Name}}">+ Business Name</button>' +
+                            '<button type="button" class="placeholder-chip" data-placeholder="{{Industry}}">+ Industry</button>' +
+                            '<button type="button" class="placeholder-chip" data-placeholder="{{Service}}">+ Service</button>' +
+                        '</div>' +
                         '<div class="form-group" style="margin-bottom:12px;">' +
                             '<label style="font-size:0.8125rem;">Subject Line</label>' +
                             '<input type="text" class="seq-subject-input" value="' + escHtml(s.subject || '') + '" placeholder="Subject line">' +
@@ -865,7 +933,8 @@
                             '<select class="seq-day-select">' + dayOptions + '</select>' +
                         '</div>' +
                         '<div class="seq-edit-actions">' +
-                            '<button class="btn btn-primary seq-save-btn" data-touch="' + s.touch_number + '" style="width:auto;padding:10px 20px;">Save</button>' +
+                            '<button class="btn btn-primary seq-save-btn" data-touch="' + s.touch_number + '" data-original-subject="' + escHtml(s.subject || '') + '" style="width:auto;padding:10px 20px;">Save</button>' +
+                            '<button class="btn btn-secondary seq-preview-btn" style="width:auto;padding:10px 20px;">Preview</button>' +
                             '<button class="btn btn-secondary seq-cancel-btn" style="width:auto;padding:10px 20px;">Cancel</button>' +
                         '</div>' +
                     '</div>' +
@@ -877,9 +946,14 @@
         // Edit button handlers
         listEl.querySelectorAll('.seq-edit-btn').forEach(function(btn) {
             btn.addEventListener('click', function() {
-                var card = btn.closest('.seq-card');
+                var card         = btn.closest('.seq-card');
                 card.querySelector('.seq-view').style.display = 'none';
                 card.querySelector('.seq-edit').style.display = 'block';
+                var subjectInput = card.querySelector('.seq-subject-input');
+                var bodyTextarea = card.querySelector('.seq-body-textarea');
+                card.lastFocused = subjectInput;
+                subjectInput.addEventListener('focus', function() { card.lastFocused = subjectInput; });
+                bodyTextarea.addEventListener('focus', function() { card.lastFocused = bodyTextarea; });
             });
         });
 
@@ -902,6 +976,20 @@
                 var sendDay    = parseInt(card.querySelector('.seq-day-select').value);
                 var toggleBtn  = card.querySelector('.seq-toggle-btn');
                 var status     = toggleBtn.classList.contains('active') ? 'active' : 'paused';
+
+                // Validation: empty fields
+                if (!subject) { showToast('Subject line cannot be empty.', 'error'); return; }
+                if (!body)    { showToast('Email body cannot be empty.', 'error'); return; }
+
+                // Personalization warning: original had {{ but edited subject lost it
+                var origSubject = btn.dataset.originalSubject || '';
+                if (origSubject.includes('{{') && !subject.includes('{{')) {
+                    var proceed = await showConfirm(
+                        'Your subject line no longer includes personalization (like {{First Name}}). Personalized emails typically get higher open rates.',
+                        'Save Anyway', 'Add Personalization'
+                    );
+                    if (!proceed) return;
+                }
 
                 btn.disabled   = true;
                 btn.textContent = 'Saving…';
@@ -938,6 +1026,29 @@
                     btn.textContent = 'Active';
                     btn.title = 'Active — click to pause';
                 }
+            });
+        });
+
+        // Placeholder chip handlers
+        listEl.querySelectorAll('.seq-card').forEach(function(card) {
+            card.querySelectorAll('.placeholder-chip').forEach(function(chip) {
+                chip.addEventListener('mousedown', function(e) {
+                    e.preventDefault(); // prevent field blur before cursor position is captured
+                });
+                chip.addEventListener('click', function() {
+                    var field = card.lastFocused || card.querySelector('.seq-subject-input');
+                    insertAtCursor(field, chip.dataset.placeholder);
+                });
+            });
+        });
+
+        // Preview button handlers
+        listEl.querySelectorAll('.seq-preview-btn').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var card    = btn.closest('.seq-card');
+                var subject = card.querySelector('.seq-subject-input').value;
+                var body    = card.querySelector('.seq-body-textarea').value;
+                showSequencePreview(subject, body);
             });
         });
 
