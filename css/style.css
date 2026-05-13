@@ -549,7 +549,7 @@ h1 {
 /* ─── Timeline ─── */
 .timeline {
     padding: 100px 0;
-    background: var(--dark);
+    background: var(--black);
     text-align: center;
 }
 
