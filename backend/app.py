@@ -7,6 +7,7 @@ import anthropic
 from auth import auth_bp
 from portal import portal_bp
 from stripe_webhook import stripe_bp
+from calendly_webhook import calendly_bp
 from database import init_db, close_db
 from extensions import limiter
 
@@ -22,6 +23,7 @@ limiter.init_app(app)
 app.register_blueprint(auth_bp)
 app.register_blueprint(portal_bp)
 app.register_blueprint(stripe_bp)
+app.register_blueprint(calendly_bp)
 app.teardown_appcontext(close_db)
 
 
