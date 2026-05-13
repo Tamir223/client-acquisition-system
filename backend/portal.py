@@ -325,11 +325,83 @@ def admin_list_clients():
 
     db = get_db()
     rows = db.execute(
-        """SELECT id, name, email, business_name, google_sheet_id, niche, target_icp, status, created_at
-           FROM clients ORDER BY created_at DESC"""
+        """SELECT c.id, c.name, c.email, c.business_name, c.google_sheet_id, c.niche,
+                  c.target_icp, c.status, c.created_at,
+                  (SELECT COUNT(*) FROM lead_uploads l WHERE l.client_id = c.id) AS lead_count,
+                  (SELECT COUNT(*) FROM notifications n WHERE n.client_id = c.id AND n.is_read = FALSE) AS unread_notifications
+           FROM clients c ORDER BY c.created_at DESC"""
     ).fetchall()
 
     return jsonify({"clients": [dict(r) for r in rows]}), 200
+
+
+@portal_bp.route("/api/portal/admin/stats", methods=["GET"])
+def admin_stats():
+    if not _require_admin():
+        return jsonify({"error": "Unauthorized"}), 401
+
+    db = get_db()
+    total_clients  = db.execute("SELECT COUNT(*) AS c FROM clients").fetchone()["c"]
+    active_clients = db.execute("SELECT COUNT(*) AS c FROM clients WHERE status = 'active'").fetchone()["c"]
+    sheet_connected = db.execute(
+        "SELECT COUNT(*) AS c FROM clients WHERE google_sheet_id IS NOT NULL AND google_sheet_id != '' AND google_sheet_id != 'placeholder'"
+    ).fetchone()["c"]
+    icp_set = db.execute(
+        "SELECT COUNT(*) AS c FROM clients WHERE target_icp IS NOT NULL AND target_icp != ''"
+    ).fetchone()["c"]
+    total_leads = db.execute("SELECT COUNT(*) AS c FROM lead_uploads").fetchone()["c"]
+
+    return jsonify({
+        "total_clients":   total_clients,
+        "active_clients":  active_clients,
+        "sheet_connected": sheet_connected,
+        "icp_set":         icp_set,
+        "total_leads":     total_leads,
+    }), 200
+
+
+@portal_bp.route("/api/portal/admin/activity", methods=["GET"])
+def admin_activity():
+    if not _require_admin():
+        return jsonify({"error": "Unauthorized"}), 401
+
+    db = get_db()
+    rows = db.execute(
+        """SELECT a.event_type, a.description, a.created_at,
+                  c.name AS client_name, c.business_name
+           FROM activity_log a
+           JOIN clients c ON a.client_id = c.id
+           ORDER BY a.created_at DESC LIMIT 20"""
+    ).fetchall()
+
+    return jsonify({"activity": [dict(r) for r in rows]}), 200
+
+
+@portal_bp.route("/api/portal/admin/update-client", methods=["PATCH"])
+def admin_update_client():
+    if not _require_admin():
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json(force=True, silent=True)
+    if not data or data.get("client_id") is None:
+        return jsonify({"error": "client_id is required"}), 400
+
+    updates = {}
+    if "target_icp" in data:
+        updates["target_icp"] = (data["target_icp"] or "").strip()
+    if "google_sheet_id" in data:
+        updates["google_sheet_id"] = (data["google_sheet_id"] or "").strip()
+
+    if not updates:
+        return jsonify({"error": "No fields to update"}), 400
+
+    db = get_db()
+    set_clause = ", ".join(f"{k} = ?" for k in updates)
+    values = list(updates.values()) + [int(data["client_id"])]
+    db.execute(f"UPDATE clients SET {set_clause} WHERE id = ?", values)
+    db.commit()
+
+    return jsonify({"success": True}), 200
 
 
 @portal_bp.route("/api/portal/admin/create-client", methods=["POST"])
