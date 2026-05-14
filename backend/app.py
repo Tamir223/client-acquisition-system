@@ -36,6 +36,9 @@ def rate_limit_exceeded(e):
 with app.app_context():
     init_db()
 
+from scheduler import start_scheduler
+start_scheduler()
+
 MAILERLITE_API_KEY  = os.getenv("MAILERLITE_API_KEY")
 TELEGRAM_BOT_TOKEN  = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID    = os.getenv("TELEGRAM_CHAT_ID")

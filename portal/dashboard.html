@@ -137,6 +137,35 @@
 
                 <div id="setup-banner" class="setup-banner" style="display:none;"></div>
 
+                <!-- Onboarding Progress Bar -->
+                <div class="onboarding-bar" id="onboarding-bar" style="display:none;">
+                    <div class="onboarding-header">
+                        <span class="onboarding-title" id="onboarding-title">Getting started</span>
+                        <span class="onboarding-steps-label" id="onboarding-steps-label">0 of 4 steps complete</span>
+                    </div>
+                    <div class="onboarding-track">
+                        <div class="onboarding-fill" id="onboarding-fill" style="width:0%;"></div>
+                    </div>
+                    <div class="onboarding-steps">
+                        <div class="onboarding-step" id="ob-step-1">
+                            <div class="ob-circle ob-done">&#10003;</div>
+                            <div class="ob-label">Account Created</div>
+                        </div>
+                        <div class="onboarding-step" id="ob-step-2">
+                            <div class="ob-circle" id="ob-circle-2">2</div>
+                            <div class="ob-label">Intake Form</div>
+                        </div>
+                        <div class="onboarding-step" id="ob-step-3">
+                            <div class="ob-circle" id="ob-circle-3">3</div>
+                            <div class="ob-label">First Leads</div>
+                        </div>
+                        <div class="onboarding-step" id="ob-step-4">
+                            <div class="ob-circle" id="ob-circle-4">4</div>
+                            <div class="ob-label">First Reply</div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Welcome Card (0 leads) -->
                 <div class="welcome-card" id="welcome-card" style="display:none;">
                     <div class="welcome-title">Welcome to Client Machinery &#128075;</div>
@@ -194,7 +223,10 @@
 
                 <div class="leads-panel-header">
                     <h2 class="panel-title">My Leads</h2>
-                    <input type="search" id="leads-search" class="leads-search" placeholder="Search name or email&hellip;">
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                        <input type="search" id="leads-search" class="leads-search" placeholder="Search name or email&hellip;">
+                        <button class="btn btn-secondary" id="export-csv-btn" style="width:auto;padding:8px 16px;font-size:0.8125rem;white-space:nowrap;">Export CSV</button>
+                    </div>
                 </div>
                 <p class="leads-count" id="leads-count"></p>
 
@@ -208,6 +240,12 @@
 
                     <!-- CSV Tab -->
                     <div class="tab-pane active" id="tab-csv">
+                        <div style="margin-bottom:12px;">
+                            <button class="btn btn-secondary" id="download-template-btn" style="width:auto;padding:8px 16px;font-size:0.8125rem;">
+                                &#8595; Download CSV Template
+                            </button>
+                            <span style="font-size:0.8rem;color:var(--muted);margin-left:10px;">Not sure of the format? Start here.</span>
+                        </div>
                         <div class="drop-zone" id="drop-zone">
                             <div class="drop-icon">&#8679;</div>
                             <div class="drop-text">Drag &amp; drop your CSV file here</div>
@@ -384,6 +422,21 @@
 
         </main>
     </div><!-- /portal-body -->
+
+    <!-- ── Timeline Panel ──────────────────────────────────────────── -->
+    <div class="timeline-overlay" id="timeline-overlay" style="display:none;"></div>
+    <div class="timeline-panel" id="timeline-panel" aria-hidden="true">
+        <div class="timeline-panel-header">
+            <div>
+                <div class="timeline-lead-name" id="tl-lead-name">—</div>
+                <div class="timeline-lead-sub" id="tl-lead-sub"></div>
+            </div>
+            <button class="timeline-close-btn" id="timeline-close" aria-label="Close">&#x2715;</button>
+        </div>
+        <div class="timeline-body" id="timeline-body">
+            <div class="loading" style="padding:32px;text-align:center;color:var(--muted);">Loading&hellip;</div>
+        </div>
+    </div>
 
     <!-- ── Toast Container ───────────────────────────────────────── -->
     <div class="toast-container" id="toast-container"></div>
@@ -734,6 +787,8 @@
             document.getElementById('account-email').textContent    = meData.email         || '—';
             document.getElementById('account-business').textContent = meData.business_name || '—';
 
+            renderOnboarding();
+
             var sheetId = meData.google_sheet_id || '';
             var banner  = document.getElementById('setup-banner');
             banner.style.display = 'flex';
@@ -752,34 +807,57 @@
     // ─── Stats ───────────────────────────────────────────────────────
     function renderStats() {
         if (!dashData) return;
-        var total = dashData.total_leads || 0;
+        var total     = dashData.total_leads || 0;
+        var replied   = dashData.replied   || 0;
+        var booked    = dashData.booked    || 0;
+        var contacted = dashData.contacted || 0;
 
         document.getElementById('welcome-card').style.display = total === 0 ? 'block' : 'none';
 
+        var weekAgo  = Date.now() - 7 * 86400000;
+        var thisWeek = allLeads.filter(function(l) {
+            var d = new Date(String(l.uploaded_at || '').replace(' ', 'T'));
+            return !isNaN(d.getTime()) && d.getTime() > weekAgo;
+        }).length;
+
+        function rateColor(rate, n) {
+            if (n <= 10) return 'var(--muted)';
+            if (rate >= 8) return 'var(--success)';
+            if (rate >= 5) return 'var(--warning)';
+            return 'var(--error)';
+        }
+
+        function rateHtml(n, total, avg, enoughData) {
+            if (!enoughData || total === 0) return '<div class="stat-rate" style="color:var(--muted);">—</div><div class="stat-avg">Industry avg: ' + avg + '</div>';
+            var rate = (n / total * 100).toFixed(1);
+            var col  = rateColor(parseFloat(rate), total);
+            return '<div class="stat-rate" style="color:' + col + ';">' + rate + '%</div><div class="stat-avg">Industry avg: ' + avg + '</div>';
+        }
+
         var statsGrid = document.getElementById('stats-grid');
         statsGrid.innerHTML =
-            makeStatCard('stat-total',     String(total),            'Total Leads',  '') +
-            makeStatCard('stat-contacted', String(dashData.contacted || 0), 'Contacted', '') +
-            makeStatCard('stat-replied',   String(dashData.replied   || 0), 'Replied',   '') +
-            makeStatCard('stat-booked',    String(dashData.booked    || 0), 'Booked',    '');
+            '<div class="stat-card">' +
+                '<div class="stat-value" id="stat-total">' + escHtml(String(total)) + '</div>' +
+                '<div class="stat-label">Total Leads</div>' +
+                '<div class="stat-hint" id="hint-stat-total">' + (total === 0 ? 'No leads yet' : thisWeek + ' uploaded this week') + '</div>' +
+            '</div>' +
+            '<div class="stat-card">' +
+                '<div class="stat-value" id="stat-contacted">' + escHtml(String(contacted)) + '</div>' +
+                '<div class="stat-label">Contacted</div>' +
+                '<div class="stat-hint" id="hint-stat-contacted">' + (total === 0 ? '—' : Math.round(contacted / total * 100) + '% contact rate') + '</div>' +
+            '</div>' +
+            '<div class="stat-card">' +
+                '<div class="stat-value" id="stat-replied">' + escHtml(String(replied)) + '</div>' +
+                '<div class="stat-label">Replied</div>' +
+                rateHtml(replied, total, '5–8%', total > 10) +
+            '</div>' +
+            '<div class="stat-card">' +
+                '<div class="stat-value" id="stat-booked">' + escHtml(String(booked)) + '</div>' +
+                '<div class="stat-label">Booked</div>' +
+                rateHtml(booked, total, '2–4%', total > 10) +
+            '</div>';
 
-        if (total === 0) {
-            setStat('stat-total',     '', 'No leads yet');
-            setStat('stat-contacted', '', '—');
-            setStat('stat-replied',   '', '—');
-            setStat('stat-booked',    '', '—');
-        } else {
-            var weekAgo  = Date.now() - 7 * 86400000;
-            var thisWeek = allLeads.filter(function(l) {
-                var d = new Date(String(l.uploaded_at || '').replace(' ', 'T'));
-                return !isNaN(d.getTime()) && d.getTime() > weekAgo;
-            }).length;
-            var pct = function(n) { return Math.round((n / total) * 100) + '%'; };
-            setStat('stat-total',     '', thisWeek + ' uploaded this week');
-            setStat('stat-contacted', '', pct(dashData.contacted) + ' contact rate');
-            setStat('stat-replied',   '', pct(dashData.replied)   + ' reply rate');
-            setStat('stat-booked',    '', pct(dashData.booked)    + ' book rate');
-        }
+        renderOnboarding();
     }
 
     function makeStatCard(id, value, label, hint) {
@@ -1233,6 +1311,17 @@
             });
         });
 
+        // Row click → timeline (skip interactive cells)
+        tbody.querySelectorAll('tr').forEach(function(row) {
+            row.style.cursor = 'pointer';
+            row.addEventListener('click', function(e) {
+                if (e.target.closest('.status-select') || e.target.closest('.notes-cell') ||
+                    e.target.closest('.btn-delete-lead') || e.target.closest('a')) return;
+                var sel = row.querySelector('.status-select');
+                if (sel && sel.dataset.id) openTimeline(sel.dataset.id);
+            });
+        });
+
         // Delete handlers
         tbody.querySelectorAll('.btn-delete-lead').forEach(function(btn) {
             btn.addEventListener('click', async function() {
@@ -1604,6 +1693,165 @@
             });
         }
     });
+
+    // ─── Onboarding Progress Bar ──────────────────────────────────────
+    function renderOnboarding() {
+        if (!dashData || !meData) return;
+        var total   = dashData.total_leads || 0;
+        if (total >= 10) { document.getElementById('onboarding-bar').style.display = 'none'; return; }
+
+        var icpSet  = !!(meData.target_icp && meData.target_icp.trim());
+        var hasLeads = total > 0;
+        var hasReply = (dashData.replied || 0) > 0;
+
+        var steps  = [true, icpSet, hasLeads, hasReply];
+        var done   = steps.filter(Boolean).length;
+
+        if (done === 4) { document.getElementById('onboarding-bar').style.display = 'none'; return; }
+
+        document.getElementById('onboarding-bar').style.display = 'block';
+        document.getElementById('onboarding-steps-label').textContent = done + ' of 4 steps complete';
+        document.getElementById('onboarding-fill').style.width = Math.round(done / 4 * 100) + '%';
+
+        [2, 3, 4].forEach(function(n, i) {
+            var el = document.getElementById('ob-circle-' + n);
+            if (!el) return;
+            if (steps[n - 1]) {
+                el.textContent = '✓';
+                el.classList.add('ob-done');
+            } else {
+                el.textContent = String(n);
+                el.classList.remove('ob-done');
+            }
+        });
+    }
+
+    // ─── CSV Template Download ────────────────────────────────────────
+    document.getElementById('download-template-btn').addEventListener('click', function() {
+        var csv = 'First Name,Last Name,Email,Phone,Service Requested\n' +
+            'John,Smith,john@smithplumbing.com,5551234567,Pipe repair\n' +
+            'Sarah,Jones,sarah@jonesroofing.com,5559876543,Roof inspection\n' +
+            'Mike,Davis,mike@davishvac.com,5554567890,AC installation\n';
+        var blob = new Blob([csv], { type: 'text/csv' });
+        var url  = URL.createObjectURL(blob);
+        var a    = document.createElement('a');
+        a.href  = url;
+        a.download = 'client-machinery-leads-template.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    });
+
+    // ─── Export All Leads ─────────────────────────────────────────────
+    document.getElementById('export-csv-btn').addEventListener('click', async function() {
+        var btn = this;
+        btn.disabled = true; btn.textContent = 'Exporting…';
+        try {
+            var res = await fetch('/api/portal/leads/all', { headers: authHeaders() });
+            if (!res.ok) { showToast('Export failed.', 'error'); return; }
+            var d = await res.json();
+            var leads = d.leads || [];
+            if (!leads.length) { showToast('No leads to export.', 'error'); return; }
+
+            var header = ['First Name','Last Name','Email','Phone','Service','Status','Date Added','Source'];
+            var rows = leads.map(function(l) {
+                return [
+                    l.first_name || '', l.last_name || '', l.email || '', l.phone || '',
+                    l.service_requested || '', l.status || '', (l.uploaded_at || '').split('T')[0].split(' ')[0] || '',
+                    l.lead_source || 'Portal'
+                ].map(function(v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(',');
+            });
+
+            var csv  = [header.join(',')].concat(rows).join('\n');
+            var blob = new Blob([csv], { type: 'text/csv' });
+            var url  = URL.createObjectURL(blob);
+            var a    = document.createElement('a');
+            a.href   = url;
+            a.download = 'client-machinery-leads-export.csv';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('Exported ' + leads.length + ' leads.', 'success');
+        } catch(e) { showToast('Network error.', 'error'); }
+        finally { btn.disabled = false; btn.textContent = 'Export CSV'; }
+    });
+
+    // ─── Lead Timeline Panel ──────────────────────────────────────────
+    var timelineOpen = false;
+
+    function openTimeline(leadId) {
+        timelineOpen = true;
+        var panel   = document.getElementById('timeline-panel');
+        var overlay = document.getElementById('timeline-overlay');
+        panel.setAttribute('aria-hidden', 'false');
+        panel.classList.add('open');
+        overlay.style.display = 'block';
+        document.getElementById('timeline-body').innerHTML =
+            '<div style="padding:32px;text-align:center;color:var(--muted);">Loading&hellip;</div>';
+        document.getElementById('tl-lead-name').textContent = '—';
+        document.getElementById('tl-lead-sub').textContent  = '';
+
+        fetch('/api/portal/leads/timeline?lead_id=' + leadId, { headers: authHeaders() })
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                var lead = d.lead || {};
+                var name = [lead.first_name, lead.last_name].filter(Boolean).join(' ') || '—';
+                document.getElementById('tl-lead-name').textContent = name;
+                document.getElementById('tl-lead-sub').textContent  =
+                    [lead.service_requested, lead.email].filter(Boolean).join(' · ');
+                renderTimeline(d.timeline || []);
+            })
+            .catch(function() {
+                document.getElementById('timeline-body').innerHTML =
+                    '<div style="padding:32px;text-align:center;color:var(--error);">Failed to load timeline.</div>';
+            });
+    }
+
+    function closeTimeline() {
+        timelineOpen = false;
+        var panel   = document.getElementById('timeline-panel');
+        var overlay = document.getElementById('timeline-overlay');
+        panel.classList.remove('open');
+        panel.setAttribute('aria-hidden', 'true');
+        overlay.style.display = 'none';
+    }
+
+    var TL_ICONS = {
+        upload:   '&#8679;',
+        envelope: '&#9993;',
+        bell:     '&#128276;',
+        reply:    '&#8617;',
+    };
+
+    function renderTimeline(events) {
+        var body = document.getElementById('timeline-body');
+        if (!events.length) {
+            body.innerHTML = '<div style="padding:24px;color:var(--muted);">No timeline events.</div>';
+            return;
+        }
+        body.innerHTML = events.map(function(ev) {
+            var isSent = ev.state === 'sent' || ev.state === 'done';
+            var dateStr = '';
+            try {
+                var d = new Date(ev.date);
+                dateStr = d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+            } catch(e) {}
+            return '<div class="tl-event ' + (isSent ? 'tl-sent' : 'tl-scheduled') + '">' +
+                '<div class="tl-icon">' + (TL_ICONS[ev.icon] || '&#8226;') + '</div>' +
+                '<div class="tl-content">' +
+                    '<div class="tl-desc">' + escHtml(ev.description) + '</div>' +
+                    '<div class="tl-date">' + escHtml(dateStr) +
+                        (ev.state === 'scheduled' ? ' <span class="tl-badge-sched">Scheduled</span>' : '') +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+        }).join('');
+    }
+
+    document.getElementById('timeline-close').addEventListener('click', closeTimeline);
+    document.getElementById('timeline-overlay').addEventListener('click', closeTimeline);
 
     // ─── Intake redirect success ──────────────────────────────────────
     if (sessionStorage.getItem('cm_intake_success')) {

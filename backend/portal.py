@@ -6,8 +6,10 @@ import os
 import secrets
 import string
 import threading
+from datetime import datetime, timedelta, timezone
 
 import psycopg2
+import resend
 from flask import Blueprint, request, jsonify, g
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -16,6 +18,96 @@ from auth import require_auth
 from sheets import create_client_sheet, append_lead_to_sheet
 
 logger = logging.getLogger(__name__)
+
+_RESEND_API_KEY = os.getenv("RESEND_API_KEY")
+
+
+def _send_reply_notification_email(to_email, client_name, client_business,
+                                    lead_first, lead_last, classification):
+    if not _RESEND_API_KEY:
+        return
+    resend.api_key = _RESEND_API_KEY
+
+    lead_name = f"{lead_first} {lead_last}".strip()
+    first_name = client_name.split()[0] if client_name else "there"
+
+    badge_styles = {
+        "INTERESTED":    ("background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0;", "INTERESTED"),
+        "MEETING READY": ("background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0;", "MEETING READY"),
+        "QUESTION":      ("background:#dbeafe;color:#1d4ed8;border:1px solid #bfdbfe;", "QUESTION"),
+        "NOT NOW":       ("background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;", "NOT NOW"),
+    }
+    badge_style, badge_label = badge_styles.get(
+        classification,
+        ("background:#f1f5f9;color:#475569;border:1px solid #e2e8f0;", classification or "Replied")
+    )
+
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background:#f4f6f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6f9;padding:40px 16px;">
+    <tr><td align="center">
+      <table width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;">
+        <tr>
+          <td style="background:#1E3A5F;border-radius:10px 10px 0 0;padding:28px 40px;text-align:center;">
+            <p style="margin:0;font-size:12px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:#7aafd4;">Client Machinery</p>
+            <h1 style="margin:10px 0 0;font-size:20px;font-weight:700;color:#ffffff;">You got a reply &#128226;</h1>
+          </td>
+        </tr>
+        <tr>
+          <td style="background:#ffffff;padding:36px 40px;border-left:1px solid #e2e8f0;border-right:1px solid #e2e8f0;">
+            <p style="margin:0 0 20px;font-size:16px;color:#334155;">Hi {first_name},</p>
+            <p style="margin:0 0 24px;font-size:15px;color:#475569;line-height:1.7;">
+              Good news &#8212; <strong style="color:#1e293b;">{lead_name}</strong> from
+              <strong style="color:#1e293b;">{client_business}</strong> just replied to your
+              automated follow up sequence.
+            </p>
+            <p style="margin:0 0 28px;">
+              <span style="display:inline-block;{badge_style}border-radius:5px;font-size:12px;font-weight:700;padding:4px 12px;text-transform:uppercase;letter-spacing:0.5px;">
+                {badge_label}
+              </span>
+            </p>
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
+              <tr>
+                <td align="center">
+                  <a href="https://clientmachinery.com/portal/dashboard"
+                     style="display:inline-block;background:#2E75B6;color:#ffffff;text-decoration:none;font-size:15px;font-weight:600;padding:13px 32px;border-radius:7px;">
+                    View in Dashboard &rarr;
+                  </a>
+                </td>
+              </tr>
+            </table>
+            <p style="margin:0;font-size:14px;color:#64748b;line-height:1.6;text-align:center;">
+              Log in and follow up within the hour for best results.
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="background:#f8fafc;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 10px 10px;padding:18px 40px;text-align:center;">
+            <p style="margin:0;font-size:12px;color:#94a3b8;">
+              Client Machinery &mdash;
+              <a href="mailto:support@clientmachinery.com" style="color:#64748b;text-decoration:none;">support@clientmachinery.com</a>
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>"""
+
+    try:
+        resend.Emails.send({
+            "from": "Client Machinery <support@clientmachinery.com>",
+            "to": to_email,
+            "reply_to": "support@clientmachinery.com",
+            "subject": f"{lead_name} just replied to your follow up",
+            "html": html,
+        })
+        logger.info(f"[portal] Reply notification sent to {to_email} for lead {lead_name}")
+    except Exception as e:
+        logger.error(f"[portal] Reply notification failed for {to_email}: {e}")
 
 portal_bp = Blueprint("portal", __name__)
 
@@ -208,6 +300,90 @@ def get_leads():
 
     leads = [dict(r) for r in rows]
     return jsonify({"leads": leads}), 200
+
+
+@portal_bp.route("/api/portal/leads/all", methods=["GET"])
+@require_auth
+def get_all_leads():
+    client_id = g.client["id"]
+    db = get_db()
+    rows = db.execute(
+        """SELECT id, first_name, last_name, email, phone, service_requested,
+                  lead_source, status, notes, uploaded_at
+           FROM lead_uploads WHERE client_id = ?
+           ORDER BY uploaded_at DESC""",
+        (client_id,)
+    ).fetchall()
+    return jsonify({"leads": [dict(r) for r in rows]}), 200
+
+
+@portal_bp.route("/api/portal/leads/timeline", methods=["GET"])
+@require_auth
+def get_lead_timeline():
+    client_id = g.client["id"]
+    lead_id = request.args.get("lead_id")
+    if not lead_id:
+        return jsonify({"error": "lead_id is required"}), 400
+
+    db = get_db()
+    lead = db.execute(
+        """SELECT id, first_name, last_name, email, phone, service_requested,
+                  lead_source, status, notes, uploaded_at
+           FROM lead_uploads WHERE id = ? AND client_id = ?""",
+        (int(lead_id), client_id)
+    ).fetchone()
+
+    if not lead:
+        return jsonify({"error": "Lead not found"}), 404
+
+    lead_dict = dict(lead)
+
+    # Calculate email schedule from uploaded_at
+    try:
+        added = datetime.fromisoformat(str(lead_dict["uploaded_at"]).replace(" ", "T").rstrip("Z"))
+        if added.tzinfo is None:
+            added = added.replace(tzinfo=timezone.utc)
+    except Exception:
+        added = datetime.now(timezone.utc)
+
+    now = datetime.now(timezone.utc)
+    email_days = [0, 2, 5, 10, 14]
+    timeline = []
+
+    # Upload event
+    timeline.append({
+        "type": "uploaded",
+        "icon": "upload",
+        "description": "Lead uploaded",
+        "date": added.isoformat(),
+        "state": "done",
+    })
+
+    # Email touch events
+    for i, day in enumerate(email_days, 1):
+        send_date = added + timedelta(days=day)
+        state = "sent" if send_date <= now else "scheduled"
+        timeline.append({
+            "type": "email",
+            "icon": "envelope",
+            "description": f"Touch {i} — automated follow up",
+            "date": send_date.isoformat(),
+            "state": state,
+        })
+
+    # Status event (if not New)
+    status = lead_dict.get("status") or "New"
+    if status not in ("New",):
+        timeline.append({
+            "type": "status",
+            "icon": "bell",
+            "description": f"Status changed to {status}",
+            "date": now.isoformat(),
+            "state": "done",
+        })
+
+    timeline.sort(key=lambda e: e["date"])
+    return jsonify({"lead": lead_dict, "timeline": timeline}), 200
 
 
 @portal_bp.route("/api/portal/sequences", methods=["GET"])
@@ -659,6 +835,7 @@ def update_lead_status():
     if not data or not data.get("lead_id") or not data.get("status"):
         return jsonify({"error": "lead_id and status are required"}), 400
     valid_statuses = {"New", "Contacted", "Replied", "Booked", "Closed", "Not Interested"}
+    reply_statuses = {"Replied", "INTERESTED", "MEETING READY", "QUESTION"}
     if data["status"] not in valid_statuses:
         return jsonify({"error": "Invalid status"}), 400
     db = get_db()
@@ -674,9 +851,20 @@ def update_lead_status():
         full_name = f"{lead['first_name'] or ''} {lead['last_name'] or ''}".strip()
         if data["status"] == "Booked":
             add_notification(db, client_id, "booked", f"Lead {full_name} marked as Booked")
-        elif data["status"] == "Replied":
+        elif data["status"] in reply_statuses:
             add_notification(db, client_id, "replied", f"Lead {full_name} replied")
     db.commit()
+
+    if lead and data["status"] in reply_statuses:
+        client = g.client
+        threading.Thread(
+            target=_send_reply_notification_email,
+            args=(client["email"], client["name"], client["business_name"],
+                  lead["first_name"] or "", lead["last_name"] or "",
+                  data["status"]),
+            daemon=True,
+        ).start()
+
     return jsonify({"success": True}), 200
 
 
