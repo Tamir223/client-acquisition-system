@@ -70,17 +70,20 @@ def dashboard():
     ).fetchone()["count"]
 
     contacted = db.execute(
-        "SELECT COUNT(*) AS count FROM activity_log WHERE client_id = ? AND event_type = 'contacted'",
+        """SELECT COUNT(*) AS count FROM lead_uploads
+           WHERE client_id = ? AND status IN ('Contacted', 'Outreach Queue')""",
         (client_id,)
     ).fetchone()["count"]
 
     replied = db.execute(
-        "SELECT COUNT(*) AS count FROM activity_log WHERE client_id = ? AND event_type = 'replied'",
+        """SELECT COUNT(*) AS count FROM lead_uploads
+           WHERE client_id = ? AND status IN ('Replied', 'INTERESTED', 'QUESTION', 'NOT NOW', 'MEETING READY')""",
         (client_id,)
     ).fetchone()["count"]
 
     booked = db.execute(
-        "SELECT COUNT(*) AS count FROM activity_log WHERE client_id = ? AND event_type = 'booked'",
+        """SELECT COUNT(*) AS count FROM lead_uploads
+           WHERE client_id = ? AND status IN ('Booked', 'Call Booked')""",
         (client_id,)
     ).fetchone()["count"]
 
@@ -655,15 +658,43 @@ def update_lead_status():
     data = request.get_json()
     if not data or not data.get("lead_id") or not data.get("status"):
         return jsonify({"error": "lead_id and status are required"}), 400
-    valid_statuses = {"New", "Contacted", "Replied", "Booked", "Closed"}
+    valid_statuses = {"New", "Contacted", "Replied", "Booked", "Closed", "Not Interested"}
     if data["status"] not in valid_statuses:
         return jsonify({"error": "Invalid status"}), 400
     db = get_db()
+    lead = db.execute(
+        "SELECT first_name, last_name FROM lead_uploads WHERE id = ? AND client_id = ?",
+        (int(data["lead_id"]), client_id)
+    ).fetchone()
     db.execute(
         "UPDATE lead_uploads SET status = ? WHERE id = ? AND client_id = ?",
         (data["status"], int(data["lead_id"]), client_id)
     )
+    if lead:
+        full_name = f"{lead['first_name'] or ''} {lead['last_name'] or ''}".strip()
+        if data["status"] == "Booked":
+            add_notification(db, client_id, "booked", f"Lead {full_name} marked as Booked")
+        elif data["status"] == "Replied":
+            add_notification(db, client_id, "replied", f"Lead {full_name} replied")
     db.commit()
+    return jsonify({"success": True}), 200
+
+
+@portal_bp.route("/api/portal/leads/delete", methods=["DELETE"])
+@require_auth
+def delete_lead():
+    client_id = g.client["id"]
+    data = request.get_json()
+    if not data or not data.get("lead_id"):
+        return jsonify({"error": "lead_id is required"}), 400
+    db = get_db()
+    result = db.execute(
+        "DELETE FROM lead_uploads WHERE id = ? AND client_id = ?",
+        (int(data["lead_id"]), client_id)
+    )
+    db.commit()
+    if result.rowcount == 0:
+        return jsonify({"error": "Lead not found"}), 404
     return jsonify({"success": True}), 200
 
 

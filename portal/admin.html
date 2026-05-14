@@ -529,13 +529,12 @@
                             <th>Sheet</th>
                             <th>ICP</th>
                             <th>Notif</th>
-                            <th>Leads</th>
                             <th>Created</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="clients-tbody">
-                        <tr><td colspan="11" class="admin-loading">Loading&hellip;</td></tr>
+                        <tr><td colspan="10" class="admin-loading">Loading&hellip;</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -652,10 +651,6 @@
             <div class="detail-row">
                 <div class="detail-label">Status</div>
                 <div class="detail-value" id="detail-status"></div>
-            </div>
-            <div class="detail-row">
-                <div class="detail-label">Leads Uploaded</div>
-                <div class="detail-value" id="detail-leads"></div>
             </div>
             <div class="detail-row">
                 <div class="detail-label">Unread Notifications</div>
@@ -819,7 +814,7 @@
         const res = await fetch('/api/portal/admin/clients', { headers: adminHeaders() }).catch(function() { return null; });
         if (!res || !res.ok) {
             document.getElementById('clients-tbody').innerHTML =
-                '<tr><td colspan="11" style="text-align:center;color:var(--error);padding:32px;">Failed to load clients.</td></tr>';
+                '<tr><td colspan="10" style="text-align:center;color:var(--error);padding:32px;">Failed to load clients.</td></tr>';
             return;
         }
         const d = await res.json();
@@ -872,7 +867,7 @@
         if (countEl) countEl.textContent = clients.length;
 
         if (!clients.length) {
-            tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:40px;">No clients found.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:40px;">No clients found.</td></tr>';
             return;
         }
 
@@ -880,7 +875,6 @@
             const hasSheet  = !!(c.google_sheet_id && c.google_sheet_id !== '' && c.google_sheet_id !== 'placeholder');
             const hasIcp    = !!(c.target_icp && c.target_icp.trim() !== '');
             const notifNum  = c.unread_notifications || 0;
-            const leadNum   = c.lead_count || 0;
             const isSel     = selectedIds.has(c.id);
 
             return '<tr class="client-row' + (isSel ? ' row-selected' : '') + '" data-id="' + c.id + '">' +
@@ -902,13 +896,11 @@
                     '</span>' +
                 '</td>' +
                 '<td>' + (notifNum > 0 ? '<span class="badge-notif">' + notifNum + '</span>' : '<span style="color:var(--muted);">0</span>') + '</td>' +
-                '<td>' + (leadNum > 0 ? '<span class="badge-leads">' + leadNum + '</span>' : '<span style="color:var(--muted);">0</span>') + '</td>' +
                 '<td style="color:var(--muted);font-size:0.8rem;white-space:nowrap;">' + escHtml(formatDate(c.created_at)) + '</td>' +
                 '<td class="actions-cell">' +
                     '<button class="btn-xs btn-xs-accent  act-icp"   data-id="' + c.id + '">Set ICP</button>' +
                     '<button class="btn-xs btn-xs-success act-sheet"  data-email="' + escHtml(c.email) + '">Sheet</button>' +
                     '<button class="btn-xs              act-email" data-email="' + escHtml(c.email) + '">Email</button>' +
-                    '<button class="btn-xs              act-view"   data-id="' + c.id + '">View Leads</button>' +
                 '</td>' +
             '</tr>';
         }).join('');
@@ -953,13 +945,6 @@
             btn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 sendReadyEmail(btn.dataset.email);
-            });
-        });
-        tbody.querySelectorAll('.act-view').forEach(function(btn) {
-            btn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                const client = findClient(parseInt(btn.dataset.id));
-                if (client) openDetailModal(client, false);
             });
         });
     }
@@ -1071,7 +1056,6 @@
         document.getElementById('detail-niche').textContent   = client.niche || '—';
         document.getElementById('detail-created').textContent = formatDate(client.created_at);
         document.getElementById('detail-status').textContent  = client.status || 'active';
-        document.getElementById('detail-leads').textContent   = client.lead_count != null ? client.lead_count : '—';
         document.getElementById('detail-notif').textContent   = client.unread_notifications || '0';
 
         const sheetInput = document.getElementById('detail-sheet-input');

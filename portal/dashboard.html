@@ -264,10 +264,11 @@
                                     <th>Notes</th>
                                     <th>Status</th>
                                     <th>Date Added</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody id="leads-tbody">
-                                <tr class="empty-row"><td colspan="7">
+                                <tr class="empty-row"><td colspan="8">
                                     <div class="skeleton-line" style="width:100%;height:20px;border-radius:4px;margin:4px 0;"></div>
                                     <div class="skeleton-line" style="width:90%;height:20px;border-radius:4px;margin:4px 0;"></div>
                                     <div class="skeleton-line" style="width:95%;height:20px;border-radius:4px;margin:4px 0;"></div>
@@ -808,6 +809,16 @@
         } catch(e) { console.error('Dashboard load error', e); }
     }
 
+    async function refreshStats() {
+        try {
+            var res = await fetch('/api/portal/dashboard', { headers: authHeaders() });
+            if (!res.ok) return;
+            dashData = await res.json();
+            renderStats();
+            renderPipeline(dashData);
+        } catch(e) {}
+    }
+
     // ─── Activity ────────────────────────────────────────────────────
     var ICONS = {
         csv_upload: '&#8679;',
@@ -1123,10 +1134,10 @@
         } catch(e) { console.error('Leads load error', e); }
     }
 
-    var STATUS_OPTIONS = ['New', 'Contacted', 'Replied', 'Booked', 'Closed'];
+    var STATUS_OPTIONS = ['New', 'Contacted', 'Replied', 'Booked', 'Closed', 'Not Interested'];
 
     function statusClass(status) {
-        var map = { 'New':'badge-status-new','Contacted':'badge-status-contacted','Replied':'badge-status-replied','Booked':'badge-status-booked','Closed':'badge-status-closed' };
+        var map = { 'New':'badge-status-new','Contacted':'badge-status-contacted','Replied':'badge-status-replied','Booked':'badge-status-booked','Closed':'badge-status-closed','Not Interested':'badge-status-closed' };
         return map[status] || 'badge-status-new';
     }
 
@@ -1150,14 +1161,14 @@
         }
 
         if (!allLeads.length) {
-            tbody.innerHTML = '<tr class="empty-row"><td colspan="7">' +
+            tbody.innerHTML = '<tr class="empty-row"><td colspan="8">' +
                 '<div style="padding:8px 0;">No leads uploaded yet.<br>' +
                 '<span style="font-size:0.8125rem;color:var(--muted);">Use the upload section above to add your first leads.</span></div></td></tr>';
             document.getElementById('pagination-wrap').style.display = 'none';
             return;
         }
         if (!filtered.length) {
-            tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No leads match your search.</td></tr>';
+            tbody.innerHTML = '<tr class="empty-row"><td colspan="8">No leads match your search.</td></tr>';
             document.getElementById('pagination-wrap').style.display = 'none';
             return;
         }
@@ -1191,6 +1202,11 @@
                     statusOpts + '</select>' +
                 '</td>' +
                 '<td class="muted">'              + escHtml(formatDate(l.uploaded_at)) + '</td>' +
+                '<td style="text-align:center;">' +
+                    '<button class="btn-delete-lead" data-id="' + l.id + '" title="Delete lead" aria-label="Delete lead">' +
+                        '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>' +
+                    '</button>' +
+                '</td>' +
             '</tr>';
         }).join('');
 
@@ -1201,13 +1217,42 @@
                 var status = this.value;
                 sel.className = 'status-select ' + statusClass(status);
                 try {
-                    await fetch('/api/portal/leads/status', {
+                    var res = await fetch('/api/portal/leads/status', {
                         method: 'PATCH', headers: authHeaders(),
                         body: JSON.stringify({ lead_id: leadId, status: status })
                     });
-                    var lead = allLeads.find(function(l) { return String(l.id) === String(leadId); });
-                    if (lead) lead.status = status;
+                    if (res.ok) {
+                        var lead = allLeads.find(function(l) { return String(l.id) === String(leadId); });
+                        if (lead) lead.status = status;
+                        await refreshStats();
+                        if (status === 'Booked' || status === 'Replied') loadNotifications();
+                    } else {
+                        showToast('Failed to update status.', 'error');
+                    }
                 } catch(e) { showToast('Failed to update status.', 'error'); }
+            });
+        });
+
+        // Delete handlers
+        tbody.querySelectorAll('.btn-delete-lead').forEach(function(btn) {
+            btn.addEventListener('click', async function() {
+                var leadId = this.dataset.id;
+                var confirmed = await showConfirm('Delete this lead? This cannot be undone.', 'Delete', 'Cancel');
+                if (!confirmed) return;
+                try {
+                    var res = await fetch('/api/portal/leads/delete', {
+                        method: 'DELETE', headers: authHeaders(),
+                        body: JSON.stringify({ lead_id: leadId })
+                    });
+                    if (res.ok) {
+                        allLeads = allLeads.filter(function(l) { return String(l.id) !== String(leadId); });
+                        renderLeads();
+                        await refreshStats();
+                        showToast('Lead deleted.', 'success');
+                    } else {
+                        showToast('Failed to delete lead.', 'error');
+                    }
+                } catch(e) { showToast('Network error.', 'error'); }
             });
         });
 
