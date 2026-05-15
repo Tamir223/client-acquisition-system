@@ -142,3 +142,48 @@ def append_lead_to_sheet(sheet_id, lead_data):
     except Exception as e:
         logger.error(f"[sheets] Failed to append lead to sheet {sheet_id}: {e}")
         return None
+
+
+def update_lead_in_sheet(sheet_id, lead_email, score, status, pain_point, first_line):
+    """Find lead row by email (column F) and write AI scoring columns."""
+    credentials = _get_credentials()
+    if not credentials:
+        return None
+
+    try:
+        service = build("sheets", "v4", credentials=credentials, cache_discovery=False)
+
+        result = service.spreadsheets().values().get(
+            spreadsheetId=sheet_id,
+            range="LEADS!F:F",
+        ).execute()
+
+        rows = result.get("values", [])
+        row_index = None
+        for i, row in enumerate(rows):
+            if row and row[0].strip().lower() == lead_email.strip().lower():
+                row_index = i + 1  # 1-indexed
+                break
+
+        if row_index is None:
+            logger.warning(f"[sheets] Email {lead_email} not found in sheet {sheet_id}")
+            return None
+
+        # Columns: I=score(9), J=status(10), N=pain_point(14), O=first_line(15)
+        data = [
+            {"range": f"LEADS!I{row_index}", "values": [[score]]},
+            {"range": f"LEADS!J{row_index}", "values": [[status]]},
+            {"range": f"LEADS!N{row_index}", "values": [[pain_point]]},
+            {"range": f"LEADS!O{row_index}", "values": [[first_line]]},
+        ]
+
+        service.spreadsheets().values().batchUpdate(
+            spreadsheetId=sheet_id,
+            body={"valueInputOption": "USER_ENTERED", "data": data},
+        ).execute()
+
+        logger.info(f"[sheets] Updated scoring for {lead_email} at row {row_index}")
+        return True
+    except Exception as e:
+        logger.error(f"[sheets] Failed to update lead in sheet {sheet_id}: {e}")
+        return None

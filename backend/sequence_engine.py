@@ -1,10 +1,12 @@
 import logging
 import os
 import re
+import threading
 from datetime import datetime, timedelta
 
 import psycopg2
 import psycopg2.extras
+import requests as _requests
 import resend
 
 from telegram_alerts import alert_partners, alert_client, alert_reply, alert_email_sent
@@ -63,6 +65,171 @@ def _send_reply_email_to_client(client, first_name, last_name, lead_email, snipp
         })
     except Exception as e:
         logger.error(f"[sequence] reply email to client failed: {e}")
+
+
+_TOUCH1_TEMPLATE = """{first_line}
+
+Most owners I talk to say the same thing — someone reaches out, life gets busy, and the follow up never happens.
+
+By the time they circle back the lead is gone.
+
+We fix that with automated follow up that runs in the background while you focus on the work.
+
+Worth a 15 minute conversation?
+
+clientmachinery.com/portal/dashboard
+
+{business_name}"""
+
+
+def score_lead(lead_data, client):
+    """
+    Call Claude Haiku to score and personalize a lead.
+    Returns dict with lead_score, reason, pain_point, ai_first_line — or None on failure.
+    """
+    api_key = os.getenv("CLAUDE_API_KEY")
+    if not api_key:
+        logger.debug("[scoring] CLAUDE_API_KEY not set — skipping AI scoring")
+        return None
+
+    prompt = (
+        "Score this lead 1-10 on how likely they need automated lead follow up software.\n\n"
+        f"Business Name: {lead_data.get('service_requested', lead_data.get('business_name', 'Unknown'))}\n"
+        f"Service They Need: {lead_data.get('service_requested', '')}\n"
+        f"City: {lead_data.get('city', '')}\n"
+        f"Client Niche: {client.get('niche', '')}\n"
+        f"Target ICP: {client.get('target_icp', '')}\n\n"
+        "High score (8-10): local or regional business that gets inbound leads and "
+        "likely has a manual follow up process.\n"
+        "Low score (1-3): large enterprise, no inbound leads, or already has "
+        "sophisticated automation.\n\n"
+        "Return ONLY this format:\n"
+        "SCORE: [number]\n"
+        "REASON: [one sentence]\n"
+        "PAIN: [one sentence describing their specific pain point]\n"
+        "FIRSTLINE: [one sentence cold email opener under 25 words, specific to their "
+        "business, does not start with Most/I/We]"
+    )
+
+    try:
+        resp = _requests.post(
+            "https://api.anthropic.com/v1/messages",
+            headers={
+                "x-api-key": api_key,
+                "anthropic-version": "2023-06-01",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": "claude-haiku-4-5-20251001",
+                "max_tokens": 200,
+                "messages": [{"role": "user", "content": prompt}],
+            },
+            timeout=20,
+        )
+        resp.raise_for_status()
+        text = resp.json()["content"][0]["text"].strip()
+
+        score, reason, pain, firstline = None, "", "", ""
+        for line in text.splitlines():
+            line = line.strip()
+            if line.upper().startswith("SCORE:"):
+                try:
+                    score = int(re.search(r"\d+", line.split(":", 1)[1]).group())
+                except Exception:
+                    pass
+            elif line.upper().startswith("REASON:"):
+                reason = line.split(":", 1)[1].strip()
+            elif line.upper().startswith("PAIN:"):
+                pain = line.split(":", 1)[1].strip()
+            elif line.upper().startswith("FIRSTLINE:"):
+                firstline = line.split(":", 1)[1].strip()
+
+        if score is None:
+            logger.warning("[scoring] Could not parse SCORE from Claude response")
+            return None
+
+        score = max(1, min(10, score))
+        return {"lead_score": score, "reason": reason, "pain_point": pain, "ai_first_line": firstline}
+
+    except Exception as e:
+        logger.error(f"[scoring] score_lead failed: {e}")
+        return None
+
+
+def _apply_scoring(client_id, lead_id, lead_data):
+    """
+    Background thread: score the lead, update DB, update Touch 1 email, update sheet.
+    Uses its own DB connection — safe to run after schedule_sequence() commits.
+    """
+    conn = None
+    try:
+        conn = _get_conn()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+        cur.execute("SELECT * FROM clients WHERE id = %s", (client_id,))
+        client = cur.fetchone()
+        if not client:
+            return
+
+        result = score_lead(lead_data, dict(client))
+        if not result:
+            return
+
+        score = result["lead_score"]
+        pain = result["pain_point"]
+        firstline = result["ai_first_line"]
+        first_name = lead_data.get("first_name", "")
+        last_name = lead_data.get("last_name", "")
+
+        # Save score to lead record
+        cur.execute(
+            """UPDATE lead_uploads
+               SET lead_score = %s, pain_point = %s, ai_first_line = %s
+               WHERE id = %s""",
+            (score, pain, firstline, lead_id),
+        )
+
+        # Rewrite Touch 1 body with AI first line
+        touch1_body = _TOUCH1_TEMPLATE.format(
+            first_line=firstline,
+            business_name=client.get("business_name", ""),
+        )
+        cur.execute(
+            """UPDATE scheduled_emails SET body = %s
+               WHERE lead_id = %s AND touch_number = 1 AND status = 'scheduled'""",
+            (touch1_body, lead_id),
+        )
+
+        conn.commit()
+        logger.info(
+            f"[scoring] Lead {lead_id} scored {score}/10 — "
+            f"{first_name} {last_name}"
+        )
+
+        # Update Google Sheet with score, status, pain point, first line
+        sheet_id = (client.get("google_sheet_id") or "").strip()
+        if sheet_id and sheet_id != "placeholder":
+            lead_email = (lead_data.get("email") or "").strip()
+            sheet_status = "Outreach Queue" if score >= 7 else "Low Score"
+            try:
+                from sheets import update_lead_in_sheet
+                update_lead_in_sheet(sheet_id, lead_email, score, sheet_status, pain, firstline)
+            except Exception as e:
+                logger.error(f"[scoring] Sheet update failed for lead {lead_id}: {e}")
+
+    except Exception as e:
+        logger.error(f"[scoring] _apply_scoring error for lead {lead_id}: {e}")
+        if conn:
+            try:
+                conn.rollback()
+            except Exception:
+                pass
+    finally:
+        if conn:
+            try:
+                conn.close()
+            except Exception:
+                pass
 
 
 class SequenceEngine:
@@ -130,6 +297,14 @@ class SequenceEngine:
                  f"Sequence scheduled for {first_name} {last_name}"),
             )
             conn.commit()
+
+            if count > 0 and lead_id and lead_id > 0:
+                threading.Thread(
+                    target=_apply_scoring,
+                    args=(client_id, lead_id, lead_data),
+                    daemon=True,
+                ).start()
+
             return count
         except Exception as e:
             logger.error(f"[sequence] schedule_sequence error: {e}")
