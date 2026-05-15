@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service — Client Machinery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:      #0d1117;
+            --surface: #161b22;
+            --border:  #21262d;
+            --accent:  #2E75B6;
+            --text:    #e6edf3;
+            --muted:   #8b949e;
+            --font:    'Inter', -apple-system, sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* ── Header ── */
+        .site-header {
+            background: rgba(13,17,23,0.95);
+            border-bottom: 1px solid var(--border);
+            padding: 0 32px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-logo {
+            font-size: 1.125rem;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.02em;
+        }
+        .header-logo a { color: inherit; text-decoration: none; }
+        .header-login {
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.875rem;
+            font-weight: 600;
+            padding: 8px 18px;
+            border-radius: 7px;
+            text-decoration: none;
+            transition: opacity 0.15s;
+        }
+        .header-login:hover { opacity: 0.88; text-decoration: none; }
+
+        /* ── Page content ── */
+        .page-wrap {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 56px 24px 80px;
+        }
+
+        .page-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+
+        .effective-date {
+            font-size: 0.875rem;
+            color: var(--muted);
+            margin-bottom: 40px;
+        }
+
+        /* ── Table of contents ── */
+        .toc {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px 28px;
+            margin-bottom: 48px;
+        }
+        .toc-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+        .toc ol {
+            padding-left: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 24px;
+        }
+        .toc li { font-size: 0.875rem; }
+        .toc a { color: var(--accent); }
+        @media (max-width: 560px) {
+            .toc ol { grid-template-columns: 1fr; }
+        }
+
+        /* ── Sections ── */
+        .policy-section {
+            margin-bottom: 48px;
+            scroll-margin-top: 80px;
+        }
+
+        .policy-section h2 {
+            font-size: 1.1875rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .policy-section p {
+            margin-bottom: 14px;
+            color: var(--text);
+        }
+
+        .policy-section p:last-child { margin-bottom: 0; }
+
+        .policy-section ul, .policy-section ol {
+            padding-left: 22px;
+            margin-bottom: 14px;
+        }
+
+        .policy-section li {
+            margin-bottom: 6px;
+        }
+
+        .highlight-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        .warning-box {
+            background: rgba(239,68,68,0.06);
+            border: 1px solid rgba(239,68,68,0.2);
+            border-left: 3px solid #ef4444;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 16px 0;
+            font-size: 0.9rem;
+        }
+
+        .contact-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: 8px;
+            padding: 18px 20px;
+            font-size: 0.9rem;
+        }
+
+        /* ── Footer ── */
+        .site-footer {
+            background: #0a0e14;
+            border-top: 1px solid var(--border);
+            padding: 40px 24px 24px;
+            text-align: center;
+        }
+        .footer-links-row {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .footer-links-row a {
+            font-size: 0.875rem;
+            color: var(--muted);
+        }
+        .footer-links-row a:hover { color: var(--text); }
+        .footer-copy {
+            font-size: 0.8125rem;
+            color: var(--muted);
+        }
+    </style>
+</head>
+<body>
+
+<header class="site-header">
+    <div class="header-logo"><a href="/">Client Machinery</a></div>
+    <a href="/portal" class="header-login">Client Login</a>
+</header>
+
+<div class="page-wrap">
+    <div class="page-label">Legal</div>
+    <h1>Terms of Service</h1>
+    <p class="effective-date">Effective date: May 15, 2026 &nbsp;·&nbsp; Last updated: May 15, 2026</p>
+
+    <div class="toc">
+        <div class="toc-title">Table of Contents</div>
+        <ol>
+            <li><a href="#acceptance">Acceptance of Terms</a></li>
+            <li><a href="#description">Description of Service</a></li>
+            <li><a href="#your-account">Your Account</a></li>
+            <li><a href="#acceptable-use">Acceptable Use</a></li>
+            <li><a href="#email-compliance">Email Compliance</a></li>
+            <li><a href="#payment">Payment Terms</a></li>
+            <li><a href="#results-disclaimer">Results Disclaimer</a></li>
+            <li><a href="#intellectual-property">Intellectual Property</a></li>
+            <li><a href="#third-party">Third Party Integrations</a></li>
+            <li><a href="#liability">Limitation of Liability</a></li>
+            <li><a href="#indemnification">Indemnification</a></li>
+            <li><a href="#termination">Termination</a></li>
+            <li><a href="#governing-law">Governing Law</a></li>
+            <li><a href="#changes">Changes to Terms</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ol>
+    </div>
+
+    <div class="policy-section" id="acceptance">
+        <h2>1. Acceptance of Terms</h2>
+        <p>By creating an account or using Client Machinery you agree to be bound by these Terms of Service and our <a href="/privacy">Privacy Policy</a>. If you do not agree to these terms, do not use the service.</p>
+        <p>These terms constitute a binding legal agreement between you and Client Machinery.</p>
+    </div>
+
+    <div class="policy-section" id="description">
+        <h2>2. Description of Service</h2>
+        <p>Client Machinery provides:</p>
+        <ul>
+            <li>Automated email follow-up sequences for leads you upload to your portal</li>
+            <li>A client portal for uploading leads, managing sequences, and tracking results</li>
+            <li>AI-powered lead scoring and email personalization</li>
+            <li>Integration with Gmail, Google Sheets, and Telegram</li>
+            <li>A built-in reply inbox showing replies to your follow-up sequences</li>
+            <li>Weekly performance reports delivered to your email</li>
+        </ul>
+        <p>The service is provided on a subscription basis. Features may be updated, added, or removed over time. We will communicate material changes in advance.</p>
+    </div>
+
+    <div class="policy-section" id="your-account">
+        <h2>3. Your Account</h2>
+        <ul>
+            <li>You are responsible for maintaining the security of your login credentials</li>
+            <li>You must provide accurate, current, and complete information when signing up</li>
+            <li>One account per business — accounts may not be shared or transferred without our written approval</li>
+            <li>You must be 18 years of age or older to use this service</li>
+            <li>You are responsible for all activity that occurs under your account</li>
+            <li>Notify us immediately at <a href="mailto:support@clientmachinery.com">support@clientmachinery.com</a> if you suspect unauthorized access</li>
+        </ul>
+    </div>
+
+    <div class="policy-section" id="acceptable-use">
+        <h2>4. Acceptable Use</h2>
+        <p>You agree <strong>not</strong> to use Client Machinery to:</p>
+        <ul>
+            <li>Upload leads who have had no prior interaction with your business or who have not expressed interest in your services</li>
+            <li>Send spam or unsolicited bulk email</li>
+            <li>Upload purchased, rented, or scraped email lists</li>
+            <li>Send communications that violate CAN-SPAM, GDPR, CASL, or other applicable email regulations</li>
+            <li>Engage in any illegal, deceptive, or fraudulent activity</li>
+            <li>Attempt to reverse engineer, copy, or redistribute the Client Machinery platform</li>
+            <li>Share your account credentials with unauthorized parties</li>
+            <li>Circumvent usage limits or technical restrictions</li>
+        </ul>
+        <div class="warning-box">
+            <strong>You are solely responsible for:</strong> the quality and legality of leads you upload, ensuring your email communications comply with applicable laws, honoring all unsubscribe requests promptly, and the content of any customized email sequences.
+        </div>
+    </div>
+
+    <div class="policy-section" id="email-compliance">
+        <h2>5. Email Compliance</h2>
+        <p>You acknowledge and agree that:</p>
+        <ul>
+            <li>All emails sent through Client Machinery include an unsubscribe mechanism as required by law</li>
+            <li>Client Machinery automatically suppresses leads who unsubscribe — you must also honor these requests in any other communications you send them</li>
+            <li>You are responsible for compliance with the CAN-SPAM Act, GDPR, CASL, and any other email regulations applicable to your business and recipients</li>
+            <li>You will only upload leads who have a legitimate prior relationship with your business</li>
+            <li>Client Machinery processes unsubscribe requests automatically but you remain the legally responsible sender</li>
+        </ul>
+    </div>
+
+    <div class="policy-section" id="payment">
+        <h2>6. Payment Terms</h2>
+        <ul>
+            <li>Service is billed at <strong>$997/month</strong>, charged on the same date each month</li>
+            <li>Payment is processed by Stripe. By subscribing you authorize recurring charges to your payment method</li>
+            <li>Your subscription renews automatically each month unless cancelled</li>
+            <li>Cancel anytime from your portal billing settings or by emailing <a href="mailto:support@clientmachinery.com">support@clientmachinery.com</a></li>
+            <li>No refunds for partial months — service continues until the end of the current billing period after cancellation</li>
+            <li>We reserve the right to suspend accounts with failed payments after 7 days notice</li>
+            <li>Prices may change with 30 days advance notice to your registered email</li>
+        </ul>
+    </div>
+
+    <div class="policy-section" id="results-disclaimer">
+        <h2>7. Results Disclaimer</h2>
+        <p>Client Machinery provides technology infrastructure for automated lead follow-up. We do not guarantee:</p>
+        <ul>
+            <li>Any specific number of replies, bookings, or revenue</li>
+            <li>That your leads will respond to follow-up emails</li>
+            <li>Any particular outcome for your business</li>
+        </ul>
+        <div class="highlight-box">
+            Results depend on factors outside our control including the quality of leads you upload, your offer, your market, your pricing, and the content of your email sequences. Past performance of other clients does not guarantee your results.
+        </div>
+    </div>
+
+    <div class="policy-section" id="intellectual-property">
+        <h2>8. Intellectual Property</h2>
+        <ul>
+            <li>The Client Machinery platform, codebase, design, and branding are owned by Client Machinery and protected by applicable intellectual property laws</li>
+            <li>Your lead data, business information, and any content you create remain your property</li>
+            <li>By using the service you grant us a limited, non-exclusive license to process your data solely to provide the service to you</li>
+            <li>You may not copy, resell, or redistribute the Client Machinery platform or any portion of it</li>
+        </ul>
+    </div>
+
+    <div class="policy-section" id="third-party">
+        <h2>9. Third Party Integrations</h2>
+        <ul>
+            <li>Gmail and Google Sheets integrations require your explicit OAuth authorization</li>
+            <li>Telegram integration requires your explicit connection via your portal settings</li>
+            <li>You may revoke any integration at any time from your portal settings</li>
+            <li>Third-party services (Stripe, Google, Telegram, Resend) have their own terms of service which you agree to when connecting them</li>
+            <li>We are not responsible for outages, changes, or discontinuation of third-party services</li>
+        </ul>
+    </div>
+
+    <div class="policy-section" id="liability">
+        <h2>10. Limitation of Liability</h2>
+        <p>To the maximum extent permitted by applicable law:</p>
+        <ul>
+            <li>Client Machinery's total liability to you is limited to the amount you paid us in the 30 days preceding the claim</li>
+            <li>We are not liable for indirect, incidental, special, or consequential damages</li>
+            <li>We are not liable for lost revenue, lost business, or lost opportunity</li>
+            <li>We are not liable for failures, outages, or changes in third-party services (Gmail, Google, Stripe, Telegram, or Resend)</li>
+            <li>We are not liable for any content in emails sent using your account</li>
+        </ul>
+    </div>
+
+    <div class="policy-section" id="indemnification">
+        <h2>11. Indemnification</h2>
+        <p>You agree to indemnify, defend, and hold harmless Client Machinery and its team from any claims, damages, or expenses (including legal fees) arising from:</p>
+        <ul>
+            <li>Your violation of these terms</li>
+            <li>The email communications sent through your account</li>
+            <li>The lead data you upload</li>
+            <li>Your violation of any third-party rights or applicable law</li>
+        </ul>
+    </div>
+
+    <div class="policy-section" id="termination">
+        <h2>12. Termination</h2>
+        <p>We may suspend or terminate your account immediately if:</p>
+        <ul>
+            <li>You violate these terms</li>
+            <li>Your account is used to send spam or illegal content</li>
+            <li>Payment fails and is not resolved within 7 days of notice</li>
+            <li>We reasonably believe your use causes harm to others or to Client Machinery</li>
+        </ul>
+        <p>You may cancel your subscription at any time by emailing <a href="mailto:support@clientmachinery.com">support@clientmachinery.com</a> or using the billing settings in your portal. Upon cancellation, service continues until the end of the paid billing period.</p>
+        <p>On account deletion, your data will be removed within 30 days. Lead data in your Google Sheet remains under your control in your Google account.</p>
+    </div>
+
+    <div class="policy-section" id="governing-law">
+        <h2>13. Governing Law</h2>
+        <p>These terms are governed by the laws of the United States. Any dispute arising from or relating to these terms or the Client Machinery service that cannot be resolved informally shall be submitted to binding arbitration under the rules of the American Arbitration Association.</p>
+        <p>Nothing in this section prevents either party from seeking injunctive or other equitable relief from a court of competent jurisdiction.</p>
+    </div>
+
+    <div class="policy-section" id="changes">
+        <h2>14. Changes to Terms</h2>
+        <p>We reserve the right to update these terms. We will notify you of material changes via email to your registered address at least 7 days before they take effect. The updated terms will be posted at this URL with a revised effective date. Continued use of the service after the effective date constitutes your acceptance of the updated terms.</p>
+    </div>
+
+    <div class="policy-section" id="contact">
+        <h2>15. Contact</h2>
+        <p>For questions about these terms:</p>
+        <div class="contact-box">
+            <strong>Client Machinery</strong><br>
+            <a href="mailto:support@clientmachinery.com">support@clientmachinery.com</a><br>
+            <a href="https://clientmachinery.com">clientmachinery.com</a>
+        </div>
+    </div>
+</div>
+
+<footer class="site-footer">
+    <div class="footer-links-row">
+        <a href="/">Home</a>
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms of Service</a>
+        <a href="/portal">Client Login</a>
+        <a href="mailto:support@clientmachinery.com">Contact</a>
+    </div>
+    <p class="footer-copy">&copy; 2026 Client Machinery. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

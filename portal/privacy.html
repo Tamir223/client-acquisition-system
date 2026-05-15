@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy — Client Machinery</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:      #0d1117;
+            --surface: #161b22;
+            --border:  #21262d;
+            --accent:  #2E75B6;
+            --text:    #e6edf3;
+            --muted:   #8b949e;
+            --font:    'Inter', -apple-system, sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* ── Header ── */
+        .site-header {
+            background: rgba(13,17,23,0.95);
+            border-bottom: 1px solid var(--border);
+            padding: 0 32px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-logo {
+            font-size: 1.125rem;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -0.02em;
+        }
+        .header-logo a { color: inherit; text-decoration: none; }
+        .header-login {
+            background: var(--accent);
+            color: #fff;
+            font-size: 0.875rem;
+            font-weight: 600;
+            padding: 8px 18px;
+            border-radius: 7px;
+            text-decoration: none;
+            transition: opacity 0.15s;
+        }
+        .header-login:hover { opacity: 0.88; text-decoration: none; }
+
+        /* ── Page content ── */
+        .page-wrap {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 56px 24px 80px;
+        }
+
+        .page-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text);
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+
+        .effective-date {
+            font-size: 0.875rem;
+            color: var(--muted);
+            margin-bottom: 40px;
+        }
+
+        /* ── Table of contents ── */
+        .toc {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px 28px;
+            margin-bottom: 48px;
+        }
+        .toc-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+        .toc ol {
+            padding-left: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 24px;
+        }
+        .toc li { font-size: 0.875rem; }
+        .toc a { color: var(--accent); }
+        @media (max-width: 560px) {
+            .toc ol { grid-template-columns: 1fr; }
+        }
+
+        /* ── Sections ── */
+        .policy-section {
+            margin-bottom: 48px;
+            scroll-margin-top: 80px;
+        }
+
+        .policy-section h2 {
+            font-size: 1.1875rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .policy-section p {
+            margin-bottom: 14px;
+            color: var(--text);
+        }
+
+        .policy-section p:last-child { margin-bottom: 0; }
+
+        .policy-section ul, .policy-section ol {
+            padding-left: 22px;
+            margin-bottom: 14px;
+        }
+
+        .policy-section li {
+            margin-bottom: 6px;
+        }
+
+        .third-party-list {
+            list-style: none;
+            padding: 0;
+        }
+        .third-party-list li {
+            display: flex;
+            gap: 8px;
+            padding: 10px 14px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            align-items: baseline;
+        }
+        .third-party-list strong { white-space: nowrap; color: var(--text); }
+
+        .contact-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: 8px;
+            padding: 18px 20px;
+            font-size: 0.9rem;
+        }
+
+        /* ── Footer ── */
+        .site-footer {
+            background: #0a0e14;
+            border-top: 1px solid var(--border);
+            padding: 40px 24px 24px;
+            text-align: center;
+        }
+        .footer-links-row {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .footer-links-row a {
+            font-size: 0.875rem;
+            color: var(--muted);
+        }
+        .footer-links-row a:hover { color: var(--text); }
+        .footer-copy {
+            font-size: 0.8125rem;
+            color: var(--muted);
+        }
+    </style>
+</head>
+<body>
+
+<header class="site-header">
+    <div class="header-logo"><a href="/">Client Machinery</a></div>
+    <a href="/portal" class="header-login">Client Login</a>
+</header>
+
+<div class="page-wrap">
+    <div class="page-label">Legal</div>
+    <h1>Privacy Policy</h1>
+    <p class="effective-date">Effective date: May 15, 2026 &nbsp;·&nbsp; Last updated: May 15, 2026</p>
+
+    <div class="toc">
+        <div class="toc-title">Table of Contents</div>
+        <ol>
+            <li><a href="#information-we-collect">Information We Collect</a></li>
+            <li><a href="#how-we-use">How We Use Your Information</a></li>
+            <li><a href="#your-leads-data">Your Leads Data</a></li>
+            <li><a href="#gmail-integration">Gmail Integration</a></li>
+            <li><a href="#telegram-integration">Telegram Integration</a></li>
+            <li><a href="#data-security">Data Security</a></li>
+            <li><a href="#data-retention">Data Retention</a></li>
+            <li><a href="#third-party-services">Third Party Services</a></li>
+            <li><a href="#your-rights">Your Rights</a></li>
+            <li><a href="#cookies">Cookies</a></li>
+            <li><a href="#children">Children</a></li>
+            <li><a href="#changes">Changes to This Policy</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ol>
+    </div>
+
+    <div class="policy-section" id="information-we-collect">
+        <h2>1. Information We Collect</h2>
+        <p>We collect the following information to operate the Client Machinery service:</p>
+        <ul>
+            <li><strong>Account information</strong> — your name, email address, and business name provided when signing up</li>
+            <li><strong>Payment information</strong> — processed entirely by Stripe; we never store, see, or have access to your card details</li>
+            <li><strong>Lead data</strong> — names, email addresses, and phone numbers of the prospects you upload to your portal</li>
+            <li><strong>Gmail OAuth tokens</strong> — access and refresh tokens stored securely and used exclusively to send follow-up emails on your behalf</li>
+            <li><strong>Telegram chat ID</strong> — stored if you connect Telegram, used only to deliver notifications about your own leads</li>
+            <li><strong>Usage data</strong> — leads uploaded, emails sent, email open events, and portal activity used to generate your performance reports</li>
+            <li><strong>Google Sheet data</strong> — lead records written to a Google Sheet created and managed on your behalf in your own Google account</li>
+        </ul>
+    </div>
+
+    <div class="policy-section" id="how-we-use">
+        <h2>2. How We Use Your Information</h2>
+        <ul>
+            <li>To operate and provide the Client Machinery service</li>
+            <li>To send automated follow-up emails on your behalf using your connected Gmail</li>
+            <li>To send you Telegram notifications when your leads reply or book</li>
+            <li>To generate weekly performance reports delivered to your email</li>
+            <li>To detect and suppress unsubscribe requests from your leads</li>
+            <li>To improve reliability and performance of our platform</li>
+        </ul>
+        <p><strong>We never sell your data to third parties.</strong> We never use your lead data for our own marketing or share it with other clients.</p>
+    </div>
+
+    <div class="policy-section" id="your-leads-data">
+        <h2>3. Your Leads Data</h2>
+        <p>Lead data you upload belongs entirely to you. We process it solely to operate the follow-up sequences you configure.</p>
+        <ul>
+            <li>Lead data is stored in your personal Google Sheet, which you own and control independently of Client Machinery</li>
+            <li>We do not share your leads with other clients or any third parties beyond what is necessary to deliver emails</li>
+            <li>Each client's data is completely isolated — no other client can access your leads</li>
+            <li>You can export or delete your lead data at any time from your portal or by contacting support</li>
+        </ul>
+    </div>
+
+    <div class="policy-section" id="gmail-integration">
+        <h2>4. Gmail Integration</h2>
+        <p>Connecting your Gmail is optional. When you do:</p>
+        <ul>
+            <li>We request permission to send emails and read replies in your Gmail inbox</li>
+            <li>We only access emails directly relevant to your Client Machinery follow-up sequences</li>
+            <li>We never read personal emails unrelated to your sequences</li>
+            <li>OAuth tokens are stored encrypted and never shared</li>
+            <li>You can disconnect Gmail at any time from your portal settings — this immediately stops all email sending</li>
+            <li>You can also revoke access directly from your Google Account security settings</li>
+        </ul>
+        <p>When Gmail is not connected, emails are sent from <a href="mailto:support@clientmachinery.com">support@clientmachinery.com</a> via our transactional email provider until you connect your own address.</p>
+    </div>
+
+    <div class="policy-section" id="telegram-integration">
+        <h2>5. Telegram Integration</h2>
+        <p>Connecting Telegram is optional. When you do:</p>
+        <ul>
+            <li>We store your Telegram chat ID to deliver notifications about your leads and sequences</li>
+            <li>We only send notifications about activity in your own account</li>
+            <li>We never send unsolicited marketing messages via Telegram</li>
+            <li>You can disconnect Telegram at any time from your portal settings</li>
+        </ul>
+    </div>
+
+    <div class="policy-section" id="data-security">
+        <h2>6. Data Security</h2>
+        <ul>
+            <li>All data is transmitted over HTTPS/TLS encryption</li>
+            <li>Passwords are hashed using the bcrypt algorithm — we never store plaintext passwords</li>
+            <li>Sessions are authenticated using short-lived JWT tokens stored in your browser's session storage, not cookies</li>
+            <li>Google service account credentials and OAuth secrets are stored as encrypted environment variables, not in the database</li>
+            <li>Database access is restricted to the application server only</li>
+            <li>We never store Stripe payment card details — payments are handled entirely by Stripe's PCI-compliant infrastructure</li>
+        </ul>
+        <p>While we apply industry-standard security practices, no system is perfectly secure. We recommend using a strong unique password for your account.</p>
+    </div>
+
+    <div class="policy-section" id="data-retention">
+        <h2>7. Data Retention</h2>
+        <ul>
+            <li>Account data is retained for as long as your subscription is active</li>
+            <li>After cancellation, account data is retained for 30 days before deletion</li>
+            <li>You may request immediate deletion by emailing <a href="mailto:support@clientmachinery.com">support@clientmachinery.com</a></li>
+            <li>Lead data in your Google Sheet remains in your Google account and is governed by Google's own retention policies — it is not deleted when you cancel Client Machinery</li>
+        </ul>
+    </div>
+
+    <div class="policy-section" id="third-party-services">
+        <h2>8. Third Party Services</h2>
+        <p>Client Machinery relies on the following third-party services to operate. Each has its own privacy policy:</p>
+        <ul class="third-party-list">
+            <li><strong>Stripe</strong> — payment processing &nbsp;<a href="https://stripe.com/privacy" target="_blank" rel="noopener">stripe.com/privacy</a></li>
+            <li><strong>Google</strong> — Gmail, Sheets, Drive &nbsp;<a href="https://policies.google.com/privacy" target="_blank" rel="noopener">policies.google.com</a></li>
+            <li><strong>Resend</strong> — transactional email delivery &nbsp;<a href="https://resend.com/privacy" target="_blank" rel="noopener">resend.com/privacy</a></li>
+            <li><strong>Telegram</strong> — push notifications &nbsp;<a href="https://telegram.org/privacy" target="_blank" rel="noopener">telegram.org/privacy</a></li>
+            <li><strong>Render</strong> — cloud hosting &nbsp;<a href="https://render.com/privacy" target="_blank" rel="noopener">render.com/privacy</a></li>
+        </ul>
+    </div>
+
+    <div class="policy-section" id="your-rights">
+        <h2>9. Your Rights</h2>
+        <p>You have the right to:</p>
+        <ul>
+            <li>Access the personal data we hold about you</li>
+            <li>Correct inaccurate or incomplete data</li>
+            <li>Delete your account and associated data</li>
+            <li>Export your lead data from your portal at any time</li>
+            <li>Disconnect Gmail or Telegram integrations at any time from your portal settings</li>
+            <li>Opt out of non-essential communications</li>
+        </ul>
+        <p>To exercise any of these rights, email us at <a href="mailto:support@clientmachinery.com">support@clientmachinery.com</a>. We will respond within 7 business days.</p>
+    </div>
+
+    <div class="policy-section" id="cookies">
+        <h2>10. Cookies</h2>
+        <p>We use minimal browser storage:</p>
+        <ul>
+            <li><strong>Session storage</strong> — used to hold your authentication token for the duration of your browser session; cleared when you close the tab</li>
+            <li>No tracking cookies</li>
+            <li>No advertising cookies</li>
+            <li>No third-party analytics</li>
+        </ul>
+    </div>
+
+    <div class="policy-section" id="children">
+        <h2>11. Children</h2>
+        <p>Client Machinery is a business service not directed at individuals under 13 years of age. We do not knowingly collect personal data from children. If you believe a child has provided us with personal data, please contact us and we will delete it promptly.</p>
+    </div>
+
+    <div class="policy-section" id="changes">
+        <h2>12. Changes to This Policy</h2>
+        <p>We will notify clients of material changes to this policy via email to their registered address at least 7 days before the changes take effect. The updated policy will also be posted at this URL with a revised effective date. Continued use of the service after changes take effect constitutes acceptance.</p>
+    </div>
+
+    <div class="policy-section" id="contact">
+        <h2>13. Contact</h2>
+        <p>For privacy questions or to exercise your rights:</p>
+        <div class="contact-box">
+            <strong>Client Machinery</strong><br>
+            <a href="mailto:support@clientmachinery.com">support@clientmachinery.com</a><br>
+            <a href="https://clientmachinery.com">clientmachinery.com</a>
+        </div>
+    </div>
+</div>
+
+<footer class="site-footer">
+    <div class="footer-links-row">
+        <a href="/">Home</a>
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms of Service</a>
+        <a href="/portal">Client Login</a>
+        <a href="mailto:support@clientmachinery.com">Contact</a>
+    </div>
+    <p class="footer-copy">&copy; 2026 Client Machinery. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

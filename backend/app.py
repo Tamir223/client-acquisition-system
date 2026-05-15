@@ -188,12 +188,12 @@ def robots():
 
 @app.route("/privacy")
 def privacy():
-    return send_from_directory(ROOT_DIR, "privacy-policy.html")
+    return send_from_directory(PORTAL_DIR, "privacy.html")
 
 
 @app.route("/terms")
 def terms():
-    return send_from_directory(ROOT_DIR, "terms.html")
+    return send_from_directory(PORTAL_DIR, "terms.html")
 
 
 @app.route("/api/health", methods=["GET"])
