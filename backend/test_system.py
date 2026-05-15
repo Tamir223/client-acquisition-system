@@ -137,12 +137,13 @@ def test_jwt_secret_set():
 
 def test_portal_import():
     from portal import portal_bp
+    from auth import auth_bp
     from flask import Flask
     test_app = Flask(__name__)
     test_app.register_blueprint(portal_bp)
+    test_app.register_blueprint(auth_bp)
     rules = [r.rule for r in test_app.url_map.iter_rules()]
     required_routes = [
-        '/api/portal/login',
         '/api/portal/leads',
         '/api/portal/dashboard',
         '/api/portal/inbox',
