@@ -679,18 +679,27 @@ def admin_stats():
     }), 200
 
 
+ADMIN_EVENT_TYPES = (
+    'client_created', 'sheet_created', 'sheet_triggered',
+    'ready_email_sent', 'client_updated', 'admin_login',
+    'system_startup', 'test_run',
+)
+
 @portal_bp.route("/api/portal/admin/activity", methods=["GET"])
 def admin_activity():
     if not _require_admin():
         return jsonify({"error": "Unauthorized"}), 401
 
     db = get_db()
+    placeholders = ", ".join("?" for _ in ADMIN_EVENT_TYPES)
     rows = db.execute(
-        """SELECT a.event_type, a.description, a.created_at,
+        f"""SELECT a.event_type, a.description, a.created_at,
                   c.name AS client_name, c.business_name
            FROM activity_log a
            JOIN clients c ON a.client_id = c.id
-           ORDER BY a.created_at DESC LIMIT 20"""
+           WHERE a.event_type IN ({placeholders})
+           ORDER BY a.created_at DESC LIMIT 50""",
+        ADMIN_EVENT_TYPES
     ).fetchall()
 
     return jsonify({"activity": [dict(r) for r in rows]}), 200

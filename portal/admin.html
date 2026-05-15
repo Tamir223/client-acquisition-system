@@ -583,24 +583,23 @@
             </form>
         </div>
 
-        <!-- ── Recent Activity Section ── -->
+        <!-- ── Recent Admin Activity Section ── -->
         <div class="card admin-section">
             <div class="admin-section-header">
-                <h2 class="admin-section-title">Recent Activity</h2>
+                <h2 class="admin-section-title">Recent Admin Activity</h2>
                 <button class="btn-xs btn-xs-accent" id="refresh-activity-btn">Refresh</button>
             </div>
             <div class="table-wrapper">
                 <table class="activity-table">
                     <thead>
                         <tr>
-                            <th>Client</th>
-                            <th>Type</th>
+                            <th>Action</th>
                             <th>Description</th>
                             <th>When</th>
                         </tr>
                     </thead>
                     <tbody id="activity-tbody">
-                        <tr><td colspan="4" class="admin-loading">Loading&hellip;</td></tr>
+                        <tr><td colspan="3" class="admin-loading">Loading&hellip;</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -1156,33 +1155,35 @@
         }
     });
 
-    // ─── Activity Log ────────────────────────────────────────────
+    // ─── Admin Activity Log ──────────────────────────────────────
+    const ADMIN_CHIP = {
+        client_created:   'chip-csv',
+        sheet_created:    'chip-manual',
+        sheet_triggered:  'chip-manual',
+        ready_email_sent: 'chip-intake',
+        client_updated:   'chip-intake',
+        admin_login:      'chip-other',
+        system_startup:   'chip-other',
+        test_run:         'chip-other',
+    };
+
     async function loadActivity() {
         const res = await fetch('/api/portal/admin/activity', { headers: adminHeaders() }).catch(function() { return null; });
         const tbody = document.getElementById('activity-tbody');
         if (!res || !res.ok) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--error);padding:28px;">Failed to load activity.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--error);padding:28px;">Failed to load activity.</td></tr>';
             return;
         }
         const d = await res.json();
         const items = d.activity || [];
         if (!items.length) {
-            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:28px;">No activity yet.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:28px;">No admin actions yet.</td></tr>';
             return;
         }
-        const CHIP = {
-            csv_upload: 'chip-csv',
-            manual_add: 'chip-manual',
-            intake:     'chip-intake',
-        };
         tbody.innerHTML = items.map(function(a) {
-            const chipCls = CHIP[a.event_type] || 'chip-other';
+            const chipCls = ADMIN_CHIP[a.event_type] || 'chip-other';
             return '<tr>' +
-                '<td style="white-space:nowrap;">' +
-                    '<span style="font-weight:500;">' + escHtml(a.client_name || '—') + '</span>' +
-                    '<span style="color:var(--muted);font-size:0.75rem;display:block;">' + escHtml(a.business_name || '') + '</span>' +
-                '</td>' +
-                '<td><span class="type-chip ' + chipCls + '">' + escHtml(a.event_type) + '</span></td>' +
+                '<td style="white-space:nowrap;"><span class="type-chip ' + chipCls + '">' + escHtml(a.event_type) + '</span></td>' +
                 '<td style="color:var(--muted);">' + escHtml(a.description || '—') + '</td>' +
                 '<td style="color:var(--muted);font-size:0.8rem;white-space:nowrap;">' + timeAgo(a.created_at) + '</td>' +
             '</tr>';
