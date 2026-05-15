@@ -27,6 +27,9 @@
                 </div>
                 <button type="submit" class="btn btn-primary" id="sign-in-btn">Sign In</button>
                 <div class="error-msg" id="error-msg"></div>
+                <p style="text-align:center;margin-top:12px;font-size:0.875rem;">
+                    <a href="#" id="forgot-link" style="color:var(--accent);">Forgot password?</a>
+                </p>
                 <p class="privacy-notice">By logging in you agree to our <a href="/privacy">Privacy Policy</a></p>
             </form>
         </div>
@@ -89,6 +92,28 @@
                 } finally {
                     btn.disabled = false;
                     btn.textContent = 'Sign In';
+                }
+            });
+
+            document.getElementById('forgot-link').addEventListener('click', async function (e) {
+                e.preventDefault();
+                const email = document.getElementById('email').value.trim();
+                if (!email) {
+                    showError('Enter your email address first, then click Forgot password.');
+                    return;
+                }
+                try {
+                    await fetch('/api/portal/forgot-password', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email }),
+                    });
+                    hideError();
+                    errorMsg.style.color = '#16a34a';
+                    errorMsg.textContent = 'If that email exists, a reset link has been sent.';
+                    errorMsg.classList.add('visible');
+                } catch (err) {
+                    showError('Network error. Please try again.');
                 }
             });
         }());

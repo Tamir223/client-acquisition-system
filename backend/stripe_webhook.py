@@ -4,6 +4,7 @@ import secrets
 import string
 import threading
 import time
+import uuid
 
 import psycopg2
 import psycopg2.extras
@@ -424,15 +425,31 @@ def stripe_webhook():
         return jsonify({"received": True}), 200
 
     temp_password = _gen_password()
+    referral_code = str(uuid.uuid4())[:8]
+    stripe_customer_id = session.get("customer") or ""
+
+    # Check referral
+    ref_code = (session.get("metadata") or {}).get("ref") or ""
+    referring_client_id = None
+    if ref_code:
+        existing_ref = db.execute(
+            "SELECT id FROM clients WHERE referral_code = ?", (ref_code,)
+        ).fetchone()
+        if existing_ref:
+            referring_client_id = existing_ref["id"]
 
     db.execute(
-        """INSERT INTO clients (name, business_name, email, password_hash, google_sheet_id, niche, status)
-           VALUES (?, ?, ?, ?, '', '', 'active')""",
+        """INSERT INTO clients (name, business_name, email, password_hash, google_sheet_id, niche, status,
+                               referral_code, stripe_customer_id, billing_cycle_start, referred_by)
+           VALUES (?, ?, ?, ?, '', '', 'active', ?, ?, CURRENT_TIMESTAMP, ?)""",
         (
             customer_name,
             customer_name,
             customer_email,
             generate_password_hash(temp_password),
+            referral_code,
+            stripe_customer_id,
+            referring_client_id,
         ),
     )
     db.commit()
@@ -441,6 +458,14 @@ def stripe_webhook():
         "SELECT id FROM clients WHERE email = ?", (customer_email,)
     ).fetchone()
     client_id = new_client["id"]
+
+    # Credit referring client with 1 free month
+    if referring_client_id:
+        db.execute(
+            "UPDATE clients SET free_months = COALESCE(free_months, 0) + 1 WHERE id = ?",
+            (referring_client_id,)
+        )
+        db.commit()
 
     seed_sequences(db, client_id)
     db.commit()

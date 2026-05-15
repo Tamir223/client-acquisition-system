@@ -6,11 +6,12 @@ import os
 import secrets
 import string
 import threading
+import uuid
 from datetime import datetime, timedelta, timezone
 
 import psycopg2
 import resend
-from flask import Blueprint, request, jsonify, g
+from flask import Blueprint, request, jsonify, g, redirect
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from database import get_db, seed_sequences, add_notification, DEFAULT_SEQUENCES
@@ -124,11 +125,15 @@ def log_activity(db, client_id, event_type, description):
     )
 
 
+PLAN_LIMITS = {"pilot": 500, "pro": 500, "enterprise": None}
+
+
 def insert_lead(db, client_id, lead):
-    db.execute(
+    cur = db.execute(
         """INSERT INTO lead_uploads
            (client_id, first_name, last_name, email, phone, service_requested, lead_source)
-           VALUES (?, ?, ?, ?, ?, ?, ?)""",
+           VALUES (?, ?, ?, ?, ?, ?, ?)
+           RETURNING id""",
         (
             client_id,
             lead.get("first_name", "").strip(),
@@ -138,6 +143,36 @@ def insert_lead(db, client_id, lead):
             lead.get("service_requested", "").strip(),
             lead.get("lead_source", "Portal"),
         )
+    )
+    row = cur.fetchone()
+    return row["id"] if row else None
+
+
+def _check_duplicate(db, client_id, email):
+    if not email:
+        return False
+    existing = db.execute(
+        "SELECT id FROM lead_uploads WHERE client_id = ? AND LOWER(email) = LOWER(?)",
+        (client_id, email.strip())
+    ).fetchone()
+    return existing is not None
+
+
+def _check_usage_limit(db, client):
+    plan = (client.get("plan") or "pro").lower()
+    limit = PLAN_LIMITS.get(plan)
+    if limit is None:
+        return None
+    used = (client.get("leads_this_month") or 0)
+    if used >= limit:
+        return limit
+    return None
+
+
+def _increment_monthly_count(db, client_id, count=1):
+    db.execute(
+        "UPDATE clients SET leads_this_month = COALESCE(leads_this_month, 0) + ? WHERE id = ?",
+        (count, client_id)
     )
 
 
@@ -191,12 +226,51 @@ def dashboard():
         for r in activity_rows
     ]
 
+    today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    emails_today = db.execute(
+        """SELECT COUNT(*) AS count FROM scheduled_emails
+           WHERE client_id = ? AND status = 'sent' AND sent_at >= ?""",
+        (client_id, today_start)
+    ).fetchone()["count"]
+
+    active_sequences = db.execute(
+        """SELECT COUNT(DISTINCT lead_id) AS count FROM scheduled_emails
+           WHERE client_id = ? AND status = 'scheduled'""",
+        (client_id,)
+    ).fetchone()["count"]
+
+    next_email_row = db.execute(
+        """SELECT scheduled_for FROM scheduled_emails
+           WHERE client_id = ? AND status = 'scheduled'
+           ORDER BY scheduled_for ASC LIMIT 1""",
+        (client_id,)
+    ).fetchone()
+    next_email = next_email_row["scheduled_for"] if next_email_row else None
+
+    client_row = db.execute(
+        "SELECT gmail_connected, gmail_email, telegram_connected, notify_replies, notify_bookings, notify_daily, notify_weekly, plan, leads_this_month FROM clients WHERE id = ?",
+        (client_id,)
+    ).fetchone()
+
     return jsonify({
         "total_leads": total,
         "contacted": contacted,
         "replied": replied,
         "booked": booked,
         "recent_activity": recent_activity,
+        "emails_today": emails_today,
+        "active_sequences": active_sequences,
+        "next_email": next_email,
+        "gmail_connected": bool(client_row["gmail_connected"]) if client_row else False,
+        "gmail_email": client_row["gmail_email"] if client_row else None,
+        "telegram_connected": bool(client_row["telegram_connected"]) if client_row else False,
+        "notify_replies": bool(client_row["notify_replies"]) if client_row else True,
+        "notify_bookings": bool(client_row["notify_bookings"]) if client_row else True,
+        "notify_daily": bool(client_row["notify_daily"]) if client_row else False,
+        "notify_weekly": bool(client_row["notify_weekly"]) if client_row else True,
+        "plan": client_row["plan"] if client_row else "pro",
+        "leads_this_month": client_row["leads_this_month"] if client_row else 0,
+        "monthly_limit": PLAN_LIMITS.get((client_row["plan"] or "pro").lower()),
     }), 200
 
 
@@ -240,16 +314,51 @@ def upload_csv():
         return jsonify({"error": "No valid rows found in CSV"}), 400
 
     db = get_db()
+
+    # Usage limit check
+    limit_hit = _check_usage_limit(db, client)
+    if limit_hit is not None:
+        return jsonify({"error": f"You have reached your monthly lead limit of {limit_hit}. Upgrade your plan to upload more leads."}), 429
+
+    duplicates = 0
+    inserted_ids = []
     for lead in leads:
-        insert_lead(db, client_id, lead)
-        lead_with_meta = {**lead, "niche": client["niche"], "target_icp": client["target_icp"]}
+        email = lead.get("email", "").strip()
+        if email and _check_duplicate(db, client_id, email):
+            duplicates += 1
+            continue
+        lead_id = insert_lead(db, client_id, lead)
+        if lead_id:
+            inserted_ids.append((lead_id, lead))
+        lead_with_meta = {**lead, "niche": client["niche"], "target_icp": client.get("target_icp", "")}
         append_lead_to_sheet(sheet_id, lead_with_meta)
 
-    log_activity(db, client_id, "csv_upload", f"Uploaded {len(leads)} leads via CSV")
-    add_notification(db, client_id, "csv_upload", f"Uploaded {len(leads)} leads via CSV")
+    count = len(inserted_ids)
+    if count > 0:
+        _increment_monthly_count(db, client_id, count)
+
+    log_activity(db, client_id, "csv_upload", f"Imported {count} leads via CSV — {f.filename}")
+    add_notification(db, client_id, "csv_upload", f"Uploaded {count} leads via CSV")
     db.commit()
 
-    return jsonify({"success": True, "count": len(leads)}), 200
+    # Schedule sequences in background
+    def _schedule_all(inserted_ids, client_id, niche):
+        from sequence_engine import SequenceEngine
+        for lead_id, lead in inserted_ids:
+            lead_data = {**lead, "niche": niche}
+            SequenceEngine.schedule_sequence(client_id, lead_id, lead_data)
+
+    threading.Thread(
+        target=_schedule_all,
+        args=(inserted_ids, client_id, client.get("niche", "")),
+        daemon=True,
+    ).start()
+
+    result = {"success": True, "count": count}
+    if duplicates:
+        result["duplicates_skipped"] = duplicates
+        result["warning"] = f"{duplicates} duplicate email(s) skipped"
+    return jsonify(result), 200
 
 
 @portal_bp.route("/api/portal/add-lead", methods=["POST"])
@@ -267,19 +376,50 @@ def add_lead():
         return jsonify({"error": "Request body required"}), 400
 
     db = get_db()
+
+    # Usage limit check
+    limit_hit = _check_usage_limit(db, client)
+    if limit_hit is not None:
+        return jsonify({"error": f"You have reached your monthly lead limit of {limit_hit}. Upgrade your plan to upload more leads."}), 429
+
+    # Duplicate detection
+    email = data.get("email", "").strip()
+    if email and _check_duplicate(db, client_id, email):
+        return jsonify({
+            "warning": "Lead with this email already exists",
+            "duplicate": True,
+        }), 200
+
     client_row = db.execute(
         "SELECT id, name, email, business_name, google_sheet_id, niche, target_icp, status FROM clients WHERE id = ?",
         (client_id,)
     ).fetchone()
 
-    insert_lead(db, client_id, data)
-    lead_with_meta = {**data, "niche": client_row["niche"], "target_icp": client_row["target_icp"]}
+    new_lead_id = insert_lead(db, client_id, data)
+    lead_with_meta = {**data, "niche": client_row["niche"], "target_icp": client_row.get("target_icp", "")}
     append_lead_to_sheet(client_row["google_sheet_id"], lead_with_meta)
 
     name = f"{data.get('first_name', '')} {data.get('last_name', '')}".strip()
     log_activity(db, client_id, "manual_add", f"Manually added lead: {name}")
     add_notification(db, client_id, "manual_add", f"New lead added: {name}")
+    _increment_monthly_count(db, client_id)
     db.commit()
+
+    # Schedule sequence in background
+    if new_lead_id:
+        lead_data = {
+            "first_name": data.get("first_name"),
+            "last_name": data.get("last_name"),
+            "email": data.get("email"),
+            "service_requested": data.get("service_requested"),
+            "niche": client_row.get("niche", ""),
+        }
+        threading.Thread(
+            target=lambda: __import__("sequence_engine").SequenceEngine.schedule_sequence(
+                client_id, new_lead_id, lead_data
+            ),
+            daemon=True,
+        ).start()
 
     return jsonify({"success": True}), 200
 
@@ -606,10 +746,11 @@ def admin_create_client():
 
     target_icp = (data.get("target_icp") or "").strip()
     password = data["password"]
+    referral_code = str(uuid.uuid4())[:8]
 
     db.execute(
-        """INSERT INTO clients (name, business_name, email, password_hash, google_sheet_id, niche, target_icp, status)
-           VALUES (?, ?, ?, ?, '', ?, ?, 'active')""",
+        """INSERT INTO clients (name, business_name, email, password_hash, google_sheet_id, niche, target_icp, status, referral_code, billing_cycle_start)
+           VALUES (?, ?, ?, ?, '', ?, ?, 'active', ?, CURRENT_TIMESTAMP)""",
         (
             data["name"].strip(),
             data["business_name"].strip(),
@@ -617,6 +758,7 @@ def admin_create_client():
             generate_password_hash(password),
             data["niche"].strip(),
             target_icp,
+            referral_code,
         ),
     )
     db.commit()
@@ -834,13 +976,13 @@ def update_lead_status():
     data = request.get_json()
     if not data or not data.get("lead_id") or not data.get("status"):
         return jsonify({"error": "lead_id and status are required"}), 400
-    valid_statuses = {"New", "Contacted", "Replied", "Booked", "Closed", "Not Interested"}
+    valid_statuses = {"New", "Contacted", "Replied", "Booked", "Closed", "Not Interested", "Unsubscribed"}
     reply_statuses = {"Replied", "INTERESTED", "MEETING READY", "QUESTION"}
     if data["status"] not in valid_statuses:
         return jsonify({"error": "Invalid status"}), 400
     db = get_db()
     lead = db.execute(
-        "SELECT first_name, last_name FROM lead_uploads WHERE id = ? AND client_id = ?",
+        "SELECT first_name, last_name, email FROM lead_uploads WHERE id = ? AND client_id = ?",
         (int(data["lead_id"]), client_id)
     ).fetchone()
     db.execute(
@@ -853,6 +995,17 @@ def update_lead_status():
             add_notification(db, client_id, "booked", f"Lead {full_name} marked as Booked")
         elif data["status"] in reply_statuses:
             add_notification(db, client_id, "replied", f"Lead {full_name} replied")
+        elif data["status"] == "Unsubscribed":
+            lead_email = lead.get("email", "")
+            if lead_email:
+                db.execute(
+                    "INSERT INTO suppression_list (client_id, email, reason) VALUES (?, ?, 'unsubscribed')",
+                    (client_id, lead_email.lower())
+                )
+            db.execute(
+                "UPDATE scheduled_emails SET status='cancelled' WHERE lead_id=? AND status='scheduled'",
+                (int(data["lead_id"]),)
+            )
     db.commit()
 
     if lead and data["status"] in reply_statuses:
@@ -917,3 +1070,327 @@ def refresh_token():
     if isinstance(new_token, bytes):
         new_token = new_token.decode("utf-8")
     return jsonify({"token": new_token}), 200
+
+
+# ─── Gmail OAuth ────────────────────────────────────────────────────────────
+
+@portal_bp.route("/api/portal/auth/gmail", methods=["GET"])
+@require_auth
+def gmail_oauth_start():
+    try:
+        from gmail_oauth import get_oauth_url
+        url = get_oauth_url(g.client["id"])
+        return jsonify({"oauth_url": url}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@portal_bp.route("/api/portal/auth/gmail/callback", methods=["GET"])
+def gmail_oauth_callback():
+    code = request.args.get("code")
+    client_id = request.args.get("state")
+    if not code or not client_id:
+        return redirect("/portal/dashboard?gmail=error")
+    try:
+        from gmail_oauth import exchange_code
+        exchange_code(code, int(client_id))
+        return redirect("/portal/dashboard?gmail=connected")
+    except Exception as e:
+        logger.error(f"[portal] Gmail callback error: {e}")
+        return redirect("/portal/dashboard?gmail=error")
+
+
+@portal_bp.route("/api/portal/auth/gmail/disconnect", methods=["DELETE"])
+@require_auth
+def gmail_disconnect():
+    db = get_db()
+    db.execute(
+        """UPDATE clients SET
+               gmail_connected = FALSE,
+               gmail_access_token = NULL,
+               gmail_refresh_token = NULL,
+               gmail_email = NULL
+           WHERE id = ?""",
+        (g.client["id"],)
+    )
+    db.commit()
+    return jsonify({"success": True}), 200
+
+
+# ─── Telegram ───────────────────────────────────────────────────────────────
+
+@portal_bp.route("/api/telegram/webhook", methods=["POST"])
+def telegram_webhook():
+    token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+    provided = request.args.get("token", "")
+    if token and provided != token:
+        return jsonify({"error": "Unauthorized"}), 401
+    update = request.get_json(force=True, silent=True) or {}
+    try:
+        from telegram_bot import handle_webhook
+        handle_webhook(update)
+    except Exception as e:
+        logger.error(f"[portal] Telegram webhook error: {e}")
+    return jsonify({"ok": True}), 200
+
+
+@portal_bp.route("/api/portal/telegram/connect", methods=["POST"])
+@require_auth
+def telegram_connect():
+    client_id = g.client["id"]
+    data = request.get_json() or {}
+    code = (data.get("verification_code") or "").strip()
+    if not code:
+        return jsonify({"error": "verification_code is required"}), 400
+
+    db = get_db()
+    now = datetime.utcnow()
+    row = db.execute(
+        """SELECT id, telegram_chat_id FROM telegram_verifications
+           WHERE client_id = ? AND code = ? AND expires_at > ? AND used = FALSE""",
+        (client_id, code, now)
+    ).fetchone()
+
+    if not row:
+        return jsonify({"error": "Invalid or expired code"}), 400
+
+    db.execute(
+        "UPDATE telegram_verifications SET used = TRUE WHERE id = ?",
+        (row["id"],)
+    )
+    db.execute(
+        "UPDATE clients SET telegram_chat_id = ?, telegram_connected = TRUE WHERE id = ?",
+        (row["telegram_chat_id"], client_id)
+    )
+    db.commit()
+
+    from telegram_bot import _send
+    _send(row["telegram_chat_id"],
+        "✅ Connected! You will now receive instant alerts when leads reply.")
+
+    return jsonify({"success": True}), 200
+
+
+@portal_bp.route("/api/portal/telegram/preferences", methods=["POST"])
+@require_auth
+def telegram_preferences():
+    client_id = g.client["id"]
+    data = request.get_json() or {}
+    db = get_db()
+    db.execute(
+        """UPDATE clients SET
+               notify_replies = ?,
+               notify_bookings = ?,
+               notify_daily = ?,
+               notify_weekly = ?
+           WHERE id = ?""",
+        (
+            bool(data.get("notify_replies", True)),
+            bool(data.get("notify_bookings", True)),
+            bool(data.get("notify_daily", False)),
+            bool(data.get("notify_weekly", True)),
+            client_id,
+        )
+    )
+    db.commit()
+    return jsonify({"success": True}), 200
+
+
+@portal_bp.route("/api/portal/telegram/disconnect", methods=["DELETE"])
+@require_auth
+def telegram_disconnect():
+    db = get_db()
+    db.execute(
+        "UPDATE clients SET telegram_connected = FALSE, telegram_chat_id = NULL WHERE id = ?",
+        (g.client["id"],)
+    )
+    db.commit()
+    return jsonify({"success": True}), 200
+
+
+# ─── Active Sequences ───────────────────────────────────────────────────────
+
+@portal_bp.route("/api/portal/sequences/active", methods=["GET"])
+@require_auth
+def get_active_sequences():
+    client_id = g.client["id"]
+    db = get_db()
+
+    rows = db.execute(
+        """SELECT se.lead_id, se.touch_number, se.status, se.scheduled_for, se.sent_at,
+                  l.first_name, l.last_name, l.email AS lead_email, l.status AS lead_status
+           FROM scheduled_emails se
+           JOIN lead_uploads l ON se.lead_id = l.id
+           WHERE se.client_id = ?
+           ORDER BY se.lead_id, se.touch_number""",
+        (client_id,)
+    ).fetchall()
+
+    sequences_by_lead = {}
+    for r in rows:
+        lid = r["lead_id"]
+        if lid not in sequences_by_lead:
+            sequences_by_lead[lid] = {
+                "lead_id": lid,
+                "first_name": r["first_name"],
+                "last_name": r["last_name"],
+                "lead_email": r["lead_email"],
+                "lead_status": r["lead_status"],
+                "emails": [],
+            }
+        sequences_by_lead[lid]["emails"].append({
+            "touch_number": r["touch_number"],
+            "status": r["status"],
+            "scheduled_for": r["scheduled_for"],
+            "sent_at": r["sent_at"],
+        })
+
+    return jsonify({"active_sequences": list(sequences_by_lead.values())}), 200
+
+
+# ─── Billing ────────────────────────────────────────────────────────────────
+
+@portal_bp.route("/api/portal/billing", methods=["GET"])
+@require_auth
+def billing_portal():
+    stripe_key = os.environ.get("STRIPE_SECRET_KEY")
+    if not stripe_key:
+        return jsonify({"error": "Billing not configured"}), 503
+    try:
+        import stripe
+        stripe.api_key = stripe_key
+        client = g.client
+        customer_id = client.get("stripe_customer_id")
+        if not customer_id:
+            return jsonify({"error": "No billing account found"}), 404
+        session = stripe.billing_portal.Session.create(
+            customer=customer_id,
+            return_url="https://clientmachinery.com/portal/dashboard",
+        )
+        return jsonify({"portal_url": session.url}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ─── Password Reset ─────────────────────────────────────────────────────────
+
+@portal_bp.route("/api/portal/forgot-password", methods=["POST"])
+def forgot_password():
+    data = request.get_json() or {}
+    email = (data.get("email") or "").strip().lower()
+    if not email:
+        return jsonify({"error": "email is required"}), 400
+
+    db = get_db()
+    client = db.execute(
+        "SELECT id, name FROM clients WHERE email = ? AND status = 'active'", (email,)
+    ).fetchone()
+
+    if client:
+        token = str(uuid.uuid4())
+        expires_at = datetime.utcnow() + timedelta(hours=1)
+        db.execute(
+            "INSERT INTO password_reset_tokens (client_id, token, expires_at) VALUES (?, ?, ?)",
+            (client["id"], token, expires_at)
+        )
+        db.commit()
+
+        reset_url = f"https://clientmachinery.com/portal/reset-password?token={token}"
+        first_name = (client["name"] or "there").split()[0]
+        api_key = os.environ.get("RESEND_API_KEY")
+        if api_key:
+            resend.api_key = api_key
+            try:
+                resend.Emails.send({
+                    "from": "Client Machinery <support@clientmachinery.com>",
+                    "to": email,
+                    "subject": "Reset your Client Machinery password",
+                    "html": f"""<div style="font-family:sans-serif;max-width:480px;margin:40px auto;padding:32px;border:1px solid #e2e8f0;border-radius:10px;">
+                        <h2 style="color:#1E3A5F;">Reset your password</h2>
+                        <p>Hi {first_name},</p>
+                        <p>Click the button below to reset your password. This link expires in 1 hour.</p>
+                        <a href="{reset_url}" style="display:inline-block;background:#2E75B6;color:#fff;text-decoration:none;padding:12px 28px;border-radius:7px;font-weight:600;margin:16px 0;">
+                            Reset Password
+                        </a>
+                        <p style="color:#64748b;font-size:13px;">If you didn't request this, you can ignore this email.</p>
+                    </div>""",
+                })
+            except Exception as e:
+                logger.error(f"[portal] Password reset email failed: {e}")
+
+    return jsonify({"success": True}), 200
+
+
+@portal_bp.route("/api/portal/reset-password", methods=["POST"])
+def reset_password():
+    data = request.get_json() or {}
+    token = (data.get("token") or "").strip()
+    new_password = (data.get("new_password") or "")
+    if not token or not new_password:
+        return jsonify({"error": "token and new_password are required"}), 400
+    if len(new_password) < 8:
+        return jsonify({"error": "Password must be at least 8 characters"}), 400
+
+    db = get_db()
+    now = datetime.utcnow()
+    row = db.execute(
+        "SELECT id, client_id FROM password_reset_tokens WHERE token = ? AND expires_at > ? AND used = FALSE",
+        (token, now)
+    ).fetchone()
+
+    if not row:
+        return jsonify({"error": "Invalid or expired reset link"}), 400
+
+    db.execute(
+        "UPDATE clients SET password_hash = ? WHERE id = ?",
+        (generate_password_hash(new_password), row["client_id"])
+    )
+    db.execute(
+        "UPDATE password_reset_tokens SET used = TRUE WHERE id = ?",
+        (row["id"],)
+    )
+    db.commit()
+    return jsonify({"success": True}), 200
+
+
+# ─── Resend Webhook (email open tracking) ──────────────────────────────────
+
+@portal_bp.route("/api/webhooks/resend", methods=["POST"])
+def resend_webhook():
+    data = request.get_json(force=True, silent=True) or {}
+    event_type = data.get("type") or data.get("event_type", "")
+    try:
+        if "opened" in event_type:
+            email_id = (data.get("data") or {}).get("email_id") or data.get("email_id")
+            if email_id:
+                db = get_db()
+                se = db.execute(
+                    "SELECT id, client_id, lead_id FROM scheduled_emails WHERE id::text = ?",
+                    (str(email_id),)
+                ).fetchone()
+                if se:
+                    db.execute(
+                        """INSERT INTO email_events (client_id, lead_id, scheduled_email_id, event_type)
+                           VALUES (?, ?, ?, 'opened')""",
+                        (se["client_id"], se["lead_id"], se["id"])
+                    )
+                    db.commit()
+    except Exception as e:
+        logger.error(f"[portal] Resend webhook error: {e}")
+    return jsonify({"ok": True}), 200
+
+
+# ─── Referral ───────────────────────────────────────────────────────────────
+
+@portal_bp.route("/api/portal/referral", methods=["GET"])
+@require_auth
+def get_referral():
+    client = g.client
+    db = get_db()
+    ref_code = client.get("referral_code")
+    if not ref_code:
+        ref_code = str(uuid.uuid4())[:8]
+        db.execute("UPDATE clients SET referral_code = ? WHERE id = ?", (ref_code, client["id"]))
+        db.commit()
+    referral_url = f"https://clientmachinery.com?ref={ref_code}"
+    return jsonify({"referral_code": ref_code, "referral_url": referral_url}), 200

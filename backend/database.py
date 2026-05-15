@@ -157,6 +157,88 @@ def init_db():
     """)
     cur.execute("ALTER TABLE lead_uploads ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'New'")
     cur.execute("ALTER TABLE lead_uploads ADD COLUMN IF NOT EXISTS notes TEXT DEFAULT ''")
+
+    # Part 1 — new client columns
+    new_client_cols = [
+        "ALTER TABLE clients ADD COLUMN IF NOT EXISTS gmail_access_token TEXT",
+        "ALTER TABLE clients ADD COLUMN IF NOT EXISTS gmail_refresh_token TEXT",
+        "ALTER TABLE clients ADD COLUMN IF NOT EXISTS gmail_connected BOOLEAN DEFAULT FALSE",
+        "ALTER TABLE clients ADD COLUMN IF NOT EXISTS gmail_email TEXT",
+        "ALTER TABLE clients ADD COLUMN IF NOT EXISTS telegram_chat_id TEXT",
+        "ALTER TABLE clients ADD COLUMN IF NOT EXISTS telegram_connected BOOLEAN DEFAULT FALSE",
+        "ALTER TABLE clients ADD COLUMN IF NOT EXISTS telegram_verification_code TEXT",
+        "ALTER TABLE clients ADD COLUMN IF NOT EXISTS telegram_code_expiry TIMESTAMP",
+        "ALTER TABLE clients ADD COLUMN IF NOT EXISTS notify_replies BOOLEAN DEFAULT TRUE",
+        "ALTER TABLE clients ADD COLUMN IF NOT EXISTS notify_bookings BOOLEAN DEFAULT TRUE",
+        "ALTER TABLE clients ADD COLUMN IF NOT EXISTS notify_daily BOOLEAN DEFAULT FALSE",
+        "ALTER TABLE clients ADD COLUMN IF NOT EXISTS notify_weekly BOOLEAN DEFAULT TRUE",
+        "ALTER TABLE clients ADD COLUMN IF NOT EXISTS plan TEXT DEFAULT 'pro'",
+        "ALTER TABLE clients ADD COLUMN IF NOT EXISTS billing_cycle_start TIMESTAMP",
+        "ALTER TABLE clients ADD COLUMN IF NOT EXISTS leads_this_month INTEGER DEFAULT 0",
+        "ALTER TABLE clients ADD COLUMN IF NOT EXISTS stripe_customer_id TEXT",
+        "ALTER TABLE clients ADD COLUMN IF NOT EXISTS referral_code TEXT",
+        "ALTER TABLE clients ADD COLUMN IF NOT EXISTS referred_by INTEGER",
+        "ALTER TABLE clients ADD COLUMN IF NOT EXISTS free_months INTEGER DEFAULT 0",
+    ]
+    for stmt in new_client_cols:
+        cur.execute(stmt)
+
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS scheduled_emails (
+            id SERIAL PRIMARY KEY,
+            client_id INTEGER REFERENCES clients(id),
+            lead_id INTEGER REFERENCES lead_uploads(id),
+            touch_number INTEGER,
+            scheduled_for TIMESTAMP,
+            sent_at TIMESTAMP,
+            status TEXT DEFAULT 'scheduled',
+            subject TEXT,
+            body TEXT,
+            error_message TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS telegram_verifications (
+            id SERIAL PRIMARY KEY,
+            client_id INTEGER REFERENCES clients(id),
+            code TEXT,
+            telegram_chat_id TEXT,
+            expires_at TIMESTAMP,
+            used BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS email_events (
+            id SERIAL PRIMARY KEY,
+            client_id INTEGER REFERENCES clients(id),
+            lead_id INTEGER REFERENCES lead_uploads(id),
+            scheduled_email_id INTEGER REFERENCES scheduled_emails(id),
+            event_type TEXT,
+            occurred_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS suppression_list (
+            id SERIAL PRIMARY KEY,
+            client_id INTEGER,
+            email TEXT,
+            reason TEXT DEFAULT 'unsubscribed',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS password_reset_tokens (
+            id SERIAL PRIMARY KEY,
+            client_id INTEGER REFERENCES clients(id),
+            token TEXT UNIQUE,
+            expires_at TIMESTAMP,
+            used BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
     conn.commit()
     cur.close()
     conn.close()

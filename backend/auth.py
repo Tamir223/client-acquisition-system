@@ -96,8 +96,17 @@ def me():
         "business_name": c["business_name"],
         "email": c["email"],
         "niche": c["niche"],
-        "target_icp": c["target_icp"],
-        "google_sheet_id": c["google_sheet_id"],
+        "target_icp": c.get("target_icp", ""),
+        "google_sheet_id": c.get("google_sheet_id", ""),
+        "gmail_connected": bool(c.get("gmail_connected")),
+        "gmail_email": c.get("gmail_email"),
+        "telegram_connected": bool(c.get("telegram_connected")),
+        "notify_replies": bool(c.get("notify_replies", True)),
+        "notify_bookings": bool(c.get("notify_bookings", True)),
+        "notify_daily": bool(c.get("notify_daily", False)),
+        "notify_weekly": bool(c.get("notify_weekly", True)),
+        "plan": c.get("plan", "pro"),
+        "leads_this_month": c.get("leads_this_month", 0),
     }), 200
 
 

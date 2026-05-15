@@ -194,6 +194,29 @@
                     <div class="stat-card skeleton-card" id="stat-card-3"><div class="skeleton-line skeleton-lg"></div><div class="skeleton-line skeleton-sm"></div></div>
                 </div>
 
+                <!-- Secondary Stats Row -->
+                <div class="stats-grid" id="stats-grid-2" style="margin-top:0;">
+                    <div class="stat-card" id="stat-emails-today">
+                        <div class="stat-number" id="val-emails-today">—</div>
+                        <div class="stat-label">Emails Sent Today</div>
+                    </div>
+                    <div class="stat-card" id="stat-active-seq">
+                        <div class="stat-number" id="val-active-seq">—</div>
+                        <div class="stat-label">Active Sequences</div>
+                    </div>
+                    <div class="stat-card" id="stat-monthly-usage">
+                        <div class="stat-number" id="val-monthly-usage">—</div>
+                        <div class="stat-label">Leads This Month</div>
+                        <div id="monthly-progress-bar" style="margin-top:8px;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;display:none;">
+                            <div id="monthly-progress-fill" style="height:100%;background:var(--accent);border-radius:3px;transition:width 0.3s;"></div>
+                        </div>
+                    </div>
+                    <div class="stat-card" id="stat-next-email">
+                        <div class="stat-number" id="val-next-email" style="font-size:1.1rem;">—</div>
+                        <div class="stat-label">Next Scheduled Email</div>
+                    </div>
+                </div>
+
                 <!-- Activity + Pipeline -->
                 <div class="two-col">
                     <div class="card">
@@ -337,6 +360,14 @@
                     </div>
                 </div>
 
+                <!-- Active Sequences -->
+                <div class="card" id="active-sequences-card" style="margin-bottom:24px;">
+                    <div class="section-title">Active Sequences</div>
+                    <div id="active-seq-list">
+                        <div class="loading">Loading active sequences…</div>
+                    </div>
+                </div>
+
                 <div class="sequence-empty" id="sequence-empty" style="display:none;">
                     Your 5-touch follow-up sequence is being configured.<br>
                     <a href="/portal/intake">Complete your intake form</a> to speed up the process.
@@ -352,6 +383,93 @@
             <div class="panel" id="panel-settings">
 
                 <h2 class="panel-title" style="margin-bottom:24px;">Settings</h2>
+
+                <!-- Gmail Settings -->
+                <div class="card" style="max-width:560px;" id="gmail-settings-card">
+                    <div class="section-title">Email Settings</div>
+                    <h3 style="font-size:1rem;font-weight:600;color:var(--text);margin:0 0 6px;">Connect Your Gmail</h3>
+                    <p style="font-size:0.875rem;color:var(--muted);margin:0 0 16px;">Send follow up emails from your own address so leads hear directly from you.</p>
+
+                    <div id="gmail-disconnected-section">
+                        <div class="setup-banner" style="display:block;margin-bottom:16px;">
+                            &#9888; Your emails are currently sending from support@clientmachinery.com. Connect your Gmail to send from your own address.
+                        </div>
+                        <button class="btn btn-primary" id="connect-gmail-btn" style="width:auto;padding:12px 28px;">Connect Gmail</button>
+                        <ol style="font-size:0.875rem;color:var(--muted);margin:16px 0 0 0;padding-left:20px;line-height:2;">
+                            <li>Click Connect Gmail</li>
+                            <li>Authorize in Google (2 clicks)</li>
+                            <li>Done — emails send from you</li>
+                        </ol>
+                    </div>
+
+                    <div id="gmail-connected-section" style="display:none;">
+                        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin-bottom:16px;">
+                            <p style="margin:0;font-size:0.9rem;color:#16a34a;font-weight:600;">&#10003; <span id="gmail-email-display"></span> connected</p>
+                            <p style="margin:4px 0 0;font-size:0.8rem;color:#15803d;">Follow up emails send from your address. Replies come directly to your inbox.</p>
+                        </div>
+                        <button class="btn btn-secondary" id="disconnect-gmail-btn" style="width:auto;padding:8px 16px;font-size:0.8125rem;">Disconnect</button>
+                    </div>
+                </div>
+
+                <!-- Telegram Settings -->
+                <div class="card" style="max-width:560px;" id="telegram-settings-card">
+                    <div class="section-title">Telegram Notifications</div>
+                    <h3 style="font-size:1rem;font-weight:600;color:var(--text);margin:0 0 6px;">Get Instant Telegram Alerts</h3>
+                    <p style="font-size:0.875rem;color:var(--muted);margin:0 0 16px;">Know the moment a lead replies — on your phone instantly.</p>
+
+                    <div id="telegram-disconnected-section">
+                        <div style="counter-reset:telegram-steps;">
+                            <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;">
+                                <span style="background:var(--accent);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0;">1</span>
+                                <p style="margin:0;font-size:0.875rem;color:var(--text);">Message <strong>@ClientMachineryBot</strong> on Telegram</p>
+                            </div>
+                            <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;">
+                                <span style="background:var(--accent);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0;">2</span>
+                                <p style="margin:0;font-size:0.875rem;color:var(--text);">Send <strong>/connect your@email.com</strong> to the bot</p>
+                            </div>
+                            <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:16px;">
+                                <span style="background:var(--accent);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0;">3</span>
+                                <div>
+                                    <p style="margin:0 0 8px;font-size:0.875rem;color:var(--text);">Enter the 6-digit code you receive:</p>
+                                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                                        <input type="text" id="telegram-code-input" maxlength="6" placeholder="000000" style="width:120px;text-align:center;letter-spacing:4px;font-size:1.25rem;font-weight:700;">
+                                        <button class="btn btn-primary" id="verify-telegram-btn" style="width:auto;padding:10px 20px;">Verify &amp; Connect</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="error-msg" id="telegram-error"></div>
+                    </div>
+
+                    <div id="telegram-connected-section" style="display:none;">
+                        <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:16px;margin-bottom:16px;">
+                            <p style="margin:0;font-size:0.9rem;color:#16a34a;font-weight:600;">&#10003; Telegram connected</p>
+                        </div>
+                        <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:16px;">
+                            <label style="display:flex;align-items:center;justify-content:space-between;font-size:0.875rem;color:var(--text);">
+                                Alert when lead replies
+                                <input type="checkbox" id="tg-notify-replies" style="width:18px;height:18px;">
+                            </label>
+                            <label style="display:flex;align-items:center;justify-content:space-between;font-size:0.875rem;color:var(--text);">
+                                Alert when lead books
+                                <input type="checkbox" id="tg-notify-bookings" style="width:18px;height:18px;">
+                            </label>
+                            <label style="display:flex;align-items:center;justify-content:space-between;font-size:0.875rem;color:var(--text);">
+                                Daily summary at 9am
+                                <input type="checkbox" id="tg-notify-daily" style="width:18px;height:18px;">
+                            </label>
+                            <label style="display:flex;align-items:center;justify-content:space-between;font-size:0.875rem;color:var(--text);">
+                                Weekly report on Monday
+                                <input type="checkbox" id="tg-notify-weekly" style="width:18px;height:18px;">
+                            </label>
+                        </div>
+                        <div style="display:flex;gap:8px;">
+                            <button class="btn btn-primary" id="save-tg-prefs-btn" style="width:auto;padding:10px 20px;">Save Preferences</button>
+                            <button class="btn btn-secondary" id="disconnect-telegram-btn" style="width:auto;padding:10px 20px;">Disconnect</button>
+                        </div>
+                        <div class="success-msg" id="tg-success" style="margin-top:12px;"></div>
+                    </div>
+                </div>
 
                 <!-- Account Info -->
                 <div class="card" style="max-width:560px;">
@@ -416,6 +534,25 @@
                     </form>
                     <div class="success-msg" id="password-success" style="margin-top:16px;"></div>
                     <div class="error-msg" id="password-error" style="margin-top:16px;"></div>
+                </div>
+
+                <!-- Billing -->
+                <div class="card" style="max-width:480px;">
+                    <div class="section-title">Billing</div>
+                    <p style="font-size:0.875rem;color:var(--muted);margin:0 0 16px;">Manage your subscription, view invoices, or update your payment method.</p>
+                    <button class="btn btn-secondary" id="manage-billing-btn" style="width:auto;padding:10px 20px;">Manage Billing</button>
+                    <div class="error-msg" id="billing-error" style="margin-top:12px;"></div>
+                </div>
+
+                <!-- Referral -->
+                <div class="card" style="max-width:480px;">
+                    <div class="section-title">Refer a Business Owner</div>
+                    <p style="font-size:0.875rem;color:var(--muted);margin:0 0 4px;">Share your referral link and get <strong>one month free</strong> for every client you refer.</p>
+                    <div style="display:flex;gap:8px;margin-top:16px;align-items:center;flex-wrap:wrap;">
+                        <input type="text" id="referral-link" readonly style="flex:1;min-width:180px;background:var(--card-bg);border:1px solid var(--border);border-radius:6px;padding:10px 12px;font-size:0.875rem;color:var(--text);" placeholder="Loading…">
+                        <button class="btn btn-secondary" id="copy-referral-btn" style="width:auto;padding:10px 16px;">Copy Link</button>
+                    </div>
+                    <div class="success-msg" id="referral-success" style="margin-top:12px;"></div>
                 </div>
 
             </div><!-- /panel-settings -->
@@ -498,6 +635,7 @@
     let allLeads       = [];
     let seqData        = [];
     let meData         = null;
+    let gmailData      = null;
     let leadsFilter    = '';
     let currentPage    = 1;
     const PAGE_SIZE    = 5;
@@ -788,6 +926,7 @@
             document.getElementById('account-business').textContent = meData.business_name || '—';
 
             renderOnboarding();
+            loadSettingsData();
 
             var sheetId = meData.google_sheet_id || '';
             var banner  = document.getElementById('setup-banner');
@@ -803,6 +942,69 @@
     }
 
     window.switchTabGlobal = switchTab;
+
+    function loadSettingsData() {
+        if (!meData) return;
+
+        // Gmail
+        if (meData.gmail_connected) {
+            document.getElementById('gmail-disconnected-section').style.display = 'none';
+            document.getElementById('gmail-connected-section').style.display = 'block';
+            document.getElementById('gmail-email-display').textContent = meData.gmail_email || '';
+        } else {
+            document.getElementById('gmail-disconnected-section').style.display = 'block';
+            document.getElementById('gmail-connected-section').style.display = 'none';
+        }
+
+        // Telegram
+        if (meData.telegram_connected) {
+            document.getElementById('telegram-disconnected-section').style.display = 'none';
+            document.getElementById('telegram-connected-section').style.display = 'block';
+            document.getElementById('tg-notify-replies').checked = meData.notify_replies !== false;
+            document.getElementById('tg-notify-bookings').checked = meData.notify_bookings !== false;
+            document.getElementById('tg-notify-daily').checked = !!meData.notify_daily;
+            document.getElementById('tg-notify-weekly').checked = meData.notify_weekly !== false;
+        } else {
+            document.getElementById('telegram-disconnected-section').style.display = 'block';
+            document.getElementById('telegram-connected-section').style.display = 'none';
+        }
+    }
+
+    async function loadActiveSequences() {
+        var el = document.getElementById('active-seq-list');
+        if (!el) return;
+        try {
+            var res = await fetch('/api/portal/sequences/active', { headers: authHeaders() });
+            var data = await res.json();
+            var seqs = data.active_sequences || [];
+            if (!seqs.length) {
+                el.innerHTML = '<p style="font-size:0.875rem;color:var(--muted);padding:8px 0;">No active sequences. Sequences start automatically when you add leads.</p>';
+                return;
+            }
+            var TOUCH_ICONS = { sent: '&#10003;', scheduled: '&#9203;', cancelled: '&#10005;', error: '&#10060;' };
+            el.innerHTML = seqs.map(function(s) {
+                var name = escHtml(((s.first_name || '') + ' ' + (s.last_name || '')).trim());
+                var emailsHtml = (s.emails || []).map(function(e) {
+                    var icon = TOUCH_ICONS[e.status] || '&#9675;';
+                    var dateStr = e.sent_at ? 'Sent ' + formatDate(e.sent_at) : (e.scheduled_for ? formatDate(e.scheduled_for) : '');
+                    return '<div style="font-size:0.8125rem;color:var(--muted);margin:2px 0;">' + icon + ' Email ' + e.touch_number + ' — ' + dateStr + '</div>';
+                }).join('');
+                var badge = s.lead_status === 'Replied' ? '<span class="badge badge-success">Replied</span>' :
+                            s.lead_status === 'Booked' ? '<span class="badge badge-plan">Booked</span>' :
+                            '<span class="badge" style="background:#dbeafe;color:#1d4ed8;">Active</span>';
+                return '<div style="border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:12px;">' +
+                    '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">' +
+                        '<div><strong style="font-size:0.9375rem;">' + name + '</strong>' +
+                        '<div style="font-size:0.8125rem;color:var(--muted);">' + escHtml(s.lead_email || '') + '</div></div>' +
+                        badge +
+                    '</div>' +
+                    emailsHtml +
+                '</div>';
+            }).join('');
+        } catch(e) {
+            el.innerHTML = '<p style="font-size:0.875rem;color:var(--muted);">Could not load active sequences.</p>';
+        }
+    }
 
     // ─── Stats ───────────────────────────────────────────────────────
     function renderStats() {
@@ -882,6 +1084,7 @@
             if (res.status === 401) { sessionStorage.clear(); window.location.href = '/portal'; return; }
             dashData = await res.json();
             renderStats();
+            renderSecondaryStats();
             renderActivity(dashData.recent_activity || []);
             renderPipeline(dashData);
         } catch(e) { console.error('Dashboard load error', e); }
@@ -893,8 +1096,38 @@
             if (!res.ok) return;
             dashData = await res.json();
             renderStats();
+            renderSecondaryStats();
             renderPipeline(dashData);
         } catch(e) {}
+    }
+
+    function renderSecondaryStats() {
+        if (!dashData) return;
+
+        // Populate secondary stats
+        document.getElementById('val-emails-today').textContent = dashData.emails_today || 0;
+        document.getElementById('val-active-seq').textContent = dashData.active_sequences || 0;
+
+        var used = dashData.leads_this_month || 0;
+        var limit = dashData.monthly_limit;
+        if (limit) {
+            document.getElementById('val-monthly-usage').textContent = used + ' / ' + limit;
+            var pct = Math.min((used / limit) * 100, 100);
+            var bar = document.getElementById('monthly-progress-bar');
+            var fill = document.getElementById('monthly-progress-fill');
+            bar.style.display = 'block';
+            fill.style.width = pct + '%';
+            fill.style.background = pct >= 95 ? '#ef4444' : pct >= 80 ? '#f59e0b' : 'var(--accent)';
+        } else {
+            document.getElementById('val-monthly-usage').textContent = used + ' / ∞';
+        }
+
+        if (dashData.next_email) {
+            var d = new Date(String(dashData.next_email).replace(' ', 'T'));
+            document.getElementById('val-next-email').textContent = isNaN(d) ? '—' : d.toLocaleTimeString('en-US', {hour:'numeric',minute:'2-digit'});
+        } else {
+            document.getElementById('val-next-email').textContent = '—';
+        }
     }
 
     // ─── Activity ────────────────────────────────────────────────────
@@ -1853,6 +2086,164 @@
     document.getElementById('timeline-close').addEventListener('click', closeTimeline);
     document.getElementById('timeline-overlay').addEventListener('click', closeTimeline);
 
+    // ─── Gmail / Telegram Event Handlers ─────────────────────────────
+
+    // Gmail connect
+    document.getElementById('connect-gmail-btn').addEventListener('click', async function() {
+        this.disabled = true;
+        this.textContent = 'Loading…';
+        try {
+            var res = await fetch('/api/portal/auth/gmail', { headers: authHeaders() });
+            var data = await res.json();
+            if (data.oauth_url) {
+                window.location.href = data.oauth_url;
+            }
+        } catch (e) {
+            showToast('Failed to start Gmail connection', 'error');
+        } finally {
+            this.disabled = false;
+            this.textContent = 'Connect Gmail';
+        }
+    });
+
+    // Gmail disconnect
+    document.getElementById('disconnect-gmail-btn').addEventListener('click', async function() {
+        if (!await showConfirm('Disconnect Gmail? Emails will send from support@clientmachinery.com instead.', 'Disconnect', 'Cancel')) return;
+        var res = await fetch('/api/portal/auth/gmail/disconnect', { method: 'DELETE', headers: authHeaders() });
+        if (res.ok) {
+            meData.gmail_connected = false;
+            meData.gmail_email = null;
+            loadSettingsData();
+            showToast('Gmail disconnected');
+        }
+    });
+
+    // Telegram verify
+    document.getElementById('verify-telegram-btn').addEventListener('click', async function() {
+        var code = document.getElementById('telegram-code-input').value.trim();
+        var errEl = document.getElementById('telegram-error');
+        errEl.classList.remove('visible');
+        if (code.length !== 6) {
+            errEl.textContent = 'Enter the 6-digit code from the bot.';
+            errEl.classList.add('visible');
+            return;
+        }
+        this.disabled = true;
+        this.textContent = 'Verifying…';
+        try {
+            var res = await fetch('/api/portal/telegram/connect', {
+                method: 'POST',
+                headers: authHeaders(),
+                body: JSON.stringify({ verification_code: code }),
+            });
+            var data = await res.json();
+            if (!res.ok) {
+                errEl.textContent = data.error || 'Invalid code';
+                errEl.classList.add('visible');
+                return;
+            }
+            meData.telegram_connected = true;
+            loadSettingsData();
+            showToast('Telegram connected!');
+        } catch(e) {
+            errEl.textContent = 'Network error';
+            errEl.classList.add('visible');
+        } finally {
+            this.disabled = false;
+            this.textContent = 'Verify & Connect';
+        }
+    });
+
+    // Save Telegram prefs
+    document.getElementById('save-tg-prefs-btn').addEventListener('click', async function() {
+        var prefs = {
+            notify_replies:  document.getElementById('tg-notify-replies').checked,
+            notify_bookings: document.getElementById('tg-notify-bookings').checked,
+            notify_daily:    document.getElementById('tg-notify-daily').checked,
+            notify_weekly:   document.getElementById('tg-notify-weekly').checked,
+        };
+        var res = await fetch('/api/portal/telegram/preferences', {
+            method: 'POST', headers: authHeaders(), body: JSON.stringify(prefs)
+        });
+        if (res.ok) { showMsg('tg-success', 'Preferences saved'); setTimeout(function() { hideMsg('tg-success'); }, 2500); }
+    });
+
+    // Disconnect Telegram
+    document.getElementById('disconnect-telegram-btn').addEventListener('click', async function() {
+        if (!await showConfirm('Disconnect Telegram notifications?', 'Disconnect', 'Cancel')) return;
+        var res = await fetch('/api/portal/telegram/disconnect', { method: 'DELETE', headers: authHeaders() });
+        if (res.ok) {
+            meData.telegram_connected = false;
+            loadSettingsData();
+            showToast('Telegram disconnected');
+        }
+    });
+
+    // ─── Settings tab activation → reload settings data ──────────────
+    document.querySelectorAll('.sidebar-item[data-tab="settings"], .drawer-item[data-tab="settings"]').forEach(function(item) {
+        item.addEventListener('click', function() { loadSettingsData(); });
+    });
+
+    // ─── Sequence tab activation → load active sequences ─────────────
+    document.querySelectorAll('.sidebar-item[data-tab="sequence"], .drawer-item[data-tab="sequence"]').forEach(function(item) {
+        item.addEventListener('click', function() { loadActiveSequences(); });
+    });
+
+    // ─── OAuth return check ───────────────────────────────────────────
+    var urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('gmail') === 'connected') {
+        showToast('Gmail connected successfully!');
+        history.replaceState({}, '', '/portal/dashboard');
+    } else if (urlParams.get('gmail') === 'error') {
+        showToast('Gmail connection failed. Please try again.', 'error');
+        history.replaceState({}, '', '/portal/dashboard');
+    }
+
+    // ─── Billing ─────────────────────────────────────────────────────
+    document.getElementById('manage-billing-btn').addEventListener('click', async function() {
+        this.disabled = true;
+        this.textContent = 'Loading…';
+        try {
+            var res = await fetch('/api/portal/billing', { headers: authHeaders() });
+            var data = await res.json();
+            if (data.portal_url) {
+                window.open(data.portal_url, '_blank');
+            } else {
+                showMsg('billing-error', data.error || 'Billing not available. Contact support.');
+            }
+        } catch(e) {
+            showMsg('billing-error', 'Network error. Please try again.');
+        } finally {
+            this.disabled = false;
+            this.textContent = 'Manage Billing';
+        }
+    });
+
+    // ─── Referral ─────────────────────────────────────────────────────
+    (async function loadReferral() {
+        try {
+            var res = await fetch('/api/portal/referral', { headers: authHeaders() });
+            var data = await res.json();
+            if (data.referral_url) {
+                document.getElementById('referral-link').value = data.referral_url;
+            }
+        } catch(e) {}
+    })();
+
+    document.getElementById('copy-referral-btn').addEventListener('click', function() {
+        var input = document.getElementById('referral-link');
+        if (!input.value) return;
+        navigator.clipboard.writeText(input.value).then(function() {
+            showMsg('referral-success', 'Link copied!');
+            setTimeout(function() { hideMsg('referral-success'); }, 2500);
+        }).catch(function() {
+            input.select();
+            document.execCommand('copy');
+            showMsg('referral-success', 'Link copied!');
+            setTimeout(function() { hideMsg('referral-success'); }, 2500);
+        });
+    });
+
     // ─── Intake redirect success ──────────────────────────────────────
     if (sessionStorage.getItem('cm_intake_success')) {
         sessionStorage.removeItem('cm_intake_success');
@@ -1864,6 +2255,7 @@
     loadDashboard();
     loadLeads();
     loadSequences();
+    loadActiveSequences();
     loadMe();
 }());
 </script>

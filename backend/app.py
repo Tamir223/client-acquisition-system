@@ -39,6 +39,24 @@ with app.app_context():
 from scheduler import start_scheduler
 start_scheduler()
 
+
+def _register_telegram_webhook():
+    token = os.environ.get("TELEGRAM_BOT_TOKEN")
+    if not token:
+        return
+    try:
+        webhook_url = f"https://clientmachinery.com/api/telegram/webhook?token={token}"
+        requests.post(
+            f"https://api.telegram.org/bot{token}/setWebhook",
+            json={"url": webhook_url},
+            timeout=10,
+        )
+    except Exception:
+        pass
+
+
+_register_telegram_webhook()
+
 MAILERLITE_API_KEY  = os.getenv("MAILERLITE_API_KEY")
 TELEGRAM_BOT_TOKEN  = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID    = os.getenv("TELEGRAM_CHAT_ID")
@@ -141,6 +159,11 @@ def portal_admin():
 @app.route("/portal/intake")
 def portal_intake():
     return send_from_directory(PORTAL_DIR, "intake.html")
+
+
+@app.route("/portal/reset-password")
+def portal_reset_password():
+    return send_from_directory(PORTAL_DIR, "reset-password.html")
 
 
 @app.route("/portal/css/<path:filename>")
