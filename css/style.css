@@ -355,6 +355,7 @@ h1 {
 .problem,
 .how-it-works,
 .portal-features,
+.portal-screenshots,
 .timeline,
 .offer,
 .testimonials,
@@ -367,6 +368,7 @@ h1 {
 .problem::after,
 .how-it-works::after,
 .portal-features::after,
+.portal-screenshots::after,
 .timeline::after,
 .offer::after,
 .testimonials::after,
@@ -393,6 +395,7 @@ h1 {
 .problem h2,
 .how-it-works h2,
 .portal-features h2,
+.portal-screenshots h2,
 .timeline h2,
 .offer h2,
 .testimonials h2,
@@ -544,6 +547,108 @@ h1 {
     color: rgba(255, 255, 255, 0.7);
     line-height: 1.7;
     margin: 0;
+}
+
+/* ─── Portal Screenshots ─── */
+.portal-screenshots {
+    padding: 100px 0;
+    background: var(--mid);
+    text-align: center;
+}
+
+.portal-screenshots h2 { margin-bottom: 16px; }
+.portal-screenshots .section-sub { margin-bottom: 64px; }
+
+.screenshot-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    align-items: start;
+}
+
+.screenshot-item {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.browser-frame {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.browser-frame:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 56px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border), 0 0 40px rgba(59, 130, 246, 0.08);
+}
+
+.browser-chrome {
+    background: #1c2338;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+}
+
+.browser-dots {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.browser-dots span {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.dot-red    { background: #ff5f57; }
+.dot-yellow { background: #ffbd2e; }
+.dot-green  { background: #28c840; }
+
+.browser-bar {
+    flex: 1;
+    background: var(--black);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 0.7rem;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: left;
+}
+
+.browser-body {
+    background: var(--dark);
+    line-height: 0;
+}
+
+.browser-body img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+}
+
+.screenshot-caption {
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.5;
+    text-align: center;
+    padding: 0 8px;
+}
+
+@media (max-width: 900px) {
+    .screenshot-grid {
+        grid-template-columns: 1fr;
+        max-width: 520px;
+        margin: 0 auto;
+    }
 }
 
 /* ─── Timeline ─── */
