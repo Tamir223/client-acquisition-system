@@ -137,8 +137,21 @@ def test_jwt_secret_set():
 
 def test_portal_import():
     from portal import portal_bp
-    rules = [r.rule for r in portal_bp.deferred_functions] if hasattr(portal_bp, "deferred_functions") else []
-    assert portal_bp is not None
+    from flask import Flask
+    test_app = Flask(__name__)
+    test_app.register_blueprint(portal_bp)
+    rules = [r.rule for r in test_app.url_map.iter_rules()]
+    required_routes = [
+        '/api/portal/login',
+        '/api/portal/leads',
+        '/api/portal/dashboard',
+        '/api/portal/inbox',
+        '/api/portal/notifications',
+        '/api/webhooks/reply-detected',
+        '/api/portal/leads/update-score',
+    ]
+    for route in required_routes:
+        assert any(route in r for r in rules), f"Missing route: {route}"
 
 
 def test_plan_limits():
