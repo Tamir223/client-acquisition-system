@@ -239,6 +239,39 @@ def init_db():
         )
     """)
 
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS lead_replies (
+            id SERIAL PRIMARY KEY,
+            client_id INTEGER NOT NULL REFERENCES clients(id),
+            lead_id INTEGER REFERENCES lead_uploads(id),
+            from_email TEXT,
+            subject TEXT,
+            snippet TEXT,
+            source TEXT DEFAULT 'gmail',
+            is_read BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    # Part 4 — lead scoring columns
+    scoring_cols = [
+        "ALTER TABLE lead_uploads ADD COLUMN IF NOT EXISTS lead_score INTEGER",
+        "ALTER TABLE lead_uploads ADD COLUMN IF NOT EXISTS pain_point TEXT",
+        "ALTER TABLE lead_uploads ADD COLUMN IF NOT EXISTS ai_first_line TEXT",
+    ]
+    for stmt in scoring_cols:
+        cur.execute(stmt)
+
+    # Indexes for common query patterns
+    indexes = [
+        "CREATE INDEX IF NOT EXISTS idx_lead_uploads_client ON lead_uploads(client_id)",
+        "CREATE INDEX IF NOT EXISTS idx_scheduled_status ON scheduled_emails(status, scheduled_for)",
+        "CREATE INDEX IF NOT EXISTS idx_replies_client ON lead_replies(client_id, is_read)",
+        "CREATE INDEX IF NOT EXISTS idx_notifications_client ON notifications(client_id, is_read)",
+    ]
+    for stmt in indexes:
+        cur.execute(stmt)
+
     conn.commit()
     cur.close()
     conn.close()

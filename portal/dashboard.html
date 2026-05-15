@@ -61,6 +61,10 @@
                 <span class="drawer-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
                 <span>My Sequence</span>
             </li>
+            <li class="drawer-item" data-tab="inbox">
+                <span class="drawer-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></span>
+                <span>Inbox</span>
+            </li>
             <li class="drawer-item" data-tab="settings">
                 <span class="drawer-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
                 <span>Settings</span>
@@ -104,6 +108,10 @@
                 <li class="sidebar-item" data-tab="sequence">
                     <span class="sidebar-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
                     <span class="sidebar-label">My Sequence</span>
+                </li>
+                <li class="sidebar-item" data-tab="inbox">
+                    <span class="sidebar-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></span>
+                    <span class="sidebar-label">Inbox <span id="inbox-badge" style="display:none;background:#ef4444;color:#fff;font-size:0.65rem;font-weight:700;border-radius:99px;padding:1px 5px;margin-left:4px;"></span></span>
                 </li>
                 <li class="sidebar-item" data-tab="settings">
                     <span class="sidebar-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
@@ -323,13 +331,14 @@
                                     <th>Phone</th>
                                     <th>Service</th>
                                     <th>Notes</th>
+                                    <th>Score</th>
                                     <th>Status</th>
                                     <th>Date Added</th>
                                     <th></th>
                                 </tr>
                             </thead>
                             <tbody id="leads-tbody">
-                                <tr class="empty-row"><td colspan="8">
+                                <tr class="empty-row"><td colspan="9">
                                     <div class="skeleton-line" style="width:100%;height:20px;border-radius:4px;margin:4px 0;"></div>
                                     <div class="skeleton-line" style="width:90%;height:20px;border-radius:4px;margin:4px 0;"></div>
                                     <div class="skeleton-line" style="width:95%;height:20px;border-radius:4px;margin:4px 0;"></div>
@@ -557,6 +566,19 @@
 
             </div><!-- /panel-settings -->
 
+            <!-- ════ PANEL: INBOX ════ -->
+            <div class="panel" id="panel-inbox">
+                <div class="panel-header">
+                    <h2 class="panel-title">Inbox</h2>
+                    <div style="display:flex;gap:10px;align-items:center;">
+                        <button class="btn btn-sm" id="inbox-mark-all-btn" style="font-size:0.8rem;">Mark all read</button>
+                    </div>
+                </div>
+                <div id="inbox-list" style="display:flex;flex-direction:column;gap:12px;margin-top:8px;">
+                    <div class="card" style="padding:24px;text-align:center;color:var(--muted);">Loading replies…</div>
+                </div>
+            </div><!-- /panel-inbox -->
+
         </main>
     </div><!-- /portal-body -->
 
@@ -653,13 +675,19 @@
 
     function timeAgo(dateString) {
         if (!dateString) return '';
-        const date = new Date(String(dateString).replace(' ', 'T'));
-        if (isNaN(date.getTime())) return 'recently';
-        const diff = Math.floor((Date.now() - date.getTime()) / 1000);
+        var s = String(dateString).trim();
+        // Normalise: space → T, append Z if no timezone marker
+        s = s.replace(' ', 'T');
+        if (!/[Z+\-]\d*$/.test(s) && /T/.test(s)) s += 'Z';
+        var date = new Date(s);
+        if (isNaN(date.getTime())) return formatDate(dateString);
+        var diff = Math.floor((Date.now() - date.getTime()) / 1000);
+        if (diff < 0)     return 'just now';
         if (diff < 60)    return 'just now';
         if (diff < 3600)  return Math.floor(diff / 60) + 'm ago';
         if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
-        return Math.floor(diff / 86400) + 'd ago';
+        if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
+        return formatDate(dateString);
     }
 
     function formatDate(ts) {
@@ -825,9 +853,11 @@
         document.body.style.overflow = '';
     }
 
-    document.getElementById('hamburger-btn').addEventListener('click', openDrawer);
-    document.getElementById('drawer-close').addEventListener('click', closeDrawer);
-    drawerOverlay.addEventListener('click', closeDrawer);
+    var hamburgerBtn = document.getElementById('hamburger-btn');
+    var drawerCloseBtn = document.getElementById('drawer-close');
+    if (hamburgerBtn) hamburgerBtn.addEventListener('click', openDrawer);
+    if (drawerCloseBtn) drawerCloseBtn.addEventListener('click', closeDrawer);
+    if (drawerOverlay) drawerOverlay.addEventListener('click', closeDrawer);
 
     // ─── Notifications ───────────────────────────────────────────────
     var notifPanel = document.getElementById('notif-panel');
@@ -1472,14 +1502,14 @@
         }
 
         if (!allLeads.length) {
-            tbody.innerHTML = '<tr class="empty-row"><td colspan="8">' +
+            tbody.innerHTML = '<tr class="empty-row"><td colspan="9">' +
                 '<div style="padding:8px 0;">No leads uploaded yet.<br>' +
                 '<span style="font-size:0.8125rem;color:var(--muted);">Use the upload section above to add your first leads.</span></div></td></tr>';
             document.getElementById('pagination-wrap').style.display = 'none';
             return;
         }
         if (!filtered.length) {
-            tbody.innerHTML = '<tr class="empty-row"><td colspan="8">No leads match your search.</td></tr>';
+            tbody.innerHTML = '<tr class="empty-row"><td colspan="9">No leads match your search.</td></tr>';
             document.getElementById('pagination-wrap').style.display = 'none';
             return;
         }
@@ -1499,6 +1529,11 @@
                 return '<option value="' + s + '"' + (s === (l.status || 'New') ? ' selected' : '') + '>' + s + '</option>';
             }).join('');
             var notes = (l.notes || '').replace(/"/g, '&quot;');
+            var score = l.lead_score;
+            var scoreBadge = score == null ? '<span style="color:var(--muted);">—</span>' :
+                '<span title="' + escHtml(l.pain_point || '') + '" style="display:inline-block;padding:2px 8px;border-radius:99px;font-size:0.75rem;font-weight:700;cursor:default;' +
+                (score >= 8 ? 'background:#dcfce7;color:#15803d;' : score >= 5 ? 'background:#fef9c3;color:#854d0e;' : 'background:#fee2e2;color:#b91c1c;') +
+                '">' + score + '</span>';
             return '<tr>' +
                 '<td style="font-weight:500;">'   + escHtml(name) + '</td>' +
                 '<td class="muted">'              + emailCell + '</td>' +
@@ -1508,6 +1543,7 @@
                     '<span class="notes-view">' + escHtml(l.notes || '') + '</span>' +
                     '<input type="text" class="notes-input" value="' + notes + '" placeholder="Add note…" style="display:none;">' +
                 '</td>' +
+                '<td style="text-align:center;">' + scoreBadge + '</td>' +
                 '<td>' +
                     '<select class="status-select ' + statusClass(l.status || 'New') + '" data-id="' + l.id + '">' +
                     statusOpts + '</select>' +
@@ -1535,7 +1571,13 @@
                     if (res.ok) {
                         var lead = allLeads.find(function(l) { return String(l.id) === String(leadId); });
                         if (lead) lead.status = status;
-                        await refreshStats();
+                        var resData = await res.json().catch(function() { return {}; });
+                        if (resData.stats) {
+                            if (dashData) Object.assign(dashData, resData.stats);
+                            renderStats();
+                        } else {
+                            await refreshStats();
+                        }
                         if (status === 'Booked' || status === 'Replied') loadNotifications();
                     } else {
                         showToast('Failed to update status.', 'error');
@@ -2251,11 +2293,122 @@
         showToast('Settings saved. Your lead scoring is now optimized.', 'success');
     }
 
+    // ─── Inbox ───────────────────────────────────────────────────────
+    var REPLY_CLASSES = {
+        'INTERESTED':    'background:#dcfce7;color:#15803d;',
+        'MEETING READY': 'background:#dcfce7;color:#15803d;',
+        'QUESTION':      'background:#dbeafe;color:#1d4ed8;',
+        'NOT NOW':       'background:#fff7ed;color:#c2410c;',
+    };
+
+    async function loadInboxUnreadCount() {
+        try {
+            var res = await fetch('/api/portal/inbox/unread-count', { headers: authHeaders() });
+            if (!res.ok) return;
+            var data = await res.json();
+            var badge = document.getElementById('inbox-badge');
+            if (badge) {
+                if (data.unread_count > 0) {
+                    badge.textContent = data.unread_count > 9 ? '9+' : String(data.unread_count);
+                    badge.style.display = 'inline';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        } catch(e) {}
+    }
+
+    async function loadInbox() {
+        var list = document.getElementById('inbox-list');
+        if (!list) return;
+        list.innerHTML = '<div class="card" style="padding:24px;text-align:center;color:var(--muted);">Loading…</div>';
+        try {
+            var res = await fetch('/api/portal/inbox', { headers: authHeaders() });
+            if (!res.ok) throw new Error('Failed to load inbox');
+            var data = await res.json();
+            renderInbox(data.replies || []);
+            loadInboxUnreadCount();
+        } catch(e) {
+            list.innerHTML = '<div class="card" style="padding:24px;text-align:center;color:var(--danger);">Failed to load inbox. Please try again.</div>';
+        }
+    }
+
+    function renderInbox(replies) {
+        var list = document.getElementById('inbox-list');
+        if (!list) return;
+        if (!replies.length) {
+            list.innerHTML = '<div class="card" style="padding:32px;text-align:center;color:var(--muted);">' +
+                '<div style="font-size:2rem;margin-bottom:12px;">&#128235;</div>' +
+                '<div>No replies yet. When leads reply to your follow-up emails they\'ll appear here.</div></div>';
+            return;
+        }
+        list.innerHTML = replies.map(function(r) {
+            var name = [r.first_name, r.last_name].filter(Boolean).join(' ') || r.from_email || 'Unknown';
+            var statusStyle = REPLY_CLASSES[r.lead_status] || 'background:#f1f5f9;color:#475569;';
+            var unreadDot = r.is_read ? '' : '<span style="display:inline-block;width:8px;height:8px;background:#3b82f6;border-radius:50%;margin-right:8px;flex-shrink:0;" title="Unread"></span>';
+            return '<div class="card inbox-reply-card" data-reply-id="' + r.id + '" style="padding:16px 20px;cursor:pointer;' + (r.is_read ? '' : 'border-left:3px solid var(--accent);') + '">' +
+                '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">' +
+                    '<div style="display:flex;align-items:center;gap:6px;min-width:0;">' +
+                        unreadDot +
+                        '<div>' +
+                            '<div style="font-weight:' + (r.is_read ? '500' : '700') + ';color:var(--off-white);">' + escHtml(name) + '</div>' +
+                            '<div style="font-size:0.8rem;color:var(--muted);">' + escHtml(r.from_email || '') + '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div style="text-align:right;flex-shrink:0;">' +
+                        (r.lead_status ? '<span style="display:inline-block;padding:2px 8px;border-radius:99px;font-size:0.7rem;font-weight:700;' + statusStyle + '">' + escHtml(r.lead_status) + '</span><br>' : '') +
+                        '<span style="font-size:0.75rem;color:var(--muted);">' + timeAgo(r.created_at) + '</span>' +
+                    '</div>' +
+                '</div>' +
+                (r.snippet ? '<div style="margin-top:10px;font-size:0.85rem;color:var(--muted);font-style:italic;padding:8px 12px;background:var(--mid);border-radius:6px;">&ldquo;' + escHtml(r.snippet) + '&rdquo;</div>' : '') +
+                (r.subject ? '<div style="margin-top:6px;font-size:0.8rem;color:var(--muted);">Re: ' + escHtml(r.subject) + '</div>' : '') +
+            '</div>';
+        }).join('');
+
+        list.querySelectorAll('.inbox-reply-card').forEach(function(card) {
+            card.addEventListener('click', async function() {
+                var replyId = this.dataset.replyId;
+                if (!replyId) return;
+                try {
+                    await fetch('/api/portal/inbox/read', {
+                        method: 'POST', headers: authHeaders(),
+                        body: JSON.stringify({ reply_id: replyId })
+                    });
+                    var dot = this.querySelector('span[title="Unread"]');
+                    if (dot) dot.remove();
+                    this.style.borderLeft = '';
+                    this.querySelector('[style*="font-weight:700"]') &&
+                        (this.querySelector('[style*="font-weight:700"]').style.fontWeight = '500');
+                    loadInboxUnreadCount();
+                } catch(e) {}
+            });
+        });
+    }
+
+    var inboxMarkAllBtn = document.getElementById('inbox-mark-all-btn');
+    if (inboxMarkAllBtn) {
+        inboxMarkAllBtn.addEventListener('click', async function() {
+            try {
+                await fetch('/api/portal/inbox/read', {
+                    method: 'POST', headers: authHeaders(),
+                    body: JSON.stringify({ all: true })
+                });
+                loadInbox();
+            } catch(e) {}
+        });
+    }
+
+    // Load inbox when tab is activated
+    document.querySelectorAll('.sidebar-item[data-tab="inbox"], .drawer-item[data-tab="inbox"]').forEach(function(item) {
+        item.addEventListener('click', function() { loadInbox(); });
+    });
+
     // ─── Init ─────────────────────────────────────────────────────────
     loadDashboard();
     loadLeads();
     loadSequences();
     loadActiveSequences();
+    loadInboxUnreadCount();
     loadMe();
 }());
 </script>

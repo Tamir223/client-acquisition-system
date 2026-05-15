@@ -7,11 +7,9 @@ import psycopg2
 import psycopg2.extras
 import resend
 
-logger = logging.getLogger(__name__)
+from telegram_alerts import alert_partners, alert_client, alert_reply, alert_email_sent
 
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
-PARTNER_CHAT_ID = os.getenv("PARTNER_CHAT_ID")
+logger = logging.getLogger(__name__)
 
 TOUCH_DAYS = {1: 0, 2: 2, 3: 5, 4: 10, 5: 14}
 
@@ -21,23 +19,13 @@ PLAN_LIMITS = {
     "enterprise": None,
 }
 
+# Tamir's own email must be excluded from client-inbox reply scanning
+# to avoid conflicts with Make.com's reply detection on the same inbox.
+_SYSTEM_EMAILS = {"tamir@clientmachinery.com", "support@clientmachinery.com"}
+
 
 def _get_conn():
     return psycopg2.connect(os.getenv("DATABASE_URL"))
-
-
-def _send_telegram(chat_id, text):
-    if not TELEGRAM_BOT_TOKEN or not chat_id:
-        return
-    import requests
-    try:
-        requests.post(
-            f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage",
-            json={"chat_id": chat_id, "text": text},
-            timeout=5,
-        )
-    except Exception as e:
-        logger.error(f"[sequence] Telegram send failed: {e}")
 
 
 def _send_reply_email_to_client(client, first_name, last_name, lead_email, snippet):
@@ -53,7 +41,7 @@ def _send_reply_email_to_client(client, first_name, last_name, lead_email, snipp
     <div style="padding:36px 40px;">
       <p style="font-size:16px;color:#334155;">Hi {client_first},</p>
       <p style="font-size:15px;color:#475569;line-height:1.7;">
-        <strong>{lead_name}</strong> just replied to your automated follow up sequence.
+        <strong>{lead_name}</strong> just replied to your automated follow-up sequence.
         The sequence has been stopped automatically.
       </p>
       <p style="font-size:14px;color:#64748b;font-style:italic;">"{snippet}"</p>
@@ -265,26 +253,16 @@ class SequenceEngine:
                     )
 
                     from_addr = em.get("gmail_email") or "support@clientmachinery.com"
-                    tg_msg = (
-                        f"\U0001f4e7 Email {em['touch_number']} Sent\n"
-                        f"Client: {em['business_name']}\n"
-                        f"To: {em['first_name']} {em['last_name']}\n"
-                        f"Email: {em['lead_email']}\n"
-                        f"From: {from_addr}"
+                    alert_email_sent(
+                        {
+                            "business_name": em["business_name"],
+                            "telegram_connected": em["telegram_connected"],
+                            "notify_replies": em["notify_replies"],
+                            "telegram_chat_id": em["telegram_chat_id"],
+                        },
+                        em["first_name"], em["last_name"],
+                        em["lead_email"], em["touch_number"], from_addr,
                     )
-                    _send_telegram(TELEGRAM_CHAT_ID, tg_msg)
-                    if PARTNER_CHAT_ID and PARTNER_CHAT_ID != TELEGRAM_CHAT_ID:
-                        _send_telegram(PARTNER_CHAT_ID, tg_msg)
-
-                    if em["telegram_connected"] and em["notify_replies"] and em["telegram_chat_id"]:
-                        _send_telegram(
-                            em["telegram_chat_id"],
-                            f"\U0001f4e7 Follow Up Sent\n\n"
-                            f"Email {em['touch_number']} of 5 sent to:\n"
-                            f"{em['first_name']} {em['last_name']}\n"
-                            f"{em['lead_email']}\n\n"
-                            f"View dashboard: clientmachinery.com/portal/dashboard",
-                        )
                 else:
                     cur.execute(
                         "UPDATE scheduled_emails SET status='error', error_message=%s WHERE id=%s",
@@ -332,6 +310,12 @@ class SequenceEngine:
             clients = cur.fetchall()
 
             for client in clients:
+                # Skip system inboxes — Make.com handles those via /api/webhooks/reply-detected
+                if (client.get("gmail_email") or "").lower() in _SYSTEM_EMAILS:
+                    continue
+                if (client.get("email") or "").lower() in _SYSTEM_EMAILS:
+                    continue
+
                 try:
                     from gmail_oauth import get_unread_replies
                     replies = get_unread_replies(client)
@@ -360,6 +344,7 @@ class SequenceEngine:
                         lead_id = lead["id"]
                         first_name = lead["first_name"] or ""
                         last_name = lead["last_name"] or ""
+                        snippet = (reply.get("snippet") or "")[:200]
 
                         cur.execute(
                             "UPDATE lead_uploads SET status='Replied' WHERE id=%s",
@@ -368,6 +353,13 @@ class SequenceEngine:
                         cur.execute(
                             "UPDATE scheduled_emails SET status='cancelled' WHERE lead_id=%s AND status='scheduled'",
                             (lead_id,),
+                        )
+                        cur.execute(
+                            """INSERT INTO lead_replies (client_id, lead_id, from_email, snippet, subject, source)
+                               VALUES (%s, %s, %s, %s, %s, 'gmail')
+                               ON CONFLICT DO NOTHING""",
+                            (client["id"], lead_id, from_email, snippet,
+                             reply.get("subject", "")),
                         )
                         cur.execute(
                             """INSERT INTO notifications (client_id, type, message)
@@ -382,26 +374,7 @@ class SequenceEngine:
                              f"Reply detected from {first_name} {last_name}"),
                         )
 
-                        snippet = (reply.get("snippet") or "")[:200]
-                        tg_msg = (
-                            f"\U0001f4ac Reply Detected\n"
-                            f"Client: {client['business_name']}\n"
-                            f"Lead: {first_name} {last_name}\n"
-                            f"Email: {from_email}\n"
-                            f"Preview: {snippet}"
-                        )
-                        _send_telegram(TELEGRAM_CHAT_ID, tg_msg)
-                        if PARTNER_CHAT_ID and PARTNER_CHAT_ID != TELEGRAM_CHAT_ID:
-                            _send_telegram(PARTNER_CHAT_ID, tg_msg)
-
-                        if client["telegram_connected"] and client["notify_replies"] and client["telegram_chat_id"]:
-                            _send_telegram(
-                                client["telegram_chat_id"],
-                                f"\U0001f525 Lead Replied!\n\n"
-                                f"{first_name} {last_name} just replied to your follow up sequence.\n\n"
-                                f"Sequence stopped automatically.\n\n"
-                                f"View reply: clientmachinery.com/portal/dashboard",
-                            )
+                        alert_reply(dict(client), first_name, last_name, from_email, snippet)
 
                         if resend_api_key:
                             _send_reply_email_to_client(

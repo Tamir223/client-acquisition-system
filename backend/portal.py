@@ -432,7 +432,7 @@ def get_leads():
 
     rows = db.execute(
         """SELECT id, first_name, last_name, email, phone, service_requested,
-                  lead_source, status, notes, uploaded_at
+                  lead_source, status, notes, uploaded_at, lead_score, pain_point
            FROM lead_uploads WHERE client_id = ?
            ORDER BY uploaded_at DESC LIMIT 200""",
         (client_id,)
@@ -1018,7 +1018,26 @@ def update_lead_status():
             daemon=True,
         ).start()
 
-    return jsonify({"success": True}), 200
+    # Return updated stats so the UI can refresh without a second round-trip
+    try:
+        total = db.execute(
+            "SELECT COUNT(*) AS c FROM lead_uploads WHERE client_id = ?", (client_id,)
+        ).fetchone()["c"]
+        contacted = db.execute(
+            "SELECT COUNT(*) AS c FROM lead_uploads WHERE client_id = ? AND status IN ('Contacted','Outreach Queue')",
+            (client_id,)
+        ).fetchone()["c"]
+        replied = db.execute(
+            "SELECT COUNT(*) AS c FROM lead_uploads WHERE client_id = ? AND status IN ('Replied','INTERESTED','QUESTION','NOT NOW','MEETING READY')",
+            (client_id,)
+        ).fetchone()["c"]
+        booked = db.execute(
+            "SELECT COUNT(*) AS c FROM lead_uploads WHERE client_id = ? AND status IN ('Booked','Call Booked')",
+            (client_id,)
+        ).fetchone()["c"]
+        return jsonify({"success": True, "stats": {"total_leads": total, "contacted": contacted, "replied": replied, "booked": booked}}), 200
+    except Exception:
+        return jsonify({"success": True}), 200
 
 
 @portal_bp.route("/api/portal/leads/delete", methods=["DELETE"])
@@ -1394,3 +1413,216 @@ def get_referral():
         db.commit()
     referral_url = f"https://clientmachinery.com?ref={ref_code}"
     return jsonify({"referral_code": ref_code, "referral_url": referral_url}), 200
+
+
+# ─── Reply-Detected Webhook (Make.com integration) ──────────────────────────
+
+@portal_bp.route("/api/webhooks/reply-detected", methods=["POST"])
+def reply_detected_webhook():
+    if not _require_admin():
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json(force=True, silent=True) or {}
+    from_email = (data.get("from_email") or data.get("email") or "").strip().lower()
+    client_id = data.get("client_id")
+    snippet = (data.get("snippet") or data.get("body") or "")[:500]
+    subject = (data.get("subject") or "")[:255]
+
+    if not from_email:
+        return jsonify({"error": "from_email is required"}), 400
+
+    db = get_db()
+    try:
+        if client_id:
+            lead = db.execute(
+                """SELECT lu.id, lu.first_name, lu.last_name, lu.email,
+                          c.id AS cid, c.name, c.email AS client_email, c.business_name,
+                          c.telegram_connected, c.notify_replies, c.telegram_chat_id
+                   FROM lead_uploads lu
+                   JOIN clients c ON lu.client_id = c.id
+                   WHERE lu.client_id = ? AND LOWER(lu.email) = ?
+                     AND lu.status NOT IN ('Replied','INTERESTED','NOT NOW','QUESTION','MEETING READY','Unsubscribed')""",
+                (int(client_id), from_email)
+            ).fetchone()
+        else:
+            lead = db.execute(
+                """SELECT lu.id, lu.first_name, lu.last_name, lu.email,
+                          c.id AS cid, c.name, c.email AS client_email, c.business_name,
+                          c.telegram_connected, c.notify_replies, c.telegram_chat_id
+                   FROM lead_uploads lu
+                   JOIN clients c ON lu.client_id = c.id
+                   WHERE LOWER(lu.email) = ?
+                     AND lu.status NOT IN ('Replied','INTERESTED','NOT NOW','QUESTION','MEETING READY','Unsubscribed')
+                   LIMIT 1""",
+                (from_email,)
+            ).fetchone()
+
+        if not lead:
+            return jsonify({"error": "No matching active lead found"}), 404
+
+        lead_id = lead["id"]
+        cid = lead["cid"]
+        first_name = lead["first_name"] or ""
+        last_name = lead["last_name"] or ""
+
+        db.execute(
+            "UPDATE lead_uploads SET status='Replied' WHERE id = ? AND client_id = ?",
+            (lead_id, cid)
+        )
+        db.execute(
+            "UPDATE scheduled_emails SET status='cancelled' WHERE lead_id = ? AND status = 'scheduled'",
+            (lead_id,)
+        )
+        db.execute(
+            """INSERT INTO lead_replies (client_id, lead_id, from_email, snippet, subject, source)
+               VALUES (?, ?, ?, ?, ?, 'make')""",
+            (cid, lead_id, from_email, snippet, subject)
+        )
+        db.execute(
+            "INSERT INTO notifications (client_id, type, message) VALUES (?, ?, ?)",
+            (cid, "replied", f"{first_name} {last_name} replied to your follow up")
+        )
+        db.execute(
+            "INSERT INTO activity_log (client_id, event_type, description) VALUES (?, ?, ?)",
+            (cid, "reply_detected", f"Reply detected from {first_name} {last_name} via Make.com")
+        )
+        db.commit()
+
+        from telegram_alerts import alert_reply
+        alert_reply(
+            {"business_name": lead["business_name"],
+             "telegram_connected": lead["telegram_connected"],
+             "notify_replies": lead["notify_replies"],
+             "telegram_chat_id": lead["telegram_chat_id"]},
+            first_name, last_name, from_email, snippet
+        )
+
+        api_key = os.environ.get("RESEND_API_KEY")
+        if api_key and lead.get("client_email"):
+            threading.Thread(
+                target=_send_reply_notification_email,
+                args=(lead["client_email"], lead["name"], lead["business_name"],
+                      first_name, last_name, "Replied"),
+                daemon=True,
+            ).start()
+
+        return jsonify({"success": True, "lead_id": lead_id}), 200
+
+    except Exception as e:
+        logger.error(f"[portal] reply-detected webhook error: {e}")
+        return jsonify({"error": "Internal server error"}), 500
+
+
+# ─── Inbox ───────────────────────────────────────────────────────────────────
+
+@portal_bp.route("/api/portal/inbox", methods=["GET"])
+@require_auth
+def get_inbox():
+    client_id = g.client["id"]
+    db = get_db()
+    try:
+        rows = db.execute(
+            """SELECT r.id, r.lead_id, r.from_email, r.snippet, r.subject,
+                      r.source, r.is_read, r.created_at,
+                      l.first_name, l.last_name, l.status AS lead_status
+               FROM lead_replies r
+               LEFT JOIN lead_uploads l ON r.lead_id = l.id
+               WHERE r.client_id = ?
+               ORDER BY r.created_at DESC
+               LIMIT 50""",
+            (client_id,)
+        ).fetchall()
+        return jsonify({"replies": [dict(r) for r in rows]}), 200
+    except Exception as e:
+        logger.error(f"[portal] get_inbox error: {e}")
+        return jsonify({"error": "Failed to load inbox"}), 500
+
+
+@portal_bp.route("/api/portal/inbox/unread-count", methods=["GET"])
+@require_auth
+def inbox_unread_count():
+    client_id = g.client["id"]
+    db = get_db()
+    try:
+        count = db.execute(
+            "SELECT COUNT(*) AS c FROM lead_replies WHERE client_id = ? AND is_read = FALSE",
+            (client_id,)
+        ).fetchone()["c"]
+        return jsonify({"unread_count": count}), 200
+    except Exception as e:
+        logger.error(f"[portal] inbox_unread_count error: {e}")
+        return jsonify({"unread_count": 0}), 200
+
+
+@portal_bp.route("/api/portal/inbox/read", methods=["POST"])
+@require_auth
+def mark_reply_read():
+    client_id = g.client["id"]
+    data = request.get_json() or {}
+    db = get_db()
+    try:
+        if data.get("all"):
+            db.execute(
+                "UPDATE lead_replies SET is_read = TRUE WHERE client_id = ?",
+                (client_id,)
+            )
+        elif data.get("reply_id"):
+            db.execute(
+                "UPDATE lead_replies SET is_read = TRUE WHERE id = ? AND client_id = ?",
+                (int(data["reply_id"]), client_id)
+            )
+        db.commit()
+        return jsonify({"success": True}), 200
+    except Exception as e:
+        logger.error(f"[portal] mark_reply_read error: {e}")
+        return jsonify({"error": "Failed to mark as read"}), 500
+
+
+# ─── Lead Score (Admin) ──────────────────────────────────────────────────────
+
+@portal_bp.route("/api/portal/leads/update-score", methods=["POST"])
+def update_lead_score():
+    if not _require_admin():
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.get_json(force=True, silent=True) or {}
+    lead_id = data.get("lead_id")
+    if not lead_id:
+        return jsonify({"error": "lead_id is required"}), 400
+
+    db = get_db()
+    try:
+        updates = {}
+        if data.get("lead_score") is not None:
+            updates["lead_score"] = int(data["lead_score"])
+        if "pain_point" in data:
+            updates["pain_point"] = (data["pain_point"] or "").strip()
+        if "ai_first_line" in data:
+            updates["ai_first_line"] = (data["ai_first_line"] or "").strip()
+
+        if not updates:
+            return jsonify({"error": "No fields to update"}), 400
+
+        set_clause = ", ".join(f"{k} = ?" for k in updates)
+        values = list(updates.values()) + [int(lead_id)]
+        db.execute(f"UPDATE lead_uploads SET {set_clause} WHERE id = ?", values)
+        db.commit()
+        return jsonify({"success": True}), 200
+    except Exception as e:
+        logger.error(f"[portal] update_lead_score error: {e}")
+        return jsonify({"error": "Failed to update score"}), 500
+
+
+# ─── Admin: Run System Tests ─────────────────────────────────────────────────
+
+@portal_bp.route("/api/admin/run-tests", methods=["GET"])
+def run_system_tests():
+    if not _require_admin():
+        return jsonify({"error": "Unauthorized"}), 401
+    try:
+        from test_system import run_all_tests
+        results = run_all_tests()
+        return jsonify(results), 200
+    except Exception as e:
+        logger.error(f"[portal] run-tests error: {e}")
+        return jsonify({"error": str(e)}), 500
