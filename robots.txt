@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
-Disallow: /api/
-
+Disallow: /portal/dashboard
+Disallow: /portal/admin
+Disallow: /portal/intake
 Sitemap: https://clientmachinery.com/sitemap.xml
