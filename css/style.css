@@ -1349,8 +1349,13 @@ form input::placeholder { color: var(--muted); }
     grid-template-columns: repeat(3, 1fr);
     gap: 24px;
 }
+/* Center the lone 7th card on the third row */
+.features-grid .feature-card:last-child:nth-child(3n+1) {
+    grid-column: 2;
+}
 @media (max-width: 768px) {
     .features-grid { grid-template-columns: 1fr; }
+    .features-grid .feature-card:last-child:nth-child(3n+1) { grid-column: 1; }
 }
 .feature-card {
     background: rgba(255,255,255,0.04);
