@@ -32,7 +32,7 @@
         /* ── Stats Bar ──────────────────────────────────────────── */
         .admin-stats {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 14px;
             margin-bottom: 24px;
         }
@@ -183,17 +183,6 @@
             text-align: center;
             display: inline-block;
         }
-        .badge-leads {
-            background: rgba(16,185,129,0.1);
-            color: #10b981;
-            border: 1px solid rgba(16,185,129,0.22);
-            border-radius: 10px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 1px 7px;
-            display: inline-block;
-        }
-
         /* ── XS Action Buttons ──────────────────────────────────── */
         .btn-xs {
             font-size: 0.6875rem;
@@ -412,7 +401,7 @@
 
         /* ── Responsive ─────────────────────────────────────────── */
         @media (max-width: 1100px) {
-            .admin-stats { grid-template-columns: repeat(3, 1fr); }
+            .admin-stats { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 768px) {
             .admin-main { padding: 20px 16px 48px; }
@@ -483,10 +472,6 @@
             <div class="admin-stat-card">
                 <div class="admin-stat-value" id="stat-icp">—</div>
                 <div class="admin-stat-label">ICP Set</div>
-            </div>
-            <div class="admin-stat-card">
-                <div class="admin-stat-value" id="stat-leads">—</div>
-                <div class="admin-stat-label">Total Leads</div>
             </div>
         </div>
 
@@ -805,7 +790,6 @@
             document.getElementById('stat-active').textContent = d.active_clients  ?? '—';
             document.getElementById('stat-sheet').textContent  = d.sheet_connected ?? '—';
             document.getElementById('stat-icp').textContent    = d.icp_set         ?? '—';
-            document.getElementById('stat-leads').textContent  = d.total_leads     ?? '—';
         } catch(e) {}
     }
 
