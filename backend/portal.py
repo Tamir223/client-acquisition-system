@@ -1881,3 +1881,34 @@ def run_system_tests():
     except Exception as e:
         logger.error(f"[portal] run-tests error: {e}")
         return jsonify({"error": str(e)}), 500
+
+
+# ─── Admin: One-time backfill ─────────────────────────────────────────────────
+
+@portal_bp.route("/api/admin/backfill-dedicated-emails", methods=["GET"])
+def backfill_dedicated_emails():
+    if request.headers.get("X-Admin-Key") != "casadmin2026":
+        return jsonify({"error": "Unauthorized"}), 401
+
+    db = get_db()
+    try:
+        rows = db.execute(
+            "SELECT id FROM clients WHERE dedicated_email IS NULL ORDER BY id"
+        ).fetchall()
+
+        updated = []
+        for row in rows:
+            client_id = row["id"]
+            dedicated = f"client_{client_id}@send.clientmachinery.com"
+            db.execute(
+                "UPDATE clients SET dedicated_email = ? WHERE id = ?",
+                (dedicated, client_id),
+            )
+            updated.append({"client_id": client_id, "dedicated_email": dedicated})
+
+        db.commit()
+        return jsonify({"updated": updated, "count": len(updated)}), 200
+
+    except Exception as e:
+        logger.error(f"[portal] backfill-dedicated-emails error: {e}")
+        return jsonify({"error": str(e)}), 500
