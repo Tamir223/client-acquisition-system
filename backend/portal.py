@@ -1061,12 +1061,18 @@ def delete_lead():
     if not data or not data.get("lead_id"):
         return jsonify({"error": "lead_id is required"}), 400
 
+    lead_id = int(data["lead_id"])
+    print(f"[delete] client_id from token: {client_id}")
+    print(f"[delete] lead_id requested: {lead_id}")
+
     db = get_db()
     lead = db.execute(
         """SELECT id, first_name, last_name, email, lead_score, pain_point, ai_first_line
            FROM lead_uploads WHERE id = ? AND client_id = ?""",
-        (int(data["lead_id"]), client_id)
+        (lead_id, client_id)
     ).fetchone()
+
+    print(f"[delete] lead found: {lead}")
 
     if not lead:
         return jsonify({"error": "Lead not found"}), 404
