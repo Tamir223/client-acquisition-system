@@ -259,6 +259,8 @@ def init_db():
         "ALTER TABLE lead_uploads ADD COLUMN IF NOT EXISTS lead_score INTEGER",
         "ALTER TABLE lead_uploads ADD COLUMN IF NOT EXISTS pain_point TEXT",
         "ALTER TABLE lead_uploads ADD COLUMN IF NOT EXISTS ai_first_line TEXT",
+        "ALTER TABLE lead_uploads ADD COLUMN IF NOT EXISTS business_name TEXT DEFAULT ''",
+        "ALTER TABLE lead_uploads ADD COLUMN IF NOT EXISTS city TEXT DEFAULT ''",
     ]
     for stmt in scoring_cols:
         cur.execute(stmt)

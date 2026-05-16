@@ -132,8 +132,9 @@ PLAN_LIMITS = {"pilot": 500, "pro": 500, "enterprise": None}
 def insert_lead(db, client_id, lead):
     cur = db.execute(
         """INSERT INTO lead_uploads
-           (client_id, first_name, last_name, email, phone, service_requested, lead_source)
-           VALUES (?, ?, ?, ?, ?, ?, ?)
+           (client_id, first_name, last_name, email, phone, service_requested,
+            business_name, city, lead_source)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
            RETURNING id""",
         (
             client_id,
@@ -142,6 +143,8 @@ def insert_lead(db, client_id, lead):
             lead.get("email", "").strip(),
             lead.get("phone", "").strip(),
             lead.get("service_requested", "").strip(),
+            lead.get("business_name", "").strip(),
+            lead.get("city", "").strip(),
             lead.get("lead_source", "Portal"),
         )
     )
