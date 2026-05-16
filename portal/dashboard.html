@@ -953,6 +953,7 @@
             var res = await fetch('/api/portal/me', { headers: authHeaders() });
             if (!res.ok) return;
             meData = await res.json();
+            console.log('google_sheet_id:', meData.google_sheet_id);
 
             var icpInput = document.getElementById('target-icp-input');
             if (meData.target_icp) {
