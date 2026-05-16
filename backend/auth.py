@@ -97,7 +97,7 @@ def me():
         "email": c["email"],
         "niche": c["niche"],
         "target_icp": c.get("target_icp", ""),
-        "google_sheet_id": c.get("google_sheet_id", ""),
+        "google_sheet_id": c.get("google_sheet_id") or None,
         "gmail_connected": bool(c.get("gmail_connected")),
         "gmail_email": c.get("gmail_email"),
         "telegram_connected": bool(c.get("telegram_connected")),

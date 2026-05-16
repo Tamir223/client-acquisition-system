@@ -1895,7 +1895,7 @@ def backfill_sheets():
     db = get_db()
     try:
         rows = db.execute(
-            "SELECT id, name, email FROM clients WHERE google_sheet_id IS NULL ORDER BY id"
+            "SELECT id, name, email FROM clients WHERE google_sheet_id IS NULL OR google_sheet_id = '' ORDER BY id"
         ).fetchall()
 
         updated = []
