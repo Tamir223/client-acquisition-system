@@ -69,6 +69,20 @@ def create_client_sheet(client_name, client_email):
             sendNotificationEmail=False,
         ).execute()
 
+        try:
+            drive_service.permissions().create(
+                fileId=sheet_id,
+                body={
+                    "type": "user",
+                    "role": "writer",
+                    "emailAddress": client_email,
+                },
+                sendNotificationEmail=False,
+            ).execute()
+            logger.info(f"[sheets] Shared sheet {sheet_id} with {client_email}")
+        except Exception as share_err:
+            logger.error(f"[sheets] Failed to share sheet {sheet_id} with {client_email}: {share_err}")
+
         logger.info(f"[sheets] Created sheet for {client_email}: {sheet_id}")
         return sheet_id
     except Exception as e:
