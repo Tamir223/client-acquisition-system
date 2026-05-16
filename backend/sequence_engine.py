@@ -92,24 +92,46 @@ def score_lead(lead_data, client):
         logger.debug("[scoring] CLAUDE_API_KEY not set — skipping AI scoring")
         return None
 
-    prompt = (
-        "Score this lead 1-10 on how likely they need automated lead follow up software.\n\n"
-        f"Business Name: {lead_data.get('service_requested', lead_data.get('business_name', 'Unknown'))}\n"
-        f"Service They Need: {lead_data.get('service_requested', '')}\n"
-        f"City: {lead_data.get('city', '')}\n"
-        f"Client Niche: {client.get('niche', '')}\n"
-        f"Target ICP: {client.get('target_icp', '')}\n\n"
-        "High score (8-10): local or regional business that gets inbound leads and "
-        "likely has a manual follow up process.\n"
-        "Low score (1-3): large enterprise, no inbound leads, or already has "
-        "sophisticated automation.\n\n"
-        "Return ONLY this format:\n"
-        "SCORE: [number]\n"
-        "REASON: [one sentence]\n"
-        "PAIN: [one sentence describing their specific pain point]\n"
-        "FIRSTLINE: [one sentence cold email opener under 25 words, specific to their "
-        "business, does not start with Most/I/We]"
-    )
+    business_name = (lead_data.get("business_name") or "").strip()
+    is_individual = business_name.lower() in ("", "n/a", "na")
+
+    if is_individual:
+        first_name = lead_data.get("first_name", "")
+        last_name = lead_data.get("last_name", "")
+        prompt = (
+            "Lead Type: Individual Consumer\n"
+            f"Name: {first_name} {last_name}\n"
+            f"Service Needed: {lead_data.get('service_requested', '')}\n"
+            f"City: {lead_data.get('city', '')}\n\n"
+            "Score this individual lead 1-10 based on how likely they are to convert "
+            "given their service need and location. Generate a pain point and personalized "
+            "first line addressing them as an individual, not a business owner.\n\n"
+            "Return ONLY this format:\n"
+            "SCORE: [number]\n"
+            "REASON: [one sentence]\n"
+            "PAIN: [one sentence describing their specific pain point as an individual]\n"
+            "FIRSTLINE: [one sentence opener under 25 words, personal and specific to their "
+            "situation, does not start with Most/I/We]"
+        )
+    else:
+        prompt = (
+            "Score this lead 1-10 on how likely they need automated lead follow up software.\n\n"
+            f"Business Name: {business_name}\n"
+            f"Service They Need: {lead_data.get('service_requested', '')}\n"
+            f"City: {lead_data.get('city', '')}\n"
+            f"Client Niche: {client.get('niche', '')}\n"
+            f"Target ICP: {client.get('target_icp', '')}\n\n"
+            "High score (8-10): local or regional business that gets inbound leads and "
+            "likely has a manual follow up process.\n"
+            "Low score (1-3): large enterprise, no inbound leads, or already has "
+            "sophisticated automation.\n\n"
+            "Return ONLY this format:\n"
+            "SCORE: [number]\n"
+            "REASON: [one sentence]\n"
+            "PAIN: [one sentence describing their specific pain point]\n"
+            "FIRSTLINE: [one sentence cold email opener under 25 words, specific to their "
+            "business, does not start with Most/I/We]"
+        )
 
     try:
         resp = _requests.post(
