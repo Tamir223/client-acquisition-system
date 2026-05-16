@@ -107,6 +107,7 @@ def me():
         "notify_weekly": bool(c.get("notify_weekly", True)),
         "plan": c.get("plan", "pro"),
         "leads_this_month": c.get("leads_this_month", 0),
+        "dedicated_email": c.get("dedicated_email"),
     }), 200
 
 

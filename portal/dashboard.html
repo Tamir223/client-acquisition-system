@@ -400,7 +400,7 @@
                     <p style="font-size:0.875rem;color:var(--muted);margin:0 0 16px;">Send follow up emails from your own address so leads hear directly from you.</p>
 
                     <div id="gmail-disconnected-section">
-                        <div class="setup-banner" style="display:block;margin-bottom:16px;">
+                        <div class="setup-banner" id="email-sending-from-banner" style="display:block;margin-bottom:16px;">
                             &#9888; Your emails are currently sending from support@clientmachinery.com. Connect your Gmail to send from your own address.
                         </div>
                         <button class="btn btn-primary" id="connect-gmail-btn" style="width:auto;padding:12px 28px;">Connect Gmail</button>
@@ -430,7 +430,7 @@
                         <div style="counter-reset:telegram-steps;">
                             <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;">
                                 <span style="background:var(--accent);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0;">1</span>
-                                <p style="margin:0;font-size:0.875rem;color:var(--text);">Message <strong>@ClientMachineryBot</strong> on Telegram</p>
+                                <p style="margin:0;font-size:0.875rem;color:var(--text);">Message <strong>@CASAlertsBot</strong> on Telegram</p>
                             </div>
                             <div style="display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;">
                                 <span style="background:var(--accent);color:#fff;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0;">2</span>
@@ -992,6 +992,11 @@
         } else {
             document.getElementById('gmail-disconnected-section').style.display = 'block';
             document.getElementById('gmail-connected-section').style.display = 'none';
+            var banner = document.getElementById('email-sending-from-banner');
+            if (banner) {
+                var sendingFrom = meData.dedicated_email || 'support@clientmachinery.com';
+                banner.innerHTML = '&#9888; Your emails are currently sending from <strong>' + sendingFrom + '</strong>. Connect your Gmail to send from your own address.';
+            }
         }
 
         // Telegram
@@ -2158,7 +2163,8 @@
 
     // Gmail disconnect
     document.getElementById('disconnect-gmail-btn').addEventListener('click', async function() {
-        if (!await showConfirm('Disconnect Gmail? Emails will send from support@clientmachinery.com instead.', 'Disconnect', 'Cancel')) return;
+        var fallbackAddr = (meData && meData.dedicated_email) ? meData.dedicated_email : 'support@clientmachinery.com';
+        if (!await showConfirm('Disconnect Gmail? Emails will send from ' + fallbackAddr + ' instead.', 'Disconnect', 'Cancel')) return;
         var res = await fetch('/api/portal/auth/gmail/disconnect', { method: 'DELETE', headers: authHeaders() });
         if (res.ok) {
             meData.gmail_connected = false;
