@@ -993,9 +993,13 @@
             document.getElementById('gmail-disconnected-section').style.display = 'block';
             document.getElementById('gmail-connected-section').style.display = 'none';
             var banner = document.getElementById('email-sending-from-banner');
-            if (banner) {
-                var sendingFrom = meData.dedicated_email || 'support@clientmachinery.com';
-                banner.innerHTML = '&#9888; Your emails are currently sending from <strong>' + sendingFrom + '</strong>. Connect your Gmail to send from your own address.';
+            if (meData.dedicated_email) {
+              document.getElementById('dedicated-email-display').textContent = meData.dedicated_email;
+              banner.style.display = 'block';
+            } else if (!meData.gmail_connected) {
+              banner.style.display = 'block';
+            } else {
+              banner.style.display = 'none';
             }
         }
 
@@ -2163,7 +2167,7 @@
 
     // Gmail disconnect
     document.getElementById('disconnect-gmail-btn').addEventListener('click', async function() {
-        var fallbackAddr = (meData && meData.dedicated_email) ? meData.dedicated_email : 'support@clientmachinery.com';
+        var fallbackAddr = (meData && meData.dedicated_email) ? meData.dedicated_email : '';
         if (!await showConfirm('Disconnect Gmail? Emails will send from ' + fallbackAddr + ' instead.', 'Disconnect', 'Cancel')) return;
         var res = await fetch('/api/portal/auth/gmail/disconnect', { method: 'DELETE', headers: authHeaders() });
         if (res.ok) {
