@@ -1078,11 +1078,11 @@ def delete_lead():
         return jsonify({"error": "Lead not found"}), 404
 
     db.execute(
-        "UPDATE scheduled_emails SET status = 'cancelled' WHERE lead_id = ? AND status = 'scheduled'",
+        "UPDATE scheduled_emails SET status = 'cancelled' WHERE lead_id = %s",
         (lead["id"],)
     )
     db.execute(
-        "DELETE FROM lead_uploads WHERE id = ? AND client_id = ?",
+        "DELETE FROM lead_uploads WHERE id = %s AND client_id = %s",
         (lead["id"], client_id)
     )
     full_name = f"{lead['first_name'] or ''} {lead['last_name'] or ''}".strip()
