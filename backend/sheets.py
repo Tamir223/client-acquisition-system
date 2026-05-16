@@ -17,7 +17,7 @@ SERVICE_ACCOUNT_EMAIL = "cas-sheets-bot@client-machinery-496012.iam.gserviceacco
 
 SHEET_HEADERS = [
     "Date Added", "First Name", "Last Name", "Business Name", "Industry",
-    "Email", "Phone", "Lead Source", "Lead Score", "Status", "Notes",
+    "Email", "Phone", "Service Requested", "Lead Source", "Lead Score", "Status", "Notes",
     "Follow Up Date", "Booked", "Pain Point", "First Line",
     "Reply Classification", "Website", "Employees", "Keywords", "City", "State",
 ]
@@ -138,6 +138,7 @@ def append_lead_to_sheet(sheet_id, lead_data):
             lead_data.get("target_icp") or lead_data.get("niche", ""),
             lead_data.get("email", ""),
             lead_data.get("phone", ""),
+            lead_data.get("service_requested", ""),
             "Portal",
             empty, empty, empty, empty, empty,
             empty, empty, empty, empty, empty,
@@ -146,7 +147,7 @@ def append_lead_to_sheet(sheet_id, lead_data):
 
         service.spreadsheets().values().append(
             spreadsheetId=sheet_id,
-            range="LEADS!A:U",
+            range="LEADS!A:V",
             valueInputOption="USER_ENTERED",
             insertDataOption="INSERT_ROWS",
             body={"values": [row]},
@@ -183,12 +184,12 @@ def update_lead_in_sheet(sheet_id, lead_email, score, status, pain_point, first_
             logger.warning(f"[sheets] Email {lead_email} not found in sheet {sheet_id}")
             return None
 
-        # Columns: I=score(9), J=status(10), N=pain_point(14), O=first_line(15)
+        # Columns: J=score(10), K=status(11), O=pain_point(15), P=first_line(16)
         data = [
-            {"range": f"LEADS!I{row_index}", "values": [[score]]},
-            {"range": f"LEADS!J{row_index}", "values": [[status]]},
-            {"range": f"LEADS!N{row_index}", "values": [[pain_point]]},
-            {"range": f"LEADS!O{row_index}", "values": [[first_line]]},
+            {"range": f"LEADS!J{row_index}", "values": [[score]]},
+            {"range": f"LEADS!K{row_index}", "values": [[status]]},
+            {"range": f"LEADS!O{row_index}", "values": [[pain_point]]},
+            {"range": f"LEADS!P{row_index}", "values": [[first_line]]},
         ]
 
         service.spreadsheets().values().batchUpdate(
