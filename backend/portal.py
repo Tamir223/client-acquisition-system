@@ -1883,7 +1883,47 @@ def run_system_tests():
         return jsonify({"error": str(e)}), 500
 
 
-# ─── Admin: One-time backfill ─────────────────────────────────────────────────
+# ─── Admin: One-time backfills ───────────────────────────────────────────────
+
+@portal_bp.route("/api/admin/backfill-sheets", methods=["GET"])
+def backfill_sheets():
+    if request.headers.get("X-Admin-Key") != "casadmin2026":
+        return jsonify({"error": "Unauthorized"}), 401
+
+    from sheets import create_client_sheet
+
+    db = get_db()
+    try:
+        rows = db.execute(
+            "SELECT id, name, email FROM clients WHERE google_sheet_id IS NULL ORDER BY id"
+        ).fetchall()
+
+        updated = []
+        for row in rows:
+            client_id = row["id"]
+            try:
+                sheet_id = create_client_sheet(row["name"], row["email"])
+                if not sheet_id:
+                    continue
+                db.execute(
+                    "UPDATE clients SET google_sheet_id = ? WHERE id = ?",
+                    (sheet_id, client_id),
+                )
+                db.commit()
+                updated.append({
+                    "client_id": client_id,
+                    "sheet_id": sheet_id,
+                    "sheet_url": f"https://docs.google.com/spreadsheets/d/{sheet_id}",
+                })
+            except Exception as e:
+                logger.error(f"[backfill-sheets] client {client_id} failed: {e}")
+
+        return jsonify({"count": len(updated), "updated": updated}), 200
+
+    except Exception as e:
+        logger.error(f"[portal] backfill-sheets error: {e}")
+        return jsonify({"error": str(e)}), 500
+
 
 @portal_bp.route("/api/admin/backfill-dedicated-emails", methods=["GET"])
 def backfill_dedicated_emails():
