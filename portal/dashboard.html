@@ -256,7 +256,7 @@
                     <h2 class="panel-title">My Leads</h2>
                     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
                         <input type="search" id="leads-search" class="leads-search" placeholder="Search name or email&hellip;">
-                        <a id="view-sheet-btn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="display:none;width:auto;padding:8px 16px;font-size:0.8125rem;white-space:nowrap;text-decoration:none;">&#8599; View in Google Sheets</a>
+                        <a id="view-sheet-btn" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" title="Sheet not yet created" style="width:auto;padding:8px 16px;font-size:0.8125rem;white-space:nowrap;text-decoration:none;opacity:0.45;pointer-events:none;cursor:not-allowed;">&#8599; View in Google Sheets</a>
                         <button class="btn btn-secondary" id="export-csv-btn" style="width:auto;padding:8px 16px;font-size:0.8125rem;white-space:nowrap;">Export CSV</button>
                     </div>
                 </div>
@@ -972,7 +972,16 @@
             var viewSheetBtn = document.getElementById('view-sheet-btn');
             if (sheetId && sheetId !== 'placeholder') {
                 viewSheetBtn.href = 'https://docs.google.com/spreadsheets/d/' + sheetId;
-                viewSheetBtn.style.display = '';
+                viewSheetBtn.style.opacity = '';
+                viewSheetBtn.style.pointerEvents = '';
+                viewSheetBtn.style.cursor = '';
+                viewSheetBtn.removeAttribute('title');
+            } else {
+                viewSheetBtn.href = '#';
+                viewSheetBtn.title = 'Sheet not yet created';
+                viewSheetBtn.style.opacity = '0.45';
+                viewSheetBtn.style.pointerEvents = 'none';
+                viewSheetBtn.style.cursor = 'not-allowed';
             }
             var banner  = document.getElementById('setup-banner');
             banner.style.display = 'flex';
