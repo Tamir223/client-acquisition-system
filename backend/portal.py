@@ -1925,6 +1925,18 @@ def backfill_sheets():
         return jsonify({"error": str(e)}), 500
 
 
+@portal_bp.route("/api/admin/client-debug", methods=["GET"])
+def client_debug():
+    if request.headers.get("X-Admin-Key") != "casadmin2026":
+        return jsonify({"error": "Unauthorized"}), 401
+
+    db = get_db()
+    rows = db.execute(
+        "SELECT id, name, email, google_sheet_id, dedicated_email FROM clients ORDER BY id"
+    ).fetchall()
+    return jsonify({"clients": [dict(r) for r in rows]}), 200
+
+
 @portal_bp.route("/api/admin/backfill-dedicated-emails", methods=["GET"])
 def backfill_dedicated_emails():
     if request.headers.get("X-Admin-Key") != "casadmin2026":
