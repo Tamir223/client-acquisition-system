@@ -185,7 +185,7 @@
             <h1>Your Next 5 Clients Already Reached Out. They Just Never Heard Back.</h1>
             <p class="subheadline">Client Machinery installs a done-for-you automated follow up system for any business that gets inbound leads. Your portal activates the moment you sign up. Replies come back to your portal inbox automatically — no inbox juggling required.</p>
             <div class="hero-cta">
-                <a href="https://calendly.com/donald-clientmachinery/30min" class="btn-primary" target="_blank" rel="noopener">Book Your Free Lead Recovery Audit</a>
+                <a href="https://calendly.com/donald-clientmachinery/30min" class="btn-primary" target="_blank" rel="noopener">Book Your Free 15 Min Demo</a>
             </div>
             <div class="trust-bar">
                 <span>⚡ Portal live instantly</span>
@@ -209,6 +209,105 @@
                 </div>
             </div>
         </div>
+    </section>
+
+    <!-- ROI Calculator -->
+    <section class="calc-section">
+      <div class="calc-section-label">Lead Recovery Calculator</div>
+      <h2>See exactly how much you're <span>leaving on the table</span></h2>
+      <p class="calc-subtitle">Adjust the sliders to match your business. We'll show you what automated follow up is worth — before you spend a dollar.</p>
+
+      <div class="calc-card">
+        <div class="calc-grid">
+          <div class="input-panel">
+            <div class="panel-label">Your Numbers</div>
+            <div class="calc-field">
+              <label>Monthly inbound leads</label>
+              <input type="range" id="calc-leads" min="5" max="200" value="30" step="5">
+              <div class="range-display">
+                <span class="range-value"><span id="calc-leads-val">30</span> leads/mo</span>
+                <span class="range-minmax">5 — 200</span>
+              </div>
+            </div>
+            <div class="calc-field">
+              <label>Average job or transaction value</label>
+              <input type="range" id="calc-value" min="500" max="25000" value="3000" step="500">
+              <div class="range-display">
+                <span class="range-value">$<span id="calc-value-val">3,000</span></span>
+                <span class="range-minmax">$500 — $25k</span>
+              </div>
+            </div>
+            <div class="calc-field">
+              <label>Leads that go cold without follow up</label>
+              <input type="range" id="calc-fallthrough" min="10" max="80" value="40" step="5">
+              <div class="range-display">
+                <span class="range-value"><span id="calc-fallthrough-val">40</span>% fall through</span>
+                <span class="range-minmax">10% — 80%</span>
+              </div>
+            </div>
+            <div class="calc-field">
+              <label>Of those, automated follow up recovers</label>
+              <input type="range" id="calc-recovery" min="10" max="50" value="25" step="5">
+              <div class="range-display">
+                <span class="range-value"><span id="calc-recovery-val">25</span>% recovered</span>
+                <span class="range-minmax">10% — 50%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="output-panel">
+            <div>
+              <div class="panel-label">Your Results</div>
+              <div class="loss-block">
+                <div class="result-label loss-label">Revenue lost per month</div>
+                <div class="loss-amount" id="calc-loss">$36,000</div>
+                <div class="result-sub" id="calc-loss-sub">12 leads × $3,000 going cold</div>
+              </div>
+              <div class="recovery-block">
+                <div class="result-label recovery-label">Recoverable with Client Machinery</div>
+                <div class="recovery-amount" id="calc-recovery-amt">$9,000</div>
+                <div class="result-sub" id="calc-recovery-sub">3 leads recovered × $3,000</div>
+              </div>
+              <div class="roi-line">
+                <span class="roi-line-label">Monthly ROI at $997/mo</span>
+                <span class="roi-line-value" id="calc-roi">9x return</span>
+              </div>
+              <p class="breakeven-text">
+                Recovering just <strong id="calc-be-leads">1 lead</strong> per month covers the entire cost.
+                You need <strong>$997</strong> in recovered revenue to break even —
+                that's <strong id="calc-be-pct">11%</strong> of what you're losing.
+              </p>
+            </div>
+            <div>
+              <a href="https://calendly.com/donald-clientmachinery/30min"
+                 target="_blank" rel="noopener" class="calc-cta-btn">
+                See It Live — Book a 15 Min Demo →
+              </a>
+              <p class="calc-cta-note">No pitch. We show you the portal live on the call.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="calc-bottom">
+          <div class="calc-bottom-stat">
+            <div class="calc-bottom-dot"></div>
+            Portal activates instantly on payment
+          </div>
+          <div class="calc-bottom-stat">
+            <div class="calc-bottom-dot"></div>
+            First email sends within 15 minutes
+          </div>
+          <div class="calc-bottom-stat">
+            <div class="calc-bottom-dot"></div>
+            Month to month — no contracts
+          </div>
+          <div class="calc-bottom-stat">
+            <div class="calc-bottom-dot"></div>
+            Cancel anytime
+          </div>
+        </div>
+      </div>
+      <p class="calc-assumptions">Conservative estimate: industry average shows 35–60% of inbound leads go cold without follow up.</p>
     </section>
 
     <!-- Industry Marquee -->
@@ -562,26 +661,6 @@ Your portal is live the moment you sign up.</p>
         </div>
     </section>
 
-    <!-- Lead Capture Form -->
-    <section class="contact">
-        <div class="container">
-            <h2>Not Ready to Book a Call?</h2>
-            <p class="section-sub">Leave your info and we'll send a free lead flow analysis within 24 hours.</p>
-            <div class="form-wrapper">
-                <form id="lead-form">
-                    <input type="text" name="first_name" placeholder="First Name" required>
-                    <input type="text" name="last_name" placeholder="Last Name" required>
-                    <input type="email" name="email" placeholder="Business Email" required>
-                    <input type="text" name="company" placeholder="Business Name" required>
-                    <input type="tel" name="phone" placeholder="Phone Number">
-                    <input type="text" name="niche" placeholder="Your Industry (e.g. HVAC, Plumbing, Roofing, Trucking)">
-                    <button type="submit" class="btn-primary">Send My Free Analysis</button>
-                </form>
-                <div id="form-message" class="form-message"></div>
-            </div>
-        </div>
-    </section>
-
     <!-- Industry-Specific SEO Content -->
     <section class="industries-seo" style="display:none" aria-hidden="true">
         <h2>Automated Lead Follow Up for HVAC Companies</h2>
@@ -631,6 +710,61 @@ Your portal is live the moment you sign up.</p>
     </footer>
 
     <script src="js/main.js"></script>
+    <script>
+(function() {
+  var leads = document.getElementById('calc-leads');
+  var val = document.getElementById('calc-value');
+  var fall = document.getElementById('calc-fallthrough');
+  var rec = document.getElementById('calc-recovery');
+
+  function fmt(n) {
+    if (n >= 1000000) return '$' + (n/1000000).toFixed(1) + 'M';
+    if (n >= 1000) return '$' + (n/1000).toFixed(0) + 'k';
+    return '$' + n.toLocaleString();
+  }
+
+  function updateSlider(s, min, max) {
+    var pct = ((s.value - min) / (max - min)) * 100;
+    s.style.background =
+      'linear-gradient(to right, #3b82f6 ' + pct + '%, #131820 ' + pct + '%)';
+  }
+
+  function calc() {
+    var l = parseInt(leads.value);
+    var v = parseInt(val.value);
+    var f = parseInt(fall.value) / 100;
+    var r = parseInt(rec.value) / 100;
+
+    var cold = Math.round(l * f);
+    var recovered = Math.round(cold * r);
+    var loss = cold * v;
+    var recovery = recovered * v;
+    var roi = recovery > 0 ? Math.round(recovery / 997) : 0;
+    var beLeads = Math.ceil(997 / v);
+    var bePct = Math.min(Math.round((997 / loss) * 100), 99);
+
+    document.getElementById('calc-leads-val').textContent = l.toLocaleString();
+    document.getElementById('calc-value-val').textContent = v.toLocaleString();
+    document.getElementById('calc-fallthrough-val').textContent = parseInt(fall.value);
+    document.getElementById('calc-recovery-val').textContent = parseInt(rec.value);
+    document.getElementById('calc-loss').textContent = fmt(loss);
+    document.getElementById('calc-loss-sub').textContent = cold + ' leads × ' + fmt(v) + ' going cold';
+    document.getElementById('calc-recovery-amt').textContent = fmt(recovery);
+    document.getElementById('calc-recovery-sub').textContent = recovered + ' leads recovered × ' + fmt(v);
+    document.getElementById('calc-roi').textContent = roi + 'x return';
+    document.getElementById('calc-be-leads').textContent = beLeads + (beLeads === 1 ? ' lead' : ' leads');
+    document.getElementById('calc-be-pct').textContent = bePct + '%';
+
+    updateSlider(leads, 5, 200);
+    updateSlider(val, 500, 25000);
+    updateSlider(fall, 10, 80);
+    updateSlider(rec, 10, 50);
+  }
+
+  [leads, val, fall, rec].forEach(function(s) { s.addEventListener('input', calc); });
+  calc();
+}());
+    </script>
     <script>
 (function() {
     // Animate counters
