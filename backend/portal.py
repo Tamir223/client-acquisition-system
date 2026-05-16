@@ -17,7 +17,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from database import get_db, seed_sequences, add_notification, DEFAULT_SEQUENCES
 from auth import require_auth
-from sheets import create_client_sheet, append_lead_to_sheet
+from sheets import create_client_sheet, append_lead_to_sheet, update_lead_in_sheet
 
 logger = logging.getLogger(__name__)
 
@@ -1060,14 +1060,44 @@ def delete_lead():
     data = request.get_json()
     if not data or not data.get("lead_id"):
         return jsonify({"error": "lead_id is required"}), 400
+
     db = get_db()
-    result = db.execute(
-        "DELETE FROM lead_uploads WHERE id = ? AND client_id = ?",
+    lead = db.execute(
+        """SELECT id, first_name, last_name, email, lead_score, pain_point, ai_first_line
+           FROM lead_uploads WHERE id = ? AND client_id = ?""",
         (int(data["lead_id"]), client_id)
-    )
-    db.commit()
-    if result.rowcount == 0:
+    ).fetchone()
+
+    if not lead:
         return jsonify({"error": "Lead not found"}), 404
+
+    db.execute(
+        "UPDATE scheduled_emails SET status = 'cancelled' WHERE lead_id = ? AND status = 'scheduled'",
+        (lead["id"],)
+    )
+    db.execute(
+        "DELETE FROM lead_uploads WHERE id = ? AND client_id = ?",
+        (lead["id"], client_id)
+    )
+    full_name = f"{lead['first_name'] or ''} {lead['last_name'] or ''}".strip()
+    log_activity(db, client_id, "lead_deleted", f"Deleted lead: {full_name}")
+    db.commit()
+
+    sheet_id = g.client.get("google_sheet_id") or ""
+    lead_email = lead["email"] or ""
+    if sheet_id and sheet_id != "placeholder" and lead_email:
+        try:
+            update_lead_in_sheet(
+                sheet_id,
+                lead_email,
+                lead["lead_score"] or "",
+                "Deleted",
+                lead["pain_point"] or "",
+                lead["ai_first_line"] or "",
+            )
+        except Exception as e:
+            logger.error(f"[portal] Failed to update sheet on lead delete: {e}")
+
     return jsonify({"success": True}), 200
 
 
