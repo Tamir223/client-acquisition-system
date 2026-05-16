@@ -330,7 +330,8 @@ class SequenceEngine:
                           c.email AS client_email, c.name AS client_name, c.business_name,
                           c.gmail_connected, c.gmail_email,
                           c.gmail_access_token, c.gmail_refresh_token,
-                          c.telegram_connected, c.telegram_chat_id, c.notify_replies
+                          c.telegram_connected, c.telegram_chat_id, c.notify_replies,
+                          c.dedicated_email
                    FROM scheduled_emails se
                    JOIN lead_uploads l ON se.lead_id = l.id
                    JOIN clients c ON se.client_id = c.id
@@ -384,10 +385,25 @@ class SequenceEngine:
                     except Exception as e:
                         logger.warning(f"[sequence] Gmail failed ({em['id']}): {e} — trying Resend")
 
+                if not sent and em.get("dedicated_email"):
+                    try:
+                        from ses_client import send_email as _ses_send
+                        from_display = f"{em['business_name']} <{em['dedicated_email']}>"
+                        _ses_send(
+                            from_addr=from_display,
+                            to_addr=em["lead_email"],
+                            subject=em["subject"],
+                            body=body,
+                            reply_to=em["dedicated_email"],
+                        )
+                        sent = True
+                    except Exception as e:
+                        logger.warning(f"[sequence] SES failed ({em['id']}): {e} — trying Resend")
+
                 if not sent and resend_api_key:
                     try:
                         footer = ""
-                        if not em["gmail_connected"]:
+                        if not em["gmail_connected"] and not em.get("dedicated_email"):
                             footer = "\n\n[Sent via Client Machinery — connect your Gmail in portal settings to send from your own address]"
                         resend.Emails.send({
                             "from": "Client Machinery <support@clientmachinery.com>",
@@ -427,7 +443,7 @@ class SequenceEngine:
                         (em["client_id"], lead_id, em["id"], "sent"),
                     )
 
-                    from_addr = em.get("gmail_email") or "support@clientmachinery.com"
+                    from_addr = em.get("gmail_email") or em.get("dedicated_email") or "support@clientmachinery.com"
                     alert_email_sent(
                         {
                             "business_name": em["business_name"],

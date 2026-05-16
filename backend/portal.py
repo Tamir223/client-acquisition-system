@@ -1,6 +1,7 @@
 # Portal routes
 import csv
 import io
+import json
 import logging
 import os
 import secrets
@@ -1620,6 +1621,251 @@ def update_lead_score():
     except Exception as e:
         logger.error(f"[portal] update_lead_score error: {e}")
         return jsonify({"error": "Failed to update score"}), 500
+
+
+# ─── SES Webhooks ────────────────────────────────────────────────────────────
+# All three routes handle SNS SubscriptionConfirmation as well as Notification.
+# No admin key required — these are called directly by AWS SNS.
+
+def _sns_confirm(payload):
+    """Auto-confirm an SNS subscription by fetching the SubscribeURL."""
+    import requests as _http
+    url = payload.get("SubscribeURL", "")
+    if url and "amazonaws.com" in url:
+        try:
+            _http.get(url, timeout=10)
+        except Exception as exc:
+            logger.error(f"[ses] SNS subscription confirm failed: {exc}")
+
+
+@portal_bp.route("/api/webhooks/ses-inbound", methods=["POST"])
+def ses_inbound_webhook():
+    """Receive SES inbound email notifications from SNS and record replies."""
+    from ses_client import parse_sns_notification, extract_inbound_fields
+
+    msg_type = request.headers.get("x-amz-sns-message-type", "")
+    raw = request.get_data()
+
+    try:
+        payload = json.loads(raw)
+    except Exception:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    if msg_type == "SubscriptionConfirmation":
+        _sns_confirm(payload)
+        return jsonify({"confirmed": True}), 200
+
+    if msg_type != "Notification":
+        return jsonify({"ok": True}), 200
+
+    try:
+        ses_msg = parse_sns_notification(raw)
+        if (ses_msg.get("notificationType") or ses_msg.get("eventType", "")) != "Received":
+            return jsonify({"ok": True}), 200
+
+        fields = extract_inbound_fields(ses_msg)
+        from_email = fields["from_email"]
+        to_emails = [e.strip().lower() for e in fields["to_emails"]]
+        subject = fields["subject"]
+        snippet = fields["snippet"]
+
+        db = get_db()
+
+        # Match to_address against clients.dedicated_email
+        client_row = None
+        for to_addr in to_emails:
+            client_row = db.execute(
+                """SELECT id, name, business_name, email AS client_email,
+                          telegram_connected, notify_replies, telegram_chat_id
+                   FROM clients WHERE LOWER(dedicated_email) = ?""",
+                (to_addr,)
+            ).fetchone()
+            if client_row:
+                break
+
+        if not client_row:
+            return jsonify({"ok": True, "note": "No client matched"}), 200
+
+        cid = client_row["id"]
+
+        lead = db.execute(
+            """SELECT id, first_name, last_name
+               FROM lead_uploads
+               WHERE client_id = ? AND LOWER(email) = ?
+                 AND status NOT IN ('Replied','INTERESTED','NOT NOW','QUESTION',
+                                    'MEETING READY','Unsubscribed','Bounced')""",
+            (cid, from_email)
+        ).fetchone()
+
+        if not lead:
+            return jsonify({"ok": True, "note": "No active lead matched"}), 200
+
+        lead_id = lead["id"]
+        first_name = lead["first_name"] or ""
+        last_name = lead["last_name"] or ""
+
+        db.execute("UPDATE lead_uploads SET status='Replied' WHERE id = ?", (lead_id,))
+        db.execute(
+            "UPDATE scheduled_emails SET status='cancelled' WHERE lead_id = ? AND status = 'scheduled'",
+            (lead_id,)
+        )
+        db.execute(
+            """INSERT INTO lead_replies (client_id, lead_id, from_email, snippet, subject, source)
+               VALUES (?, ?, ?, ?, ?, 'ses')""",
+            (cid, lead_id, from_email, snippet[:500], subject[:255])
+        )
+        db.execute(
+            "INSERT INTO notifications (client_id, type, message) VALUES (?, ?, ?)",
+            (cid, "replied", f"{first_name} {last_name} replied to your follow up")
+        )
+        db.execute(
+            "INSERT INTO activity_log (client_id, event_type, description) VALUES (?, ?, ?)",
+            (cid, "reply_detected", f"Reply from {first_name} {last_name} via SES inbox")
+        )
+        db.commit()
+
+        from telegram_alerts import alert_reply
+        alert_reply(
+            {"business_name": client_row["business_name"],
+             "telegram_connected": client_row["telegram_connected"],
+             "notify_replies": client_row["notify_replies"],
+             "telegram_chat_id": client_row["telegram_chat_id"]},
+            first_name, last_name, from_email, snippet
+        )
+
+        api_key = os.environ.get("RESEND_API_KEY")
+        if api_key and client_row.get("client_email"):
+            threading.Thread(
+                target=_send_reply_notification_email,
+                args=(client_row["client_email"], client_row["name"],
+                      client_row["business_name"], first_name, last_name, "Replied"),
+                daemon=True,
+            ).start()
+
+        return jsonify({"success": True, "lead_id": lead_id}), 200
+
+    except Exception as e:
+        logger.error(f"[ses-inbound] webhook error: {e}")
+        return jsonify({"error": "Internal error"}), 500
+
+
+@portal_bp.route("/api/webhooks/ses-bounce", methods=["POST"])
+def ses_bounce_webhook():
+    """Receive SES bounce notifications from SNS. Suppress permanent bounces."""
+    from ses_client import parse_sns_notification, extract_bounce_fields
+
+    msg_type = request.headers.get("x-amz-sns-message-type", "")
+    raw = request.get_data()
+
+    try:
+        payload = json.loads(raw)
+    except Exception:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    if msg_type == "SubscriptionConfirmation":
+        _sns_confirm(payload)
+        return jsonify({"confirmed": True}), 200
+
+    if msg_type != "Notification":
+        return jsonify({"ok": True}), 200
+
+    try:
+        ses_msg = parse_sns_notification(raw)
+        fields = extract_bounce_fields(ses_msg)
+
+        if fields["bounce_type"] != "Permanent":
+            return jsonify({"ok": True, "note": "Transient bounce — no action"}), 200
+
+        db = get_db()
+        for email in fields["bounced_emails"]:
+            email = (email or "").lower().strip()
+            if not email:
+                continue
+            lead = db.execute(
+                "SELECT id, client_id FROM lead_uploads WHERE LOWER(email) = ? LIMIT 1",
+                (email,)
+            ).fetchone()
+            if not lead:
+                continue
+            lead_id, client_id = lead["id"], lead["client_id"]
+            db.execute("UPDATE lead_uploads SET status='Bounced' WHERE id = ?", (lead_id,))
+            db.execute(
+                "UPDATE scheduled_emails SET status='cancelled' WHERE lead_id = ? AND status = 'scheduled'",
+                (lead_id,)
+            )
+            db.execute(
+                "INSERT INTO suppression_list (client_id, email, reason) VALUES (?, ?, 'bounced')",
+                (client_id, email)
+            )
+            db.execute(
+                "INSERT INTO activity_log (client_id, event_type, description) VALUES (?, ?, ?)",
+                (client_id, "email_bounced",
+                 f"Permanent bounce for {email} — suppressed")
+            )
+        db.commit()
+        return jsonify({"success": True}), 200
+
+    except Exception as e:
+        logger.error(f"[ses-bounce] webhook error: {e}")
+        return jsonify({"error": "Internal error"}), 500
+
+
+@portal_bp.route("/api/webhooks/ses-complaint", methods=["POST"])
+def ses_complaint_webhook():
+    """Receive SES spam complaint notifications from SNS. Unsubscribe the lead."""
+    from ses_client import parse_sns_notification, extract_complaint_fields
+
+    msg_type = request.headers.get("x-amz-sns-message-type", "")
+    raw = request.get_data()
+
+    try:
+        payload = json.loads(raw)
+    except Exception:
+        return jsonify({"error": "Invalid JSON"}), 400
+
+    if msg_type == "SubscriptionConfirmation":
+        _sns_confirm(payload)
+        return jsonify({"confirmed": True}), 200
+
+    if msg_type != "Notification":
+        return jsonify({"ok": True}), 200
+
+    try:
+        ses_msg = parse_sns_notification(raw)
+        fields = extract_complaint_fields(ses_msg)
+
+        db = get_db()
+        for email in fields["complained_emails"]:
+            email = (email or "").lower().strip()
+            if not email:
+                continue
+            lead = db.execute(
+                "SELECT id, client_id FROM lead_uploads WHERE LOWER(email) = ? LIMIT 1",
+                (email,)
+            ).fetchone()
+            if not lead:
+                continue
+            lead_id, client_id = lead["id"], lead["client_id"]
+            db.execute("UPDATE lead_uploads SET status='Unsubscribed' WHERE id = ?", (lead_id,))
+            db.execute(
+                "UPDATE scheduled_emails SET status='cancelled' WHERE lead_id = ? AND status = 'scheduled'",
+                (lead_id,)
+            )
+            db.execute(
+                "INSERT INTO suppression_list (client_id, email, reason) VALUES (?, ?, 'complaint')",
+                (client_id, email)
+            )
+            db.execute(
+                "INSERT INTO activity_log (client_id, event_type, description) VALUES (?, ?, ?)",
+                (client_id, "unsubscribed",
+                 f"Spam complaint from {email} — unsubscribed and suppressed")
+            )
+        db.commit()
+        return jsonify({"success": True}), 200
+
+    except Exception as e:
+        logger.error(f"[ses-complaint] webhook error: {e}")
+        return jsonify({"error": "Internal error"}), 500
 
 
 # ─── Admin: Run System Tests ─────────────────────────────────────────────────

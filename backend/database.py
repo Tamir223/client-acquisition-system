@@ -179,6 +179,7 @@ def init_db():
         "ALTER TABLE clients ADD COLUMN IF NOT EXISTS referral_code TEXT",
         "ALTER TABLE clients ADD COLUMN IF NOT EXISTS referred_by INTEGER",
         "ALTER TABLE clients ADD COLUMN IF NOT EXISTS free_months INTEGER DEFAULT 0",
+        "ALTER TABLE clients ADD COLUMN IF NOT EXISTS dedicated_email TEXT",
     ]
     for stmt in new_client_cols:
         cur.execute(stmt)

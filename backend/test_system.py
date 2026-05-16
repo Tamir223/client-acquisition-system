@@ -57,7 +57,7 @@ def test_clients_columns():
     required = [
         "gmail_access_token", "gmail_connected", "telegram_chat_id",
         "telegram_connected", "notify_replies", "plan", "leads_this_month",
-        "referral_code", "lead_score",
+        "referral_code", "lead_score", "dedicated_email",
     ]
     conn = _conn()
     cur = conn.cursor()
@@ -150,6 +150,9 @@ def test_portal_import():
         '/api/portal/notifications',
         '/api/webhooks/reply-detected',
         '/api/portal/leads/update-score',
+        '/api/webhooks/ses-inbound',
+        '/api/webhooks/ses-bounce',
+        '/api/webhooks/ses-complaint',
     ]
     for route in required_routes:
         assert any(route in r for r in rules), f"Missing route: {route}"
@@ -222,6 +225,24 @@ def test_indexes_exist():
     assert not missing, f"Missing indexes: {missing}"
 
 
+# ── SES ───────────────────────────────────────────────────────────────────────
+
+def test_ses_config():
+    """AWS credentials and SES sending domain must be set, and provision_dedicated_email must work."""
+    key_id = os.getenv("AWS_ACCESS_KEY_ID")
+    secret = os.getenv("AWS_SECRET_ACCESS_KEY")
+    assert key_id, "AWS_ACCESS_KEY_ID not set"
+    assert secret, "AWS_SECRET_ACCESS_KEY not set"
+    from ses_client import provision_dedicated_email
+    domain = os.getenv("SES_SENDING_DOMAIN", "outreach.clientmachinery.com")
+    email = provision_dedicated_email("Test Business")
+    assert "@" in email, "provision_dedicated_email did not return a valid address"
+    assert email.endswith(f"@{domain}"), f"Unexpected domain in dedicated email: {email}"
+    # Confirm two calls produce distinct addresses
+    email2 = provision_dedicated_email("Test Business")
+    assert email != email2, "provision_dedicated_email should produce unique addresses"
+
+
 # ── Inbox ─────────────────────────────────────────────────────────────────────
 
 def test_lead_replies_table():
@@ -258,6 +279,7 @@ ALL_TESTS = [
     ("Scheduler import", test_scheduler_import),
     ("Stripe env", test_stripe_env),
     ("DB indexes", test_indexes_exist),
+    ("SES config", test_ses_config),
     ("lead_replies table", test_lead_replies_table),
 ]
 

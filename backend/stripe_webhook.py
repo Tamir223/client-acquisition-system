@@ -318,13 +318,14 @@ Questions? Reply to this email or contact support@clientmachinery.com.
 
 
 def _setup_new_client(client_id, customer_name, customer_email, temp_password):
-    """Background thread: create sheet + folder, update DB, send both emails."""
+    """Background thread: create sheet + folder, provision SES address, update DB, send emails."""
+    db_url = os.getenv("DATABASE_URL")
+
     sheet_id = create_client_sheet(customer_name, customer_email)
     create_client_drive_folder(customer_name)
 
     if sheet_id:
         try:
-            db_url = os.getenv("DATABASE_URL")
             conn = psycopg2.connect(db_url)
             cur = conn.cursor()
             cur.execute(
@@ -337,6 +338,22 @@ def _setup_new_client(client_id, customer_name, customer_email, temp_password):
             print(f"[sheets] Created sheet for {customer_email}: {sheet_id}")
         except Exception as e:
             print(f"[stripe_webhook] Failed to update sheet_id in DB: {e}")
+
+    try:
+        from ses_client import provision_dedicated_email
+        dedicated = provision_dedicated_email(customer_name)
+        conn = psycopg2.connect(db_url)
+        cur = conn.cursor()
+        cur.execute(
+            "UPDATE clients SET dedicated_email = %s WHERE id = %s",
+            (dedicated, client_id),
+        )
+        conn.commit()
+        cur.close()
+        conn.close()
+        print(f"[ses] Provisioned dedicated email for {customer_email}: {dedicated}")
+    except Exception as e:
+        print(f"[stripe_webhook] Failed to provision dedicated email: {e}")
 
     _send_welcome_email(customer_email, customer_name, temp_password)
 
