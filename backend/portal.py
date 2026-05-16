@@ -1081,6 +1081,8 @@ def delete_lead():
         "UPDATE scheduled_emails SET status = 'cancelled' WHERE lead_id = %s",
         (lead["id"],)
     )
+    db.commit()
+
     db.execute(
         "DELETE FROM lead_uploads WHERE id = %s AND client_id = %s",
         (lead["id"], client_id)
