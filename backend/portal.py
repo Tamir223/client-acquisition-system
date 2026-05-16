@@ -1077,16 +1077,15 @@ def delete_lead():
     if not lead:
         return jsonify({"error": "Lead not found"}), 404
 
-    db.execute(
-        "UPDATE scheduled_emails SET status = 'cancelled' WHERE lead_id = %s",
-        (lead["id"],)
-    )
-    db.commit()
+    conn = db._conn
+    cur = conn.cursor()
+    cur.execute("DELETE FROM email_events WHERE lead_id = %s", (lead["id"],))
+    cur.execute("DELETE FROM scheduled_emails WHERE lead_id = %s", (lead["id"],))
+    cur.execute("DELETE FROM lead_replies WHERE lead_id = %s", (lead["id"],))
+    cur.execute("DELETE FROM lead_uploads WHERE id = %s AND client_id = %s", (lead["id"], client_id))
+    conn.commit()
+    cur.close()
 
-    db.execute(
-        "DELETE FROM lead_uploads WHERE id = %s AND client_id = %s",
-        (lead["id"], client_id)
-    )
     full_name = f"{lead['first_name'] or ''} {lead['last_name'] or ''}".strip()
     log_activity(db, client_id, "lead_deleted", f"Deleted lead: {full_name}")
     db.commit()
