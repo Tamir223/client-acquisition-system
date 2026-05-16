@@ -1068,7 +1068,7 @@ def delete_lead():
     db = get_db()
     lead = db.execute(
         """SELECT id, first_name, last_name, email, lead_score, pain_point, ai_first_line
-           FROM lead_uploads WHERE id = ? AND client_id = ?""",
+        FROM lead_uploads WHERE id = %s AND client_id = %s""",
         (lead_id, client_id)
     ).fetchone()
 
