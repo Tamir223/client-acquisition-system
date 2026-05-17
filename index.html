@@ -215,7 +215,7 @@
     <section class="calc-section">
       <div class="calc-section-label">Lead Recovery Calculator</div>
       <h2>See exactly how much you're <span>leaving on the table</span></h2>
-      <p class="calc-subtitle">Adjust the sliders to match your business. We'll show you what automated follow up is worth — before you spend a dollar.</p>
+      <p class="calc-subtitle">Two inputs. See exactly what you're losing and what we recover — before you spend a dollar.</p>
 
       <div class="calc-card">
         <div class="calc-grid">
@@ -724,7 +724,8 @@ Your portal is live the moment you sign up.</p>
     var recovered = Math.round(cold * 0.25);
     var roi = recovery > 0 ? Math.round(recovery / 997) : 0;
     var beLeads = Math.ceil(997 / v);
-    var bePct = loss > 0 ? Math.min(Math.round((997 / loss) * 100), 99) : 0;
+    var bePct = loss > 0 ? Math.round((997 / loss) * 100) : 0;
+    var bePctDisplay = bePct < 1 ? 'less than 1' : Math.min(bePct, 99);
 
     document.getElementById('calc-leads-val').textContent = l.toLocaleString();
     document.getElementById('calc-loss').textContent = fmt(loss);
@@ -733,7 +734,7 @@ Your portal is live the moment you sign up.</p>
     document.getElementById('calc-recovery-sub').textContent = recovered + ' leads recovered × ' + fmt(v);
     document.getElementById('calc-roi').textContent = roi + 'x return';
     document.getElementById('calc-be-leads').textContent = beLeads + (beLeads === 1 ? ' lead' : ' leads');
-    document.getElementById('calc-be-pct').textContent = bePct + '%';
+    document.getElementById('calc-be-pct').textContent = bePctDisplay + '%';
 
     updateSlider(leads, 5, 200);
   }
