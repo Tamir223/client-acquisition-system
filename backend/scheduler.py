@@ -209,7 +209,11 @@ def _send_telegram(chat_id, text):
         logger.error(f"[scheduler] Telegram send failed: {e}")
 
 
+scheduler = None  # module-level reference; set when start_scheduler() is called
+
+
 def start_scheduler():
+    global scheduler
     try:
         from apscheduler.schedulers.background import BackgroundScheduler
         from apscheduler.triggers.cron import CronTrigger
