@@ -111,6 +111,59 @@ def _send_reply_notification_email(to_email, client_name, client_business,
     except Exception as e:
         logger.error(f"[portal] Reply notification failed for {to_email}: {e}")
 
+def _send_calendly_auto_reply(client, lead_id, lead_email, lead_first, lead_last, original_subject=None):
+    """Send a Calendly booking link auto-reply to a lead via Gmail or SES."""
+    if not lead_email:
+        return
+    calendly_link = (client.get("calendly_link") or "").strip()
+    if not calendly_link:
+        return
+
+    business_name = client.get("business_name", "")
+    subject = f"Re: {original_subject}" if original_subject else "Re: Your inquiry"
+    body = (
+        f"Thanks for getting back to us.\n\n"
+        f"Here is a link to book a time that works for you:\n"
+        f"{calendly_link}\n\n"
+        f"Looking forward to connecting.\n\n"
+        f"{business_name}"
+    )
+
+    sent = False
+    if client.get("gmail_connected") and client.get("gmail_access_token"):
+        try:
+            from gmail_oauth import send_via_gmail
+            send_via_gmail(client, lead_email, subject, body)
+            sent = True
+        except Exception as exc:
+            logger.warning(f"[calendly] Gmail send failed, falling back to SES: {exc}")
+
+    if not sent:
+        from_addr = client.get("dedicated_email") or "support@clientmachinery.com"
+        try:
+            from ses_client import send_email as ses_send
+            ses_send(from_addr, lead_email, subject, body)
+            sent = True
+        except Exception as exc:
+            logger.error(f"[calendly] SES send failed: {exc}")
+
+    if sent:
+        try:
+            db = get_db()
+            lead_name = f"{lead_first} {lead_last}".strip()
+            db.execute(
+                """INSERT INTO lead_replies (client_id, lead_id, from_email, subject, snippet, source)
+                   VALUES (?, ?, ?, ?, ?, 'auto_reply')""",
+                (client["id"], lead_id, from_addr if not client.get("gmail_connected") else client.get("gmail_email", ""),
+                 subject, f"Calendly auto-reply sent to {lead_name}")
+            )
+            log_activity(db, client["id"], "calendly_auto_reply",
+                         f"Calendly link auto-sent to {lead_name} ({lead_email})")
+            db.commit()
+        except Exception as exc:
+            logger.error(f"[calendly] Failed to log auto-reply: {exc}")
+
+
 portal_bp = Blueprint("portal", __name__)
 
 SETUP_BLOCKED_MSG = (
@@ -589,6 +642,27 @@ def settings():
     return jsonify({"success": True}), 200
 
 
+@portal_bp.route("/api/portal/settings/calendly", methods=["PATCH"])
+@require_auth
+def settings_calendly():
+    client_id = g.client["id"]
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Request body required"}), 400
+
+    link = (data.get("calendly_link") or "").strip()
+    if link and not link.startswith("https://calendly.com/"):
+        return jsonify({"error": "Calendly URL must start with https://calendly.com/"}), 400
+
+    db = get_db()
+    db.execute(
+        "UPDATE clients SET calendly_link = ? WHERE id = ?",
+        (link or None, client_id)
+    )
+    db.commit()
+    return jsonify({"success": True}), 200
+
+
 @portal_bp.route("/api/portal/admin/update-sheet", methods=["GET", "PUT"])
 def admin_update_sheet():
     if not _require_admin():
@@ -989,8 +1063,10 @@ def update_lead_status():
     data = request.get_json()
     if not data or not data.get("lead_id") or not data.get("status"):
         return jsonify({"error": "lead_id and status are required"}), 400
-    valid_statuses = {"New", "Contacted", "Replied", "Booked", "Closed", "Not Interested", "Unsubscribed"}
+    valid_statuses = {"New", "Contacted", "Replied", "Booked", "Closed", "Not Interested",
+                      "Unsubscribed", "INTERESTED", "MEETING READY", "QUESTION", "NOT NOW"}
     reply_statuses = {"Replied", "INTERESTED", "MEETING READY", "QUESTION"}
+    calendly_trigger_statuses = {"INTERESTED", "MEETING READY"}
     if data["status"] not in valid_statuses:
         return jsonify({"error": "Invalid status"}), 400
     db = get_db()
@@ -1028,6 +1104,22 @@ def update_lead_status():
             args=(client["email"], client["name"], client["business_name"],
                   lead["first_name"] or "", lead["last_name"] or "",
                   data["status"]),
+            daemon=True,
+        ).start()
+
+    if lead and data["status"] in calendly_trigger_statuses and g.client.get("calendly_link"):
+        last_subject_row = db.execute(
+            """SELECT subject FROM scheduled_emails
+               WHERE lead_id = ? AND status = 'sent'
+               ORDER BY sent_at DESC LIMIT 1""",
+            (int(data["lead_id"]),)
+        ).fetchone()
+        original_subject = last_subject_row["subject"] if last_subject_row else None
+        client_snap = dict(g.client)
+        threading.Thread(
+            target=_send_calendly_auto_reply,
+            args=(client_snap, int(data["lead_id"]), lead["email"] or "",
+                  lead["first_name"] or "", lead["last_name"] or "", original_subject),
             daemon=True,
         ).start()
 

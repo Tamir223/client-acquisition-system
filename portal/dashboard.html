@@ -149,7 +149,7 @@
                 <div class="onboarding-bar" id="onboarding-bar" style="display:none;">
                     <div class="onboarding-header">
                         <span class="onboarding-title" id="onboarding-title">Getting started</span>
-                        <span class="onboarding-steps-label" id="onboarding-steps-label">0 of 4 steps complete</span>
+                        <span class="onboarding-steps-label" id="onboarding-steps-label">0 of 5 steps complete</span>
                     </div>
                     <div class="onboarding-track">
                         <div class="onboarding-fill" id="onboarding-fill" style="width:0%;"></div>
@@ -157,11 +157,11 @@
                     <div class="onboarding-steps">
                         <div class="onboarding-step" id="ob-step-1">
                             <div class="ob-circle ob-done">&#10003;</div>
-                            <div class="ob-label">Account Created</div>
+                            <div class="ob-label">Portal Activated</div>
                         </div>
                         <div class="onboarding-step" id="ob-step-2">
                             <div class="ob-circle" id="ob-circle-2">2</div>
-                            <div class="ob-label">Intake Form</div>
+                            <div class="ob-label">Gmail Connected</div>
                         </div>
                         <div class="onboarding-step" id="ob-step-3">
                             <div class="ob-circle" id="ob-circle-3">3</div>
@@ -169,7 +169,11 @@
                         </div>
                         <div class="onboarding-step" id="ob-step-4">
                             <div class="ob-circle" id="ob-circle-4">4</div>
-                            <div class="ob-label">First Reply</div>
+                            <div class="ob-label">Calendly Added</div>
+                        </div>
+                        <div class="onboarding-step" id="ob-step-5">
+                            <div class="ob-circle" id="ob-circle-5">5</div>
+                            <div class="ob-label">Telegram Connected</div>
                         </div>
                     </div>
                 </div>
@@ -487,6 +491,21 @@
                         </div>
                         <div class="success-msg" id="tg-success" style="margin-top:12px;"></div>
                     </div>
+                </div>
+
+                <!-- Calendly Settings -->
+                <div class="card" style="max-width:560px;" id="calendly-settings-card">
+                    <div class="section-title">Booking Link</div>
+                    <h3 style="font-size:1rem;font-weight:600;color:var(--text);margin:0 0 6px;">Calendly Auto-Send</h3>
+                    <p style="font-size:0.875rem;color:var(--muted);margin:0 0 16px;">When a lead is ready to book we'll automatically send them this link.</p>
+                    <div class="form-group">
+                        <label for="calendly-url-input">Your Calendly URL</label>
+                        <input type="url" id="calendly-url-input" placeholder="https://calendly.com/yourname/15min">
+                        <div class="form-hint">Must start with https://calendly.com/</div>
+                    </div>
+                    <button class="btn btn-primary" id="save-calendly-btn" style="width:auto;padding:12px 28px;">Save</button>
+                    <div class="success-msg" id="calendly-success" style="margin-top:12px;"></div>
+                    <div class="error-msg" id="calendly-error" style="margin-top:12px;"></div>
                 </div>
 
                 <!-- Account Info -->
@@ -1038,6 +1057,12 @@
         } else {
             document.getElementById('telegram-disconnected-section').style.display = 'block';
             document.getElementById('telegram-connected-section').style.display = 'none';
+        }
+
+        // Calendly
+        var calendlyInput = document.getElementById('calendly-url-input');
+        if (calendlyInput && meData.calendly_link) {
+            calendlyInput.value = meData.calendly_link;
         }
     }
 
@@ -2013,23 +2038,22 @@
     // ─── Onboarding Progress Bar ──────────────────────────────────────
     function renderOnboarding() {
         if (!dashData || !meData) return;
-        var total   = dashData.total_leads || 0;
-        if (total >= 10) { document.getElementById('onboarding-bar').style.display = 'none'; return; }
 
-        var icpSet  = !!(meData.target_icp && meData.target_icp.trim());
-        var hasLeads = total > 0;
-        var hasReply = (dashData.replied || 0) > 0;
+        var gmailConnected    = !!meData.gmail_connected;
+        var hasLeads          = (dashData.total_leads || 0) > 0;
+        var calendlySet       = !!(meData.calendly_link && meData.calendly_link.trim());
+        var telegramConnected = !!meData.telegram_connected;
 
-        var steps  = [true, icpSet, hasLeads, hasReply];
-        var done   = steps.filter(Boolean).length;
+        var steps = [true, gmailConnected, hasLeads, calendlySet, telegramConnected];
+        var done  = steps.filter(Boolean).length;
 
-        if (done === 4) { document.getElementById('onboarding-bar').style.display = 'none'; return; }
+        if (done === 5) { document.getElementById('onboarding-bar').style.display = 'none'; return; }
 
         document.getElementById('onboarding-bar').style.display = 'block';
-        document.getElementById('onboarding-steps-label').textContent = done + ' of 4 steps complete';
-        document.getElementById('onboarding-fill').style.width = Math.round(done / 4 * 100) + '%';
+        document.getElementById('onboarding-steps-label').textContent = done + ' of 5 steps complete';
+        document.getElementById('onboarding-fill').style.width = Math.round(done / 5 * 100) + '%';
 
-        [2, 3, 4].forEach(function(n, i) {
+        [2, 3, 4, 5].forEach(function(n) {
             var el = document.getElementById('ob-circle-' + n);
             if (!el) return;
             if (steps[n - 1]) {
@@ -2260,6 +2284,39 @@
             meData.telegram_connected = false;
             loadSettingsData();
             showToast('Telegram disconnected');
+        }
+    });
+
+    // ─── Calendly ─────────────────────────────────────────────────────
+    document.getElementById('save-calendly-btn').addEventListener('click', async function() {
+        var btn = this;
+        var link = (document.getElementById('calendly-url-input').value || '').trim();
+        hideMsg('calendly-success'); hideMsg('calendly-error');
+
+        if (link && !link.startsWith('https://calendly.com/')) {
+            showMsg('calendly-error', 'URL must start with https://calendly.com/');
+            return;
+        }
+
+        btn.disabled = true; btn.textContent = 'Saving…';
+        try {
+            var res = await fetch('/api/portal/settings/calendly', {
+                method: 'PATCH',
+                headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+                body: JSON.stringify({ calendly_link: link })
+            });
+            var d = await res.json();
+            if (res.ok) {
+                meData.calendly_link = link;
+                showMsg('calendly-success', link ? 'Calendly link saved.' : 'Calendly link cleared.');
+                renderOnboarding();
+            } else {
+                showMsg('calendly-error', d.error || 'Failed to save.');
+            }
+        } catch(e) {
+            showMsg('calendly-error', 'Network error. Please try again.');
+        } finally {
+            btn.disabled = false; btn.textContent = 'Save';
         }
     });
 

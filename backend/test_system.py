@@ -259,6 +259,49 @@ def test_lead_replies_table():
     assert not missing, f"lead_replies missing columns: {missing}"
 
 
+# ── Calendly feature ─────────────────────────────────────────────────────────
+
+def test_calendly_feature():
+    conn = _conn()
+    cur = conn.cursor()
+    cur.execute(
+        "SELECT column_name FROM information_schema.columns WHERE table_name = 'clients' AND column_name = 'calendly_link'"
+    )
+    assert cur.fetchone(), "calendly_link column missing from clients table"
+    cur.close()
+    conn.close()
+
+    from portal import portal_bp
+    from flask import Flask
+    test_app = Flask(__name__)
+    test_app.register_blueprint(portal_bp)
+    rules = [r.rule for r in test_app.url_map.iter_rules()]
+    assert any("/api/portal/settings/calendly" in r for r in rules), \
+        "Missing route: /api/portal/settings/calendly"
+
+
+# ── Weekly report ─────────────────────────────────────────────────────────────
+
+def test_weekly_report():
+    from weekly_report import send_weekly_report, send_all_weekly_reports
+    assert callable(send_weekly_report), "send_weekly_report is not callable"
+    assert callable(send_all_weekly_reports), "send_all_weekly_reports is not callable"
+
+    from scheduler import start_scheduler
+    from apscheduler.schedulers.background import BackgroundScheduler
+    from weekly_report import send_all_weekly_reports as wr_fn
+    from apscheduler.triggers.cron import CronTrigger
+    sched = BackgroundScheduler(timezone="America/New_York")
+    sched.add_job(
+        func=wr_fn,
+        trigger=CronTrigger(day_of_week="mon", hour=8, minute=0),
+        id="weekly_report",
+    )
+    job = sched.get_job("weekly_report")
+    assert job is not None, "weekly_report job not found in scheduler"
+    sched.shutdown(wait=False)
+
+
 # ── Run all ───────────────────────────────────────────────────────────────────
 
 ALL_TESTS = [
@@ -281,6 +324,8 @@ ALL_TESTS = [
     ("DB indexes", test_indexes_exist),
     ("SES config", test_ses_config),
     ("lead_replies table", test_lead_replies_table),
+    ("Calendly feature", test_calendly_feature),
+    ("Weekly report", test_weekly_report),
 ]
 
 

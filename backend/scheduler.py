@@ -214,6 +214,7 @@ def start_scheduler():
         from apscheduler.schedulers.background import BackgroundScheduler
         from apscheduler.triggers.cron import CronTrigger
         from sequence_engine import SequenceEngine
+        from weekly_report import send_all_weekly_reports
     except ImportError as e:
         logger.warning(f"[scheduler] import failed — {e}")
         return None
@@ -237,9 +238,9 @@ def start_scheduler():
         misfire_grace_time=300,
     )
     scheduler.add_job(
-        func=weekly_summary_job,
+        func=send_all_weekly_reports,
         trigger=CronTrigger(day_of_week="mon", hour=8, minute=0),
-        id="weekly_summary",
+        id="weekly_report",
         replace_existing=True,
         misfire_grace_time=3600,
     )
@@ -260,5 +261,5 @@ def start_scheduler():
     )
 
     scheduler.start()
-    logger.info("[scheduler] Started — email sender every 15m, reply checker every 30m, weekly summary Mon 8am ET")
+    logger.info("[scheduler] Started — email sender every 15m, reply checker every 30m, weekly report Mon 8am ET")
     return scheduler

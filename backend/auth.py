@@ -108,6 +108,7 @@ def me():
         "plan": c.get("plan", "pro"),
         "leads_this_month": c.get("leads_this_month", 0),
         "dedicated_email": c.get("dedicated_email"),
+        "calendly_link": c.get("calendly_link"),
     }), 200
 
 

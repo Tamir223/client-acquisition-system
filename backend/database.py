@@ -254,6 +254,8 @@ def init_db():
         )
     """)
 
+    cur.execute("ALTER TABLE clients ADD COLUMN IF NOT EXISTS calendly_link TEXT")
+
     # Part 4 — lead scoring columns
     scoring_cols = [
         "ALTER TABLE lead_uploads ADD COLUMN IF NOT EXISTS lead_score INTEGER",
