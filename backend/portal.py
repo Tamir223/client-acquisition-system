@@ -15,7 +15,7 @@ import resend
 from flask import Blueprint, request, jsonify, g, redirect
 from werkzeug.security import check_password_hash, generate_password_hash
 
-from database import get_db, seed_sequences, add_notification, DEFAULT_SEQUENCES
+from database import get_db, seed_sequences, add_notification, add_portal_notification, DEFAULT_SEQUENCES
 from auth import require_auth
 from sheets import create_client_sheet, append_lead_to_sheet, update_lead_in_sheet
 
@@ -159,6 +159,11 @@ def _send_calendly_auto_reply(client, lead_id, lead_email, lead_first, lead_last
             )
             log_activity(db, client["id"], "calendly_auto_reply",
                          f"Calendly link auto-sent to {lead_name} ({lead_email})")
+            add_portal_notification(
+                db, client["id"], "calendly_sent",
+                "Booking link sent",
+                f"Booking link sent to {lead_name}"
+            )
             db.commit()
         except Exception as exc:
             logger.error(f"[calendly] Failed to log auto-reply: {exc}")
@@ -1024,13 +1029,13 @@ def get_notifications():
     client_id = g.client["id"]
     db = get_db()
     rows = db.execute(
-        """SELECT id, type, message, is_read, created_at
-           FROM notifications WHERE client_id = ?
-           ORDER BY created_at DESC LIMIT 20""",
+        """SELECT id, type, title, message, read AS is_read, created_at
+           FROM portal_notifications WHERE client_id = ?
+           ORDER BY created_at DESC LIMIT 50""",
         (client_id,)
     ).fetchall()
     unread = db.execute(
-        "SELECT COUNT(*) AS count FROM notifications WHERE client_id = ? AND is_read = FALSE",
+        "SELECT COUNT(*) AS count FROM portal_notifications WHERE client_id = ? AND read = FALSE",
         (client_id,)
     ).fetchone()["count"]
     return jsonify({"notifications": [dict(r) for r in rows], "unread_count": unread}), 200
@@ -1044,12 +1049,12 @@ def mark_notifications_read():
     db = get_db()
     if data.get("all"):
         db.execute(
-            "UPDATE notifications SET is_read = TRUE WHERE client_id = ?",
+            "UPDATE portal_notifications SET read = TRUE WHERE client_id = ?",
             (client_id,)
         )
     elif data.get("notification_id"):
         db.execute(
-            "UPDATE notifications SET is_read = TRUE WHERE id = ? AND client_id = ?",
+            "UPDATE portal_notifications SET read = TRUE WHERE id = ? AND client_id = ?",
             (int(data["notification_id"]), client_id)
         )
     db.commit()
@@ -1273,6 +1278,11 @@ def gmail_disconnect():
                gmail_email = NULL
            WHERE id = ?""",
         (g.client["id"],)
+    )
+    add_portal_notification(
+        db, g.client["id"], "gmail_disconnected",
+        "Gmail disconnected",
+        "Gmail disconnected — emails are paused until you reconnect"
     )
     db.commit()
     return jsonify({"success": True}), 200
@@ -1624,6 +1634,11 @@ def reply_detected_webhook():
             "INSERT INTO notifications (client_id, type, message) VALUES (?, ?, ?)",
             (cid, "replied", f"{first_name} {last_name} replied to your follow up")
         )
+        add_portal_notification(
+            db, cid, "lead_replied",
+            f"{first_name} replied",
+            f"{first_name} {last_name} replied — check your notifications"
+        )
         db.execute(
             "INSERT INTO activity_log (client_id, event_type, description) VALUES (?, ?, ?)",
             (cid, "reply_detected", f"Reply detected from {first_name} {last_name} via Make.com")
@@ -1849,6 +1864,11 @@ def ses_inbound_webhook():
         db.execute(
             "INSERT INTO notifications (client_id, type, message) VALUES (?, ?, ?)",
             (cid, "replied", f"{first_name} {last_name} replied to your follow up")
+        )
+        add_portal_notification(
+            db, cid, "lead_replied",
+            f"{first_name} replied",
+            f"{first_name} {last_name} replied — check your notifications"
         )
         db.execute(
             "INSERT INTO activity_log (client_id, event_type, description) VALUES (?, ?, ?)",

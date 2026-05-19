@@ -222,6 +222,18 @@ def _apply_scoring(client_id, lead_id, lead_data):
             (touch1_body, lead_id),
         )
 
+        if score >= 7:
+            business_label = (lead_data.get("business_name") or "").strip()
+            if not business_label:
+                business_label = f"{first_name} {last_name}".strip()
+            cur.execute(
+                """INSERT INTO portal_notifications (client_id, type, title, message)
+                   VALUES (%s, %s, %s, %s)""",
+                (client_id, "high_score_lead",
+                 f"Priority lead scored {score}/10",
+                 f"{business_label} scored {score}/10 — priority lead"),
+            )
+
         conn.commit()
         logger.info(
             f"[scoring] Lead {lead_id} scored {score}/10 — "
@@ -381,6 +393,12 @@ class SequenceEngine:
                     conn.commit()
                     continue
 
+                if not em["gmail_connected"]:
+                    logger.info(
+                        f"[sequence] Skipping — Gmail not connected for client {em['client_id']}"
+                    )
+                    continue
+
                 body = (
                     em["body"]
                     + "\n\n---\n"
@@ -392,51 +410,20 @@ class SequenceEngine:
                 sent = False
                 error_msg = None
 
-                if em["gmail_connected"]:
-                    try:
-                        from gmail_oauth import send_via_gmail
-                        client_obj = {
-                            "id": em["client_id"],
-                            "email": em["client_email"],
-                            "gmail_email": em["gmail_email"],
-                            "gmail_access_token": em["gmail_access_token"],
-                            "gmail_refresh_token": em["gmail_refresh_token"],
-                        }
-                        send_via_gmail(client_obj, em["lead_email"], em["subject"], body)
-                        sent = True
-                    except Exception as e:
-                        logger.warning(f"[sequence] Gmail failed ({em['id']}): {e} — trying Resend")
-
-                if not sent and em.get("dedicated_email"):
-                    try:
-                        from ses_client import send_email as _ses_send
-                        from_display = f"{em['business_name']} <{em['dedicated_email']}>"
-                        _ses_send(
-                            from_addr=from_display,
-                            to_addr=em["lead_email"],
-                            subject=em["subject"],
-                            body=body,
-                            reply_to=em["dedicated_email"],
-                        )
-                        sent = True
-                    except Exception as e:
-                        logger.warning(f"[sequence] SES failed ({em['id']}): {e} — trying Resend")
-
-                if not sent and resend_api_key:
-                    try:
-                        footer = ""
-                        if not em["gmail_connected"] and not em.get("dedicated_email"):
-                            footer = "\n\n[Sent via Client Machinery — connect your Gmail in portal settings to send from your own address]"
-                        resend.Emails.send({
-                            "from": "Client Machinery <support@clientmachinery.com>",
-                            "to": em["lead_email"],
-                            "subject": em["subject"],
-                            "text": body + footer,
-                        })
-                        sent = True
-                    except Exception as e:
-                        error_msg = str(e)
-                        logger.error(f"[sequence] Resend failed ({em['id']}): {e}")
+                try:
+                    from gmail_oauth import send_via_gmail
+                    client_obj = {
+                        "id": em["client_id"],
+                        "email": em["client_email"],
+                        "gmail_email": em["gmail_email"],
+                        "gmail_access_token": em["gmail_access_token"],
+                        "gmail_refresh_token": em["gmail_refresh_token"],
+                    }
+                    send_via_gmail(client_obj, em["lead_email"], em["subject"], body)
+                    sent = True
+                except Exception as e:
+                    error_msg = str(e)
+                    logger.error(f"[sequence] Gmail failed ({em['id']}): {e}")
 
                 if sent:
                     cur.execute(
@@ -458,6 +445,13 @@ class SequenceEngine:
                            VALUES (%s, %s, %s)""",
                         (em["client_id"], "email_sent",
                          f"\U0001f4e7 Email {em['touch_number']} sent to {em['first_name']} {em['last_name']}"),
+                    )
+                    cur.execute(
+                        """INSERT INTO portal_notifications (client_id, type, title, message)
+                           VALUES (%s, %s, %s, %s)""",
+                        (em["client_id"], "email_sent",
+                         f"Email {em['touch_number']} of 5 sent",
+                         f"Email {em['touch_number']} of 5 sent to {em['first_name']} {em['last_name']}"),
                     )
                     cur.execute(
                         """INSERT INTO email_events (client_id, lead_id, scheduled_email_id, event_type)
@@ -579,6 +573,13 @@ class SequenceEngine:
                                VALUES (%s, %s, %s)""",
                             (client["id"], "replied",
                              f"{first_name} {last_name} replied to your follow up"),
+                        )
+                        cur.execute(
+                            """INSERT INTO portal_notifications (client_id, type, title, message)
+                               VALUES (%s, %s, %s, %s)""",
+                            (client["id"], "lead_replied",
+                             f"{first_name} replied",
+                             f"{first_name} {last_name} replied — check your notifications"),
                         )
                         cur.execute(
                             """INSERT INTO activity_log (client_id, event_type, description)

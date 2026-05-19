@@ -254,6 +254,18 @@ def init_db():
         )
     """)
 
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS portal_notifications (
+            id SERIAL PRIMARY KEY,
+            client_id INTEGER NOT NULL REFERENCES clients(id),
+            type VARCHAR(50),
+            title TEXT,
+            message TEXT,
+            read BOOLEAN DEFAULT FALSE,
+            created_at TIMESTAMP DEFAULT NOW()
+        )
+    """)
+
     cur.execute("ALTER TABLE clients ADD COLUMN IF NOT EXISTS calendly_link TEXT")
 
     # Part 4 — lead scoring columns
@@ -273,6 +285,7 @@ def init_db():
         "CREATE INDEX IF NOT EXISTS idx_scheduled_status ON scheduled_emails(status, scheduled_for)",
         "CREATE INDEX IF NOT EXISTS idx_replies_client ON lead_replies(client_id, is_read)",
         "CREATE INDEX IF NOT EXISTS idx_notifications_client ON notifications(client_id, is_read)",
+        "CREATE INDEX IF NOT EXISTS idx_portal_notifs_client ON portal_notifications(client_id, read)",
     ]
     for stmt in indexes:
         cur.execute(stmt)
@@ -286,6 +299,13 @@ def add_notification(db, client_id, notif_type, message):
     db.execute(
         "INSERT INTO notifications (client_id, type, message) VALUES (?, ?, ?)",
         (client_id, notif_type, message)
+    )
+
+
+def add_portal_notification(db, client_id, notif_type, title, message):
+    db.execute(
+        "INSERT INTO portal_notifications (client_id, type, title, message) VALUES (?, ?, ?, ?)",
+        (client_id, notif_type, title, message)
     )
 
 
